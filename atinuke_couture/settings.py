@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'gunicorn',
     'dj_database_url',
     "corsheaders",
-    'whitenoise',
 ]
 
 MIDDLEWARE = [
