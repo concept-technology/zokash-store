@@ -166,5 +166,5 @@ JAZZMIN_SETTINGS = {
     "site_brand": "Atinuke Couture",
 
     # Logo to use for your site, must be present in static files, used for brand on top left
-    "site_logo": "atinuke/logo.jpg",
+    "site_logo": "atinuke/log",
 }
