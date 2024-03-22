@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'store',
     'gunicorn',
     'whitenoise',
-    'dj-database-url',
+    'dj_database_url',
 ]
 
 MIDDLEWARE = [
