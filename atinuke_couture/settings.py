@@ -24,7 +24,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-)_8%^jgfm$h(1pa=rv4m@6em#9rr1^n4^1rz$^5616o67!s99c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 
 ALLOWED_HOSTS = ['atinuke-couture-f365cf300cf3.herokuapp.com','127.0.0.1']
 
@@ -32,12 +31,13 @@ ALLOWED_HOSTS = ['atinuke-couture-f365cf300cf3.herokuapp.com','127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'jazzmin',
+    'django.contrib.admin',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',   
@@ -130,14 +130,28 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
+DEBUG = False
+
+
+
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [
- os.path.join(BASE_DIR, 'static')
-]
+# STATICFILES_DIRS = [
+#  os.path.join(BASE_DIR, 'static')
+# ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_HOST = os.environ.get('DJANGO_STATIC_HOST')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
+
+if DEBUG:
+
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+else:
+
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -152,3 +166,17 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
     
 ]
+
+JAZZMIN_SETTINGS = {
+    # title of the window (Will default to current_admin_site.site_title if absent or None)
+    "site_title": "Atinuke Admin",
+
+    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_header": "ATINUKE COUTURE",
+
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_brand": "Atinuke Couture",
+
+    # Logo to use for your site, must be present in static files, used for brand on top left
+    "site_logo": "atinuke/logo.jpg",
+}
