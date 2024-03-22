@@ -1,0 +1,1 @@
+web: gunicorn atinuke_couture.wsgi
