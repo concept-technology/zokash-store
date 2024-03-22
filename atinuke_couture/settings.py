@@ -44,9 +44,9 @@ INSTALLED_APPS = [
     'PIL',
     'store',
     'gunicorn',
-    'whitenoise',
     'dj_database_url',
     "corsheaders",
+    'whitenoise',
 ]
 
 MIDDLEWARE = [
