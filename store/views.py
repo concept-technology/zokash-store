@@ -3,7 +3,11 @@ from .models import Item
 # Create your views here.
 def index(request):
     context = {'store':Item.objects.all()}
-    return render(request, 'category.html', context)
+    return render(request, 'index.html', context)
     
-# def index(request):
-#     return render(request, 'category.html')
+def catalogue_item(request, pk=None):
+    if pk:
+        let_items = Item.objects.get(pk=pk)
+    else:
+        let_items = ''
+    return render(request, 'catalogue.html', {"catalogue": let_items})

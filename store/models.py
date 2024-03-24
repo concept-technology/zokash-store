@@ -6,12 +6,16 @@ from django.conf import settings
 class Item(models.Model):
     title = models.CharField(max_length=255)
     description= models.TextField(max_length=1000)
-    color =models.CharField(max_length=255)
     price = models.FloatField()
-    img  = models.ImageField(upload_to='static/media/img', default='img')
+    main_img  = models.ImageField(upload_to='static/media/img', default='img')
+    sub_img1  = models.ImageField(upload_to='static/media/img', default='img')
+    sub_img2  = models.ImageField(upload_to='static/media/img', default='img')
+    sub_img3  = models.ImageField(upload_to='static/media/img', default='img')
+    
+    
     
     def __str__(self) -> str:
-        return f"{self.title}"
+        return f"{self.title} : {self.price}"
     
 class Cart(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
