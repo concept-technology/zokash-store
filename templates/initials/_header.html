@@ -4,7 +4,9 @@
    
           <div class="container">
               <div class="container-fluid">
+                <a href="#">
                   <span class="navbar-brand mb-0 h4">Atinuke couture</span>
+                </a>
                 </div>
               <div class="header-right"> 
                           <div class="dropdown">
@@ -18,10 +20,9 @@
                           </button>
                           <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
                               <li> <a href="#signin-modal" data-toggle="modal"><i class="icon-user"></i>user login</a></li>
-                              <li> <a href="https://atinuke-couture-f365cf300cf3.herokuapp.com/admin"><i class="icon-user"></i>admin Login</a></li>
+                              <li> <a href="{% url 'admin:index' %}"><i class="icon-user"></i>admin Login</a></li>
                           </ul>
                           </div>
-
                     </div>
           
               </div><!-- End .header-right -->
@@ -36,7 +37,7 @@
                   <i class="icon-bars"></i>
               </button>
 
-              <a href="index.html" class="logo">
+              <a href="{% url 'store:index'%}" class="logo">
                   <img src="{% static 'atinuke/logo.jpg' %}" alt="Molla Logo" width="105" height="25">
               </a>
 
@@ -329,6 +330,17 @@
           </div><!-- End .header-right -->
       </div><!-- End .container -->
   </div><!-- End .header-middle -->
+
+  {% if messages %}
+  <div class="alert alert-primary alert-dismissible fade show"  role="alert">
+    {% for message in messages %}
+    {% if message.tags %}{% endif %}{{ message }}
+    {% endfor %}
+</div>
+{% endif %}
+  
+
+
 </header><!-- End .header -->
 
    

@@ -1,34 +1,34 @@
 {% extends "base.html" %}
 {%load static%}
 {%block content %}        
-
-            <div class="page-content">
-                <div class="container">
-                	<div class="row">
-                		<div class="col-lg-9">
-                			<div class="toolbox">             				
-                				<div class="toolbox-right">
-                					<div class="toolbox-sort">
-                						<label for="sortby">Sort by:</label>
-                						<div class="select-custom">
-											<select name="sortby" id="sortby" class="form-control">
-												<option value="popularity" selected="selected">Most Popular</option>
-												<option value="rating">Most Rated</option>
-												<option value="date">Date</option>
-											</select>
-										</div>
-                					</div><!-- End .toolbox-sort -->
-                				</div><!-- End .toolbox-right -->
-                			</div><!-- End .toolbox -->
-
-                            <div class="products mb-3">
-                                <div class="row justify-content-center">
+{% comment %} database view starts here {% endcomment %}
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9">
+                <div class="toolbox">             				
+                    <div class="toolbox-right">
+                        <div class="toolbox-sort">
+                            <label for="sortby">Sort by:</label>
+                            <div class="select-custom">
+                                <select name="sortby" id="sortby" class="form-control">
+                                    <option value="popularity" selected="selected">Most Popular</option>
+                                    <option value="rating">Most Rated</option>
+                                    <option value="date">Date</option>
+                                </select>
+                            </div>
+                        </div><!-- End .toolbox-sort -->
+                    </div><!-- End .toolbox-right -->
+                </div><!-- End .toolbox -->               
+                <div class="products mb-3">
+                    <div class="row justify-content-center">
+                                    {% for items in object_list %}          
                                     <div class="col-6 col-md-4 col-lg-4">
                                         <div class="product product-7 text-center">
                                             <figure class="product-media">
-                                                <span class="product-label label-new">New</span>
-                                                <a href="product.html">
-                                                    <img src="{% static 'category/assets/images/products/product-4.jpg' %}" alt="Product image" class="product-image">
+                                                <span class="product-label {{items.get_label_display}}">{{items.get_category_display}}</span>
+                                                <a href="{{items.get_absolute_url}}">
+                                                    <img src="{{items.main_img.url}}" alt="Product image" class="product-image">
                                                 </a>
 
                                                 <div class="product-action-vertical">
@@ -38,17 +38,23 @@
                                                 </div><!-- End .product-action-vertical -->
 
                                                 <div class="product-action">
-                                                    <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                                    <a href="{{items.get_add_to_cart_url}}" class="btn-product btn-cart"><span>add to cart</span></a>
                                                 </div><!-- End .product-action -->
                                             </figure><!-- End .product-media -->
 
                                             <div class="product-body">
                                                 <div class="product-cat">
-                                                    <a href="#">Women</a>
+                                                    <a href="#">{{items.get_category_display}}</a>
                                                 </div><!-- End .product-cat -->
-                                                <h3 class="product-title"><a href="product.html">Brown paperbag waist pencil skirt</a></h3><!-- End .product-title -->
+                                                <h3 class="product-title"><a href="product.html">{{items.title}}</a></h3><!-- End .product-title -->
                                                 <div class="product-price">
-                                                    $60.00
+                                                    {% if items.discount_price %}
+                                        <span class="new-price"> N {{items.discount_price}}</span>
+                                        <span class="old-price">N {{items.price}}</span>
+                                        
+                                        {%else %}
+                                        <span class="new-price"> N {{items.price}}</span>
+                                         {%endif%}
                                                 </div><!-- End .product-price -->
                                                 <div class="ratings-container">
                                                     <div class="ratings">
@@ -59,74 +65,21 @@
 
                                                 <div class="product-nav product-nav-thumbs">
                                                     <a href="#" class="active">
-                                                        <img src="{% static 'category/assets/images/products/product-4-thumb.jpg' %}" alt="product desc">
-                                                    </a>
-                                                    <a href="#">
-                                                        <img src="{% static 'category/assets/images/products/product-4-2-thumb.jpg' %}" alt="product desc">
-                                                    </a>
-
-                                                    <a href="#">
-                                                        <img src="{% static 'category/assets/images/products/product-4-3-thumb.jpg' %}" alt="product desc">
-                                                    </a>
-                                                </div><!-- End .product-nav -->
-                                            </div><!-- End .product-body -->
-                                        </div><!-- End .product -->
-                                    </div><!-- End .col-sm-6 col-lg-4 -->
-{% comment %} database view starts here {% endcomment %}
-{% if store %}
-{% for items in store %}
-
-                                    
-<div class="col-6 col-md-4 col-lg-4">
-    <div class="product product-7 text-center">
-        
-                                                <figure class="product-media">
-                                                    <a href="{% url 'catalogue_item' pk=items.pk %}">
-                                                        <img src="{{items.main_img.url}}" alt="Product image" class="product-image">
-                                                    </a>                    
-                                                    <div class="product-action-vertical">
-                                                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                                        <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                                        <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                                    </div><!-- End .product-action-vertical -->
-                                                    
-                                                    <div class="product-action">
-                                                        <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                                    </div><!-- End .product-action -->
-                                                </figure><!-- End .product-media -->
-                                        
-                                            
-                                    
-                                            <div class="product-body">
-                                                <div class="product-cat">
-                                                    <a href="#">Dresses</a>
-                                                </div><!-- End .product-cat -->
-                                                <h3 class="product-title"><a >{{items.title}}</a></h3><!-- End .product-title -->
-                                                <div class="product-price">
-                                                  N  {{items.price}}
-                                            </div><!-- End .product-price -->
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 0%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                    <span class="ratings-text">( 5 Reviews )</span>
-                                                </div><!-- End .rating-container -->
-
-                                                <div class="product-nav product-nav-thumbs">
-                                                    <a href="#" class="active">
-                                                        <img src="{{items.sub_img1.url}}" alt="product desc">
+                                                        <img src="{{items.sub_img1.url}}">
                                                     </a>
                                                     <a href="#">
                                                         <img src="{{items.sub_img2.url}}" alt="product desc">
                                                     </a>
+
+                                                    <a href="#">
+                                                        <img src="{{items.sub_img3.url}}" alt="product desc">
+                                                    </a>
                                                 </div><!-- End .product-nav -->
                                             </div><!-- End .product-body -->
                                         </div><!-- End .product -->
                                     </div><!-- End .col-sm-6 col-lg-4 -->
-                                
-{%endfor%}
-{% endif %}
-
+                                    {%endfor%}
+                                    
                 			<nav aria-label="Page navigation">
 							    <ul class="pagination justify-content-center">
 							        <li class="page-item disabled">
@@ -145,8 +98,9 @@
 							        </li>
 							    </ul>
 							</nav>
+                            <!-- End .row -->
                 		</div><!-- End .col-lg-9 -->
-                	</div><!-- End .row -->
+                	</div>
                 </div><!-- End .container -->
             </div><!-- End .page-content -->
         </main><!-- End .main -->
@@ -332,7 +286,6 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true"><i class="icon-close"></i></span>
                     </button>
-
                     <div class="form-box">
                         <div class="form-tab">
                             <ul class="nav nav-pills nav-fill" role="tablist">
@@ -438,4 +391,5 @@
         </div><!-- End .modal-dialog -->
     </div><!-- End .modal -->
 
+                                
 {%endblock%}
