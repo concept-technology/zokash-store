@@ -12,7 +12,7 @@ class StoreView(ListView):
     
 class StoreItemView(DetailView):
     model = Product
-    template_name = 'product_detail.html'
+    template_name = 'product.html'
     
     
 def checkout(request):
@@ -26,11 +26,11 @@ def add_to_cart(request, slug,):
         orders =    order_qs[0]
         if orders.product.filter(product__slug=product.slug).exists():
             cart.quantity +=1
-            messages.info(request,'item added to cart')
             cart.save()
+            messages.error(request, "This item is already in cart")
         else:
             orders.product.add(cart)
-            messages.info(request,'item updated to cart')
+            messages.success(request,f"{product.title} is added to cart ")
     else: 
         orders = Order.objects.create(user=request.user, is_ordered=False, ordered_date=timezone.now() )
         orders.product.add(cart)
@@ -47,8 +47,10 @@ def delete_cart(request, slug):
         orders =    order_qs[0]
         if orders.product.filter(product__slug=product.slug).exists():          
             cart.delete()
+            messages.success(request, 'deleted from cart')
             
         else:
+            messages.info(request, 'no item in cart')
             return redirect('store:store_item',slug=slug)
     else:       
         return redirect('store:store_item', slug=slug)
