@@ -7,7 +7,7 @@ from django.contrib import messages
 # Create your views here.
 class StoreView(ListView):
     model = Product
-    template_name = 'index.html'
+    template_name = 'index-16.html'
     
     
 class StoreItemView(DetailView):

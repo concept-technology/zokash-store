@@ -34,14 +34,17 @@
     <link rel="stylesheet" href="{% static 'assets/css/skins/skin-demo-7.css'%}">
     <link rel="stylesheet" href="{% static 'assets/css/demos/demo-7.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/demos/demo-3.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/demos/demo-16.css' %}">
 
 </head>
 <body>
     {% include "partials/_header.html" %}
-    <div class="page-wrapper">
+    <main>
+
         {%block content %}{%endblock%}
         {% include "partials/_footer.html" %}
-    </div>
+    </main>
+   
 
         <!-- Plugins JS File -->
         <script src="{% static 'assets/js/jquery.min.js' %}"></script>
@@ -57,5 +60,7 @@
         <!-- Main JS File -->
         <script src="{% static 'assets/js/main.js' %}"></script>
         <script src="{% static 'assets/js/demos/demo-7.js' %}"></script>
+        <script src="assets/js/demos/demo-16.js"></script>
+
 </body>
 </html>

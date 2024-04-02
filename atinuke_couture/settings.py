@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'atinuke_couture.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'atinuke-couture',
+        'NAME': 'atinuke-db',
         'USER': 'postgres',
         'PASSWORD': '006319',
         'HOST': 'localhost',

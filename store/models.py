@@ -17,6 +17,13 @@ label_choices = (
     ('out', 'label-out'),
     ('top', 'label-top'),
 )
+
+class Category(models.Model):
+    title = models.CharField(max_length=255, choices=category_choices)
+    slug = models.SlugField()
+    def __str__(self) -> str:
+        return f'{self.title}'
+    
 class Product(models.Model):
     title = models.CharField(max_length=255)
     description= models.TextField(max_length=1000)
@@ -27,7 +34,7 @@ class Product(models.Model):
     sub_img2  = models.ImageField(upload_to='static/media/img', default='img')
     sub_img3  = models.ImageField(upload_to='static/media/img', default='img')
     label = models.CharField(choices=label_choices, max_length=255, default='', blank=True)
-    category = models.CharField(max_length=255, choices=category_choices, default='', blank=True)
+    category = models.ForeignKey(Category, default='', on_delete=models.CASCADE)
     slug = models.SlugField( default='')
     
     def get_absolute_url(self):
