@@ -779,11 +779,14 @@
                             }
                         }'>
                         {%for items in object_list %}
+                        
                         <div class="product product-4">
                             <figure class="product-media">
+                                <span class="product-label {{items.label}}">{{items.category.title}}</span>
                                 <a href="product.html">
-                                    <img src="{{items.main_img.url}}" alt="Product image" class="product-image">
-                                    <img src="{{items.sub_img1.url}}" alt="Product image" class="product-image-hover">
+
+    <img src="{{items.main_img.url}}" id=Product-image alt="Product image" class="product-image" style="object-fit: cover; height: 300px;">
+                                    {% comment %} <img src="{{items.sub_img1.url}}" id=Product-image alt="Product image" class="product-image-hover"> {% endcomment %}
                                 </a>
 
                                 <div class="product-action-vertical">
@@ -796,9 +799,24 @@
                                     <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
                                 </div><!-- End .product-action -->
                             </figure><!-- End .product-media -->
-                            
-                            <!-- End .product-body -->
+
+                            <div class="product-body">
+                                <div class="product-cat">
+                                    <a href="#">{{items.category.title}}</a>
+                                </div><!-- End .product-cat -->
+                                <h3 class="product-title"><a href="product.html">Sandals with lacing</a></h3><!-- End .product-title -->
+                                <div class="product-price">
+                                    {%if items.discount_price%}
+                                    <span class="new-price">N  {{items.discount_price}}</span>
+                                    <span class="old-price" style="text-decoration: line-through;"> N {{items.price}}</span>
+                                    {%else%}
+                                    <span class="old-price">N   {{items.price}}</span>
+                                    {%endif%}
+                                </div><!-- End .product-price -->
+                            </div><!-- End .product-body -->
                         </div><!-- End .product -->
+
+                        
                         {%endfor%}
                     </div><!-- End .owl-carousel owl-simple -->
                 </div><!-- End .container -->
