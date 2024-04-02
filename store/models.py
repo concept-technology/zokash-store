@@ -17,6 +17,10 @@ label_choices = (
     ('out', 'label-out'),
     ('top', 'label-top'),
 )
+gender_choices =(
+    ('Male', 'male'),
+    ('Female', 'female'),
+)
 
 class Category(models.Model):
     title = models.CharField(max_length=255, choices=category_choices)
@@ -36,6 +40,7 @@ class Product(models.Model):
     label = models.CharField(choices=label_choices, max_length=255, default='', blank=True)
     category = models.ForeignKey(Category, default='', on_delete=models.CASCADE)
     slug = models.SlugField( default='')
+    gender= models.CharField(max_length=10, choices=gender_choices, default='female')
     
     def get_absolute_url(self):
         return reverse("store:store_item", kwargs={"slug": self.slug})

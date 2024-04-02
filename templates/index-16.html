@@ -785,7 +785,7 @@
                                 <span class="product-label {{items.label}}">{{items.category.title}}</span>
                                 <a href="product.html">
 
-    <img src="{{items.main_img.url}}" id=Product-image alt="Product image" class="product-image" style="object-fit: cover; height: 300px;">
+                                    <img src="{{items.main_img.url}}" id=Product-image alt="Product image" class="product-image" style="object-fit: cover; height: 300px; overflow: hidden;">
                                     {% comment %} <img src="{{items.sub_img1.url}}" id=Product-image alt="Product image" class="product-image-hover"> {% endcomment %}
                                 </a>
 
@@ -802,9 +802,9 @@
 
                             <div class="product-body">
                                 <div class="product-cat">
-                                    <a href="#">{{items.category.title}}</a>
+                                    <a href="#">{{items.gender}}</a>
                                 </div><!-- End .product-cat -->
-                                <h3 class="product-title"><a href="product.html">Sandals with lacing</a></h3><!-- End .product-title -->
+                                <h3 class="product-title"><a href="product.html">{{items.title}}</a></h3><!-- End .product-title -->
                                 <div class="product-price">
                                     {%if items.discount_price%}
                                     <span class="new-price">N  {{items.discount_price}}</span>
