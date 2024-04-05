@@ -1,3 +1,7 @@
+from django.test import TestCase
+
+# Create your tests here.
+
 from django.db import models
 from django.conf import settings
 
@@ -41,6 +45,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, default='', on_delete=models.CASCADE)
     slug = models.SlugField( default='')
     gender= models.CharField(max_length=10, choices=gender_choices, default='female')
+    display_on_home_page =models.BooleanField(default=False)
     
     def get_absolute_url(self):
         return reverse("store:store_item", kwargs={"slug": self.slug})
@@ -56,7 +61,7 @@ class Product(models.Model):
     
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, default=Product)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, default='')
     quantity = models.IntegerField(default =1) 
     is_ordered = models.BooleanField(default=False)
     

@@ -7,7 +7,7 @@ from django.contrib import messages
 # Create your views here.
 class StoreView(ListView):
     model = Product
-    template_name = 'index-16.html'
+    template_name = 'index.html'
     
     
 class StoreItemView(DetailView):
@@ -15,8 +15,8 @@ class StoreItemView(DetailView):
     template_name = 'product.html'
     
     
-def checkout(request):
-    return render(request, 'checkout.html')
+def sign_up(request):
+    return render(request, 'sign-up.html')
 
 def add_to_cart(request, slug,):
     product = get_object_or_404(Product, slug=slug)
