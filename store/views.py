@@ -26,7 +26,7 @@ def add_to_cart(request, slug,):
         orders =    order_qs[0]
         if orders.product.filter(product__slug=product.slug).exists():
             cart.quantity +=1
-            cart.save()
+            # cart.save()
             messages.error(request, "This item is already in cart")
         else:
             orders.product.add(cart)
