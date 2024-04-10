@@ -4,6 +4,7 @@ from .models import Product, Cart, Order
 from django.views.generic import ListView, DetailView
 from  django.shortcuts import get_object_or_404
 from django.contrib import messages
+from django.contrib.auth import logout
 # Create your views here.
 class StoreView(ListView):
     model = Product
@@ -15,8 +16,9 @@ class StoreItemView(DetailView):
     template_name = 'product.html'
     
     
-def sign_up(request):
-    return render(request, 'sign-up.html')
+def logout_view(request):
+    logout(request)
+    return redirect('index.html')
 
 def add_to_cart(request, slug,):
     product = get_object_or_404(Product, slug=slug)

@@ -1,5 +1,18 @@
 import os
 from pathlib import Path
+SITE_ID=1
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'Profile',
+            'email'
+        ],
+        "AUTH_PARAMS":{'access-type':'online'}
+    }
+}
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -7,7 +20,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-)_8%^jgfm$h(1pa=rv4m@6em#9rr1^n4^1rz$^5616o67!s99c'
 
@@ -24,17 +36,32 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'jazzmin',
     'django.contrib.admin',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',   
-    'PIL',
     'store',
     'gunicorn',
     'dj_database_url',
     "corsheaders",
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',   
+    'allauth.socialaccount.providers.facebook',   
+    'allauth.socialaccount.providers.google',   
+    'PIL',
 ]
+# ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
+
+ACCOUNT_FORMS = {
+    'add_email': 'allauth.account.forms.AddEmailForm',
+    'change_password': 'allauth.account.forms.ChangePasswordForm',
+    'login': 'allauth.account.forms.LoginForm',
+    'reset_password': 'allauth.account.forms.ResetPasswordForm',
+    'reset_password_from_key': 'allauth.account.forms.ResetPasswordKeyForm',
+    'set_password': 'allauth.account.forms.SetPasswordForm',
+    'signup': 'allauth.account.forms.SignupForm',
+    'user_token': 'allauth.account.forms.UserTokenForm',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -180,3 +207,18 @@ JAZZMIN_SETTINGS = {
     # Logo to use for your site, must be present in static files, used for brand on top left
     "site_logo": "atinuke/log",
 }
+
+
+LOGIN_REDIRECT_URL ='store:index'
+LOGOUT_REDIRECT_URL ='store:index'
+
+
+
+
+
+
+
+
+
+
+

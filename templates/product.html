@@ -32,7 +32,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="product-gallery product-gallery-separated">
-                                    <span class="product-label label-sale">Sale</span>
+                                    <span class="product-label {{object.label}}">Sale</span>
                                     <figure class="product-separated-item">
                                         <img src="{{object.main_img.url}}" data-zoom-image="}}" alt="product image">
 
@@ -61,7 +61,7 @@
 
                             <div class="col-md-6">
                                 <div class="product-details sticky-content">
-                                    <h1 class="product-title">Brown faux fur longline coat</h1><!-- End .product-title -->
+                                    <h1 class="product-title">{{object.title}}</h1><!-- End .product-title -->
 
                                     <div class="ratings-container">
                                         <div class="ratings">
@@ -119,9 +119,8 @@
                                     <div class="product-details-footer">
                                         <div class="product-cat">
                                             <span>Category:</span>
-                                            <a href="#">Women</a>,
-                                            <a href="#">Dresses</a>,
-                                            <a href="#">Yellow</a>
+                                            <a href="#">{{object.category.title}}</a>,
+                                           
                                         </div><!-- End .product-cat -->
 
                                         <div class="social-icons social-icons-sm">
