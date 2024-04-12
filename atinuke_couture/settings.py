@@ -34,9 +34,9 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'jazzmin',
     'django.contrib.admin',
     'store',
@@ -209,8 +209,16 @@ JAZZMIN_SETTINGS = {
 }
 
 
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 LOGIN_REDIRECT_URL ='store:index'
 LOGOUT_REDIRECT_URL ='store:index'
+SIGNUP_REDIRECT_URL ='store:index'
+ACCOUNT_USERNAME_REQUIRED =False
+ACCOUNT_EMAIL_REQUIRED =True
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
+ACCOUNT_EMAIL_VERIFICATION = "none"
+
 
 
 
