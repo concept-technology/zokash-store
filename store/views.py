@@ -7,8 +7,6 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 
-
-
 # Create your views here.
 class StoreView(ListView):
     model = Product
@@ -25,6 +23,7 @@ def logout_view(request):
     return redirect('index.html')
 
 
+
 def register(request):
     form = SignupForm()
     return render(request, 'account/signup.html', {'form': form})
@@ -33,6 +32,8 @@ def register(request):
 def login(request):
     form = LoginForm()
     return render(request, 'account/login.html', {'form': form})
+
+
 
 def add_to_cart(request, slug,):
     product = get_object_or_404(Product, slug=slug)

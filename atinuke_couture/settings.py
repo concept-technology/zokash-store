@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',   
     'allauth.socialaccount.providers.google',   
     'PIL',
+    'widget_tweaks',
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 
@@ -214,12 +215,18 @@ LOGIN_REDIRECT_URL ='store:index'
 LOGOUT_REDIRECT_URL ='store:index'
 SIGNUP_REDIRECT_URL ='store:index'
 ACCOUNT_USERNAME_REQUIRED =False
+ACCOUNT_LOGOUT_ON_GET =True
 ACCOUNT_EMAIL_REQUIRED =True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
-
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'samuelandrew145@gmail.com'
+EMAIL_HOST_PASSWORD = '5804@gmail.coM'
 
 
 
