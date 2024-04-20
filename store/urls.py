@@ -20,6 +20,6 @@ urlpatterns = [
     path('delete_cart/<slug>', 
          views.delete_cart, name='delete_cart'), 
     
-    
+    path('profile', views.user_profile, name='myprofile')
    
 ]

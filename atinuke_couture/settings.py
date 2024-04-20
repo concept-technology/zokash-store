@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'jazzmin',
     'django.contrib.admin',
-    'store',
     'gunicorn',
     'dj_database_url',
     "corsheaders",
@@ -50,6 +49,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',   
     'PIL',
     'widget_tweaks',
+    'store',
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 
@@ -113,7 +113,7 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'atinuke_couture_db',
+#         'NAME': 'atinuke_couture_database',
 #         'USER': 'postgres',
 #         'PASSWORD': '006319',
 #         'HOST': 'localhost',

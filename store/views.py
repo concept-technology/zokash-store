@@ -6,10 +6,12 @@ from  django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
+from django.conf import settings
 
 # Create your views here.
 class StoreView(ListView):
     model = Product
+    paginate_by = 1 
     template_name = 'index.html'
     
     
@@ -33,7 +35,8 @@ def login(request):
     form = LoginForm()
     return render(request, 'account/login.html', {'form': form})
 
-
+def user_profile(request):
+    return render(request, 'user_profile.html', {'form':settings.AUTH_USER_MODEL})
 
 def add_to_cart(request, slug,):
     product = get_object_or_404(Product, slug=slug)
@@ -43,7 +46,7 @@ def add_to_cart(request, slug,):
         orders =    order_qs[0]
         if orders.product.filter(product__slug=product.slug).exists():
             cart.quantity +=1
-            # cart.save()
+            cart.save()
             messages.error(request, "This item is already in cart")
         else:
             orders.product.add(cart)
