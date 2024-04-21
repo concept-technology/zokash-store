@@ -6,6 +6,8 @@ app_name ='store'
 urlpatterns = [
     path('', views.StoreView.as_view(),
          name='index'),
+    
+    
     path('signup/',views.register,         
          name='signup'),
     
@@ -20,6 +22,6 @@ urlpatterns = [
     path('delete_cart/<slug>', 
          views.delete_cart, name='delete_cart'), 
     
-    path('profile', views.user_profile, name='myprofile')
+    path('profile', views.user_profile, name='my_profile')
    
 ]

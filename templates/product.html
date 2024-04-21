@@ -34,25 +34,27 @@
                                 <div class="product-gallery product-gallery-separated">
                                     <span class="product-label {{object.label}}">Sale</span>
                                     <figure class="product-separated-item">
-                                        <img src="{{object.main_img.url}}" data-zoom-image="}}" alt="product image">
+                                        <img src="{{object.img_1.url}}" data-zoom-image="}}" alt="product image">
 
                                         <a " id="btn-separated-gallery" class="btn-product-gallery">
                                             <i class="icon-arrows"></i>
                                         </a>
                                     </figure>
-                                    {%if object.sub_img1.url %}
+                                    {%if object.img_2.url %}
                                     <figure class="product-separated-item">
                                         <img src="{{object.sub_img1.url}}" data-zoom-image="assets/images/products/single/sticky/2-big.jpg" alt="product image">
                                     </figure>
                                     {%endif%}
-                                    {%if object.sub_img2.url%}
+                                    {%if object.img_3.url%}
                                     <figure class="product-separated-item">
                                         <img src="{{object.sub_img2.url}}" data-zoom-image="assets/images/products/single/sticky/3-big.jpg" alt="product image">
                                     </figure>
+                                    {%else %}
+                                    'nn'
                                     {%endif%}
-                                    {% if object.sub_img3.url%}
+                                    {% if object.img_4.url%}
                                     <figure class="product-separated-item">
-                                        <img src="{{object.sub_img3.url}}" data-zoom-image="assets/images/products/single/sticky/4-big.jpg" alt="product image">
+                                        <img src="{{object.sub_img3.url}}" data-zoom-image="assets/images/products/single/sticky/4-big.jpg" alt="{{object.title}}">
                                     </figure>
                                     {%endif%}
 
@@ -112,7 +114,7 @@
 
                                         <div class="details-action-wrapper">
                                             <a href="" class="btn-product btn-wishlist" title="Wishlist"><span>add to cart</span></a>
-                                            <a href="#" class="btn-product btn-compare" title="Compare"><span>Add to Compare</span></a>
+                                            <a href="{{object.delete_cart}}" class="btn-product btn-compare" title="Compare"><span>remove from cart</span></a>
                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
 

@@ -2,8 +2,7 @@
 {%load static %}
 {%block content %}
 {{block.super}}
-<div class="page-wrapper">
-        
+<div class="page-wrapper">       
         <main class="main">
             <div class="intro-slider-container">
                 <div class="intro-slider owl-carousel owl-simple owl-nav-inside owl-light" data-toggle="owl" data-owl-options='{"nav":false, "dots": false, "loop": false}'>
@@ -25,7 +24,6 @@
 
             <div class="container" id="scroll-to-content">
                 <hr class="mt-2 mb-6">
-
                 <div class="products-display">
                     <div class="heading text-center">
                         <h4 class="subtitle text-primary">Womens Clothing</h4><!-- End .subtitle -->
@@ -33,40 +31,106 @@
                         <p class="title-desc">Discover this season’s latest trends with the newest additions to <br>our women’s clothing collection.</p><!-- End .title-desc -->
                     </div><!-- End .heading -->
 
-                    {%for items in object_list %} 
-                    {%if items.is_banner%}
-                    <div class="row">
+                    {%for items in product %}
+                    {% if items.display_on_home_page %}
+                    <div class="row" style="display: flex;">
                         <div class="col-lg-6">
                             <div class="banner banner-main banner-overlay">
                                 <a href="category.html">
 
                                     <!-- large image on the homepage-->
-                                    <img src="{{items.main_img.url}}" alt="Banner">
+                                    <img src="{{items.img_1.url}}" alt="Banner">
                                 </a>
-
                                 <div class="banner-content left">
-                                    <div class="banner-title"><a href="#">Dresses for all occasions.</a></div><!-- End .banner-title -->
-
-                                    <p>Nail your on and off duty style with our new season collection of women’s dresses.</p>
+                                    <div class="banner-title"><a href="#">{{items.title}}</a></div><!-- End .banner-title -->
+                                    <p>{{items.description}}</p>
                                     <a href="#" class="banner-link">Discover Now <i class="icon-long-arrow-right"></i></a>
                                 </div><!-- End .banner-main -->
                             </div><!-- End .banner banner-overlay -->
                         </div><!-- End .col-lg-6 -->
                     </div><!-- End .row -->
-                        {%endif%}
-                        {%endfor%}
+                    {% else %}
+                    {%endif%}
+                     {%endfor %}
                         
-                        
+
+                       
+                        <div class="container">
+                            <div class="heading heading-flex mb-2">
+                                <div class="heading-left">
+                                    <h2 class="title mb-5">checkout our catalogue</h2><!-- End .title -->
+                                </div><!-- End .heading-left -->
+        
+                                <div class="heading-right">
+                                    <a href="category.html" class="title-link">View more products <i class="icon-long-arrow-right"></i></a>
+                                </div><!-- End .heading-right -->
+                            </div><!-- End .heading -->
+        
+                            <div class="owl-carousel owl-simple carousel-equal-height carousel-with-shadow" data-toggle="owl" 
+                                data-owl-options='{
+                                    "nav": false, 
+                                    "dots": true,
+                                    "margin": 20,
+                                    "loop": false,
+                                    "responsive": {
+                                        "0": {
+                                            "items":2
+                                        },
+                                        "480": {
+                                            "items":2
+                                        },
+                                        "768": {
+                                            "items":3
+                                        },
+                                        "992": {
+                                            "items":4
+                                        },
+                                        "1200": {
+                                            "items":5,
+                                            "nav": true
+                                        }
+                                    }
+                                }'>
+                                {% if product %}
+                                {%for items in product %}
+                                <div class="product">
+                                    <figure class="product-media">
+                                        <span class="product-label label-new">New</span>
+                                        <a href="{{items.get_absolute_url}}">
+                                            <img src="{{items.img_1.url}}" alt="Product image" class="product-image" style="
+                                            float: left;
+                                            height: 300px;
+                                            object-fit: cover;
+                                            ">
+                                        </a>
+                                        <div class="product-action-vertical">
+                                            <a href="#" class="btn-product-icon btn-wishlist" title="Add to Wishlist"><span>add to wishlist</span></a>
+                                        </div><!-- End .product-action-vertical -->
+        
+                                        <div class="product-action">
+                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                        </div><!-- End .product-action -->
+                                    </figure><!-- End .product-media -->
+        
+                                    <div class="product-body">
+                                        <h3 class="product-title"><a href="product.html">{{items.title}}</a></h3><!-- End .product-title -->
+                                        <div class="product-price">
+                                          N  {{items.price}}
+                                        </div><!-- End .product-price -->
+                                    </div><!-- End .product-body -->
+                                </div><!-- End .product -->
+        {%endfor%}
+        {%endif%}
+                                
+                            
+                            </div><!-- End .owl-carousel -->
+        
+                            <div class="mb-5"></div><!-- End .mb-4 -->
+                        </div><!-- End .container -->
+        
+             
                 </div><!-- End .products-display -->
             </div><!-- End .container -->
-
-{%for items in object_list%}
-<img src="{{items.main_img.url}}"/>
-<p>{{items.title}}</p>
-{%endfor%}
-
-
-
             
             <div class="video-banner video-banner-bg bg-image text-center" style="background-image: url(static/assets/images/demos/demo-16/bg-1.jpg)">
                 <div class="container">
@@ -75,26 +139,7 @@
                 </div><!-- End .container -->
             </div><!-- End .video-banner bg-image -->
 
-
-            <div class="cta-newsletter text-center pt-4 pb-7">
-                <div class="container">
-                    <span class="cta-icon"><i class="icon-envelope"></i></span>
-                    <h3 class="title">Subscribe for Our Newsletter</h3><!-- End .title -->
-                    <p class="title-desc">and receive <span class="text-primary">$20 coupon</span> for first shopping</p><!-- End .title-desc -->
-                    
-                    <form action="#">
-                        <div class="input-group">
-                            <input type="email" class="form-control" placeholder="Enter your Email Address" aria-label="Email Adress" aria-describedby="newsletter-btn" required>
-                            <div class="input-group-append">
-                                <button class="btn btn-dark" type="submit" id="newsletter-btn"><span>SUBSCRIBE</span><i class="icon-long-arrow-right"></i></button>
-                            </div><!-- .End .input-group-append -->
-                        </div><!-- .End .input-group -->
-                    </form>
-
-                    <p class="newsletter-desc">Your personal details are safe with us.</p><!-- End .newsletter-desc -->
-                </div><!-- End .container -->
-            </div><!-- End .cta-newsletter -->
-
+{% include "newsletter.html" %}
 
             <div class="pt-7"></div><!-- End .pt-6 -->
             <div class="row">

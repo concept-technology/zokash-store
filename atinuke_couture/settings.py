@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'PIL',
     'widget_tweaks',
     'mystore',
-    'blog'
+    'blog',
+    'rest_framework',
     
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False

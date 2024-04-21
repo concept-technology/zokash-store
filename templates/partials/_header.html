@@ -14,7 +14,7 @@
                                     <li><a href="about.html">About Us</a></li>
                                     <li><a href="contact.html">Contact Us</a></li>
                                     <li><a href="{% url 'account_logout' %}"><i class="icon-user"></i>Logout</a></li>
-                                    <li><a href="{% url 'store:myprofile' %}"><i class="icon-user"></i>{{user}}</a></li>
+                                    <li><a href="#"><i class="icon-user"></i>{{user}}</a></li>
                                     {%else%}
                                     <li><a href="{% url 'account_login'%}"><i class="icon-user"></i>user Login</a></li>
                                     <li><a href="{% url 'admin:index'%}" target='blank'><i class="icon-user"></i>Login admin</a></li>

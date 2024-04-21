@@ -1,22 +1,27 @@
 from django.shortcuts import render
-
-# Create your views here.
+from rest_framework.renderers import TemplateHTMLRenderer
 from django.utils import timezone
 from django.shortcuts import redirect, render
 from .models import Product, Cart, Order
-from django.views.generic import ListView, DetailView
+from django.views.generic import DetailView
 from  django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 from django.conf import settings
-
+from rest_framework import generics
+from .serializers import ProductSerializer
+from rest_framework.response import Response
 # Create your views here.
-class StoreView(ListView):
-    model = Product
-    paginate_by = 1 
+class StoreView(generics.ListAPIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
     template_name = 'index.html'
     
+    def get(self, request):
+        queryset = Product.objects.all()
+        return Response({'product': queryset})
     
 class StoreItemView(DetailView):
     model = Product
@@ -55,7 +60,7 @@ def add_to_cart(request, slug,):
             orders.product.add(cart)
             messages.success(request,f"{product.title} is added to cart ")
     else: 
-        orders = Order.objects.create(user=request.user, is_ordered=False, ordered_date=timezone.now() )
+        orders = Order.objects.create(user=request.user, is_ordered=False)
         orders.product.add(cart)
         orders.save()
 
@@ -70,8 +75,7 @@ def delete_cart(request, slug):
         orders =    order_qs[0]
         if orders.product.filter(product__slug=product.slug).exists():          
             cart.delete()
-            messages.success(request, 'deleted from cart')
-            
+            messages.success(request, 'deleted from cart')          
         else:
             messages.info(request, 'no item in cart')
             return redirect('store:store_item',slug=slug)
