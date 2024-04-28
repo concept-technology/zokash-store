@@ -51,9 +51,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',   
     'PIL',
     'widget_tweaks',
-    'app',
     'blog',
     'rest_framework',
+    'ecommerce'
     
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
