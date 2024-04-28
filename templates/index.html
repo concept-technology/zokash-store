@@ -21,16 +21,246 @@
 
                 <span class="slider-loader text-white"></span><!-- End .slider-loader -->
             </div><!-- End .intro-slider-container -->
+            <div class="products-display">
+                <div class="heading text-center">
+                    <h4 class="subtitle text-primary">Womens Clothing</h4><!-- End .subtitle -->
+                    <h2 class="title">Refresh Your Wardrobe</h2><!-- End .title -->
+                    <p class="title-desc">Discover this season’s latest trends with the newest additions to <br>our women’s clothing collection.</p><!-- End .title-desc -->
+                </div><!-- End .heading -->
 
-            <div class="container" id="scroll-to-content">
+                <div class="row">
+                    {% for items in product_list%}
+                    {%if items.is_banner%}
+                    <div class="col-lg-6">
+                        <div class="banner banner-main banner-overlay">
+                            <a href="category.html">
+                                <img src="{{items.img_1.url}}" alt="Banner">
+                            </a>
+
+                            <div class="banner-content left">
+                                <div class="banner-title"><a href="#">Dresses for all occasions.</a></div><!-- End .banner-title -->
+
+                                <p>Nail your on and off duty style with our new season collection of women’s dresses.</p>
+                                <a href="#" class="banner-link">Discover Now <i class="icon-long-arrow-right"></i></a>
+                            </div><!-- End .banner-main -->
+                        </div><!-- End .banner banner-overlay -->
+                    </div><!-- End .col-lg-6 -->
+                    {%endif%}
+                    {%endfor%}
+                    <div class="col-sm-4 col-lg-3 order-lg-first">
+                        <div class="display-products-col">
+                            <div class="product product-4 mb-7">
+                                <figure class="product-media">
+                                    <a href="product.html">
+                                        <img src="assets/images/demos/demo-16/products/product-1.jpg" alt="Product image" class="product-image">
+                                        <img src="assets/images/demos/demo-16/products/product-1-2.jpg" alt="Product image" class="product-image-hover">
+                                    </a>
+
+                                    <div class="product-action-vertical">
+                                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                        <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
+                                        <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
+                                    </div><!-- End .product-action -->
+
+                                    <div class="product-action">
+                                        <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                    </div><!-- End .product-action -->
+                                </figure><!-- End .product-media -->
+
+                                <div class="product-body">
+                                    <h3 class="product-title"><a href="product.html">Black ruched side slip dress</a></h3><!-- End .product-title -->
+                                    <div class="product-price">
+                                        $76.00
+                                    </div><!-- End .product-price -->
+                                </div><!-- End .product-body -->
+                            </div><!-- End .product -->
+                        </div><!-- End .display-products-col -->
+                    </div><!-- End .col-sm-6 col-lg-3 -->
+
+                    <div class="col-sm-8 col-lg-3">
+                        <div class="display-products-col">
+                            <div class="row">
+                                <div class="col-6 col-lg-12">
+                                    <div class="product product-4 mb-7">
+                                        <figure class="product-media">
+                                            <a href="product.html">
+                                                <img src="assets/images/demos/demo-16/products/product-2.jpg" alt="Product image" class="product-image">
+                                                <img src="assets/images/demos/demo-16/products/product-2-2.jpg" alt="Product image" class="product-image-hover">
+                                            </a>
+
+                                            <div class="product-action-vertical">
+                                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                                <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
+                                                <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
+                                            </div><!-- End .product-action -->
+
+                                            <div class="product-action">
+                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                            </div><!-- End .product-action -->
+                                        </figure><!-- End .product-media -->
+
+                                        <div class="product-body">
+                                            <h3 class="product-title"><a href="product.html">Dark brown belted shirt dress</a></h3><!-- End .product-title -->
+                                            <div class="product-price">
+                                                $100.00
+                                            </div><!-- End .product-price -->
+                                        </div><!-- End .product-body -->
+                                    </div><!-- End .product -->
+                                </div><!-- End .col-sm-6 col-lg-12 -->
+                                    
+                                <div class="col-6 col-lg-12">
+                                    <div class="product product-4 mb-7">
+                                        <figure class="product-media">
+                                            <a href="product.html">
+                                                <img src="assets/images/demos/demo-16/products/product-3.jpg" alt="Product image" class="product-image">
+                                                <img src="assets/images/demos/demo-16/products/product-3-2.jpg" alt="Product image" class="product-image-hover">
+                                            </a>
+
+                                            <div class="product-action-vertical">
+                                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                                <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
+                                                <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
+                                            </div><!-- End .product-action -->
+
+                                            <div class="product-action">
+                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                            </div><!-- End .product-action -->
+                                        </figure><!-- End .product-media -->
+
+                                        <div class="product-body">
+                                            <h3 class="product-title"><a href="product.html">Blue belted midi denim dress</a></h3><!-- End .product-title -->
+                                            <div class="product-price">
+                                                $110.00
+                                            </div><!-- End .product-price -->
+                                        </div><!-- End .product-body -->
+                                    </div><!-- End .product -->
+                                 </div><!-- End .col-sm-6 col-lg-12 -->
+                            </div><!-- End .row -->
+                        </div><!-- End .display-products-col -->
+                    </div><!-- End .col-sm-6 col-lg-3 -->
+                </div><!-- End .row -->
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="banner banner-main banner-main-reverse banner-overlay">
+                            <a href="category.html">
+                                <img src="assets/images/demos/demo-16/banners/banner-2.jpg" alt="Banner">
+                            </a>
+
+                            <div class="banner-content right">
+                                <div class="banner-title"><a href="#">Coats & Jackets for effortless everyday looks.</a></div><!-- End .banner-title -->
+
+                                <p>Whichever style you choose from our new season collection of women’s coats and jackets, cosy chic vibes are guaranteed.</p>
+                                <a href="#" class="banner-link">Discover Now <i class="icon-long-arrow-right"></i></a>
+                            </div><!-- End .banner-main -->
+                        </div><!-- End .banner banner-overlay -->
+                    </div><!-- End .col-lg-6 -->
+
+                    <div class="col-sm-8 col-lg-3 order-lg-first">
+                        <div class="display-products-col">
+                            <div class="row">
+                                <div class="col-6 col-lg-12">
+                                    <div class="product product-4">
+                                        <figure class="product-media">
+                                            <a href="product.html">
+                                                <img src="assets/images/demos/demo-16/products/product-4.jpg" alt="Product image" class="product-image">
+                                                <img src="assets/images/demos/demo-16/products/product-4-2.jpg" alt="Product image" class="product-image-hover">
+                                            </a>
+
+                                            <div class="product-action-vertical">
+                                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                                <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
+                                                <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
+                                            </div><!-- End .product-action -->
+
+                                            <div class="product-action">
+                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                            </div><!-- End .product-action -->
+                                        </figure><!-- End .product-media -->
+
+                                        <div class="product-body">
+                                            <h3 class="product-title"><a href="product.html">Dark yellow cropped denim jacket</a></h3><!-- End .product-title -->
+                                            <div class="product-price">
+                                                $96.00
+                                            </div><!-- End .product-price -->
+                                        </div><!-- End .product-body -->
+                                    </div><!-- End .product -->
+                                </div><!-- End .col-sm-6 col-lg-12 -->
+                                    
+                                <div class="col-6 col-lg-12">
+                                    <div class="product product-4">
+                                        <figure class="product-media">
+                                            <a href="product.html">
+                                                <img src="assets/images/demos/demo-16/products/product-5.jpg" alt="Product image" class="product-image">
+                                                <img src="assets/images/demos/demo-16/products/product-5-2.jpg" alt="Product image" class="product-image-hover">
+                                            </a>
+
+                                            <div class="product-action-vertical">
+                                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                                <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
+                                                <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
+                                            </div><!-- End .product-action -->
+
+                                            <div class="product-action">
+                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                            </div><!-- End .product-action -->
+                                        </figure><!-- End .product-media -->
+
+                                        <div class="product-body">
+                                            <h3 class="product-title"><a href="product.html">Light brown faux suede biker jacket</a></h3><!-- End .product-title -->
+                                            <div class="product-price">
+                                                $358.00
+                                            </div><!-- End .product-price -->
+                                        </div><!-- End .product-body -->
+                                    </div><!-- End .product -->
+                                 </div><!-- End .col-sm-6 col-lg-12 -->
+                            </div><!-- End .row -->
+                        </div><!-- End .display-products-col -->
+                    </div><!-- End .col-sm-6 col-lg-3 -->
+
+                    <div class="col-sm-4 col-lg-3">
+                        <div class="display-products-col">
+                            <div class="product product-4">
+                                <figure class="product-media">
+                                    <a href="product.html">
+                                        <img src="assets/images/demos/demo-16/products/product-6.jpg" alt="Product image" class="product-image">
+                                        <img src="assets/images/demos/demo-16/products/product-6-2.jpg" alt="Product image" class="product-image-hover">
+                                    </a>
+
+                                    <div class="product-action-vertical">
+                                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                        <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
+                                        <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
+                                    </div><!-- End .product-action -->
+
+                                    <div class="product-action">
+                                        <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                    </div><!-- End .product-action -->
+                                </figure><!-- End .product-media -->
+
+                                <div class="product-body">
+                                    <h3 class="product-title"><a href="product.html">Light brown check suedette <br>trench coat</a></h3><!-- End .product-title -->
+                                    <div class="product-price">
+                                        $170.00
+                                    </div><!-- End .product-price -->
+                                </div><!-- End .product-body -->
+                            </div><!-- End .product -->
+                        </div><!-- End .display-products-col -->
+                    </div><!-- End .col-sm-6 col-lg-3 -->
+                </div><!-- End .row -->
+            </div><!-- End .products-display -->
+
+
+
+
+
+
+
+
+
+
                 <hr class="mt-2 mb-6">
                 <div class="products-display">
-                    <div class="heading text-center">
-                        <h4 class="subtitle text-primary">Womens Clothing</h4><!-- End .subtitle -->
-                        <h2 class="title">Refresh Your Wardrobe</h2><!-- End .title -->
-                        <p class="title-desc">Discover this season’s latest trends with the newest additions to <br>our women’s clothing collection.</p><!-- End .title-desc -->
-                    </div><!-- End .heading -->
-
                     {%for items in product %}
                     {% if items.display_on_home_page %}
                     <div class="row" style="display: flex;">
@@ -91,8 +321,8 @@
                                         }
                                     }
                                 }'>
-                                {% if product %}
-                                {%for items in product %}
+                                {% if product_list %}
+                                {%for items in product_list %}
                                 <div class="product">
                                     <figure class="product-media">
                                         <span class="product-label label-new">New</span>

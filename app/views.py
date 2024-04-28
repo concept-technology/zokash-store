@@ -1,28 +1,23 @@
 from django.shortcuts import render
-from rest_framework.renderers import TemplateHTMLRenderer
-from django.utils import timezone
 from django.shortcuts import redirect, render
-from .models import Product, Cart, Order
-from django.views.generic import DetailView
+from .models import Product,Cart, Order
+from django.views.generic import DetailView, ListView
 from  django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 from django.conf import settings
-from rest_framework import generics
-from .serializers import ProductSerializer
-from rest_framework.response import Response
+
+
 # Create your views here.
-class StoreView(generics.ListAPIView):
-    renderer_classes = [TemplateHTMLRenderer]
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
+class StoreView(ListView):
+    model = Product
     template_name = 'index.html'
+    paginate_by= 2
     
-    def get(self, request):
-        queryset = Product.objects.all()
-        return Response({'product': queryset})
+
     
+           
 class StoreItemView(DetailView):
     model = Product
     template_name = 'product.html'
@@ -83,5 +78,4 @@ def delete_cart(request, slug):
         return redirect('store:store_item', slug=slug)
     return redirect('store:store_item', slug=slug)
     
-        
         

@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.utils import timezone
+# from django.utils import timezone
 
 
 # Create your models here.
@@ -42,6 +42,7 @@ class Product(models.Model):
     slug = models.SlugField( default=title)
     gender= models.CharField(max_length=10, choices=gender_choices, default='female')
     display_on_home_page =models.BooleanField(default=False)
+    is_banner =models.BooleanField(default=False)
     
     def get_absolute_url(self):
         return reverse("store:store_item", kwargs={"slug": self.slug})
@@ -57,7 +58,7 @@ class Product(models.Model):
     
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, default=timezone.now())
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,)
     quantity = models.IntegerField(default =1) 
     is_ordered = models.BooleanField(default=False)
     

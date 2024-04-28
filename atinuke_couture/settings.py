@@ -18,6 +18,8 @@ SOCIALACCOUNT_PROVIDERS = {
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -49,7 +51,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',   
     'PIL',
     'widget_tweaks',
-    'mystore',
+    'app',
     'blog',
     'rest_framework',
     
@@ -111,7 +113,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+     }
 }
 # DATABASES = {
 #     'default': {
@@ -175,6 +177,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
 # if DEBUG:
 
 
@@ -231,6 +234,12 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'samuelandrew145@gmail.com'
 EMAIL_HOST_PASSWORD = '5804@gmail.coM'
 
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 1
+}
 
 
 
