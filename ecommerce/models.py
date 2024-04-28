@@ -43,6 +43,7 @@ class Product(models.Model):
     gender= models.CharField(max_length=10, choices=gender_choices, default='female')
     display_on_home_page =models.BooleanField(default=False)
     is_banner =models.BooleanField(default=False)
+    is_best_selling = models.BooleanField(default=False)
     
     def get_absolute_url(self):
         return reverse("store:store_item", kwargs={"slug": self.slug})
@@ -51,7 +52,7 @@ class Product(models.Model):
         return reverse("store:add-to-cart", kwargs={"slug": self.slug})
     
     def delete_cart(self):
-        return reverse("store:delete_cart", kwargs={"slug": self.slug})
+        return reverse("store:delete_cart", kwargs={"slug": self.slug,})
     
     def __str__(self):
         return f"{self.title} : {self.price}"

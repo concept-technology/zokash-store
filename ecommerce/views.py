@@ -6,7 +6,6 @@ from  django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
-from django.conf import settings
 
 
 # Create your views here.
@@ -15,19 +14,31 @@ class StoreView(ListView):
     template_name = 'index.html'
     paginate_by= 2
     
-
+class ProductCategoriesView(ListView):
+    model = Product
+    paginate_by = 3
+    template_name = 'ecommerce/category.html'
+ 
     
            
-class StoreItemView(DetailView):
+
+class HomeView(ListView):
     model = Product
-    template_name = 'product.html'
-    
+    template_name = 'ecommerce/index.html'
+    paginate_by= 3
+              
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'ecommerce/product.html'
+
+class ProductCategoriesView(ListView):
+    model = Product
+    paginate_by = 3
+    template_name = 'ecommerce/category.html'
     
 def logout_view(request):
     logout(request)
-    return redirect('index.html')
-
-
+    return redirect('ecommerce/index.html')
 
 def register(request):
     form = SignupForm()
@@ -38,10 +49,7 @@ def login(request):
     form = LoginForm()
     return render(request, 'account/login.html', {'form': form})
 
-def user_profile(request):
-    return render(request, 'user_profile.html', {'form':settings.AUTH_USER_MODEL})
-
-def add_to_cart(request, slug,):
+def add_to_cart(request, slug):
     product = get_object_or_404(Product, slug=slug)
     cart, created = Cart.objects.get_or_create(product=product, user=request.user, is_ordered=False)
     order_qs = Order.objects.filter(user=request.user, is_ordered=False)
@@ -59,11 +67,11 @@ def add_to_cart(request, slug,):
         orders.product.add(cart)
         orders.save()
 
-    return redirect('store:store_item',slug=slug)
+    return redirect('store:store_item',slug=slug,)
         
 
-def delete_cart(request, slug):
-    product = get_object_or_404(Product, slug=slug)
+def delete_cart(request, slug,):
+    product = get_object_or_404(Product, slug=slug,)
     cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)
     order_qs = Order.objects.filter(user=request.user, is_ordered=False)
     if  order_qs.exists():
