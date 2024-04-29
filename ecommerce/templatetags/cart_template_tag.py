@@ -11,5 +11,8 @@ def cart_item_count(user):
         return queryset
     return 0
     
-    
+@register.filter
+def cart_object(user):
+    queryset = Cart.objects.all().filter(user=user)
+    return queryset
 

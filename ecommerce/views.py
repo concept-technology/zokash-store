@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.shortcuts import redirect, render
+# from django.views import View
 from .models import Product,Cart, Order
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView,View
 from  django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -35,7 +36,11 @@ class ProductCategoriesView(ListView):
     model = Product
     paginate_by = 5
     template_name = 'ecommerce/category.html'
-    
+
+class CartView(View):
+    def get(self, *args, **kwargs):
+        return render(self.request, 'ecommerce/cart.html')
+ 
 def logout_view(request):
     logout(request)
     return redirect('ecommerce/index.html')
