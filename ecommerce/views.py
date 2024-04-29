@@ -39,7 +39,13 @@ class ProductCategoriesView(ListView):
 
 class CartView(View):
     def get(self, *args, **kwargs):
-        return render(self.request, 'ecommerce/cart.html')
+        model = Cart.objects.filter(user=self.request.user, is_ordered=False)
+        context = {'cart': model}
+        return render(self.request, 'ecommerce/cart.html',context )
+
+    
+ 
+ 
  
 def logout_view(request):
     logout(request)

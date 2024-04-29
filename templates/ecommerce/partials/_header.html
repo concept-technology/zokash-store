@@ -61,13 +61,16 @@
                             <div class="product">
                                 <div class="product-cart-details">
                                     <h4 class="product-title">
-                                        <a href="product.html">{{cart.product.title}}</a>
+                                        <a href="{{cart.product.get_absolute_url}}">{{cart.product.title}}</a>
                                     </h4>
-
+                                    {% if cart.product.discount_price %}
                                     <span class="cart-product-info">
                                         <span class="cart-product-qty">price: </span>
-                                       N {{cart.product.price}}
+                                       N {{cart.product.discount_price}}
                                     </span>
+                                    {% else%}
+                                   <span>{{cart.product.price}}</span> 
+                                    {% endif%}
                                     <span class="cart-product-info">
                                         <span class="cart-product-qty">quantity: </span>
                                         {{cart.quantity}}
