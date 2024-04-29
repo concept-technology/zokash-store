@@ -38,14 +38,40 @@
 
 <body>
     <!-- Plugins JS File -->
-    {% include "partials/_header.html" %}
+    {% include "ecommerce/partials/_header.html" %}
     
     {% block content %}   
     {% endblock content %}
-    {%include 'partials/_footer.html'%}
+    {%include 'ecommerce/partials/_footer.html'%}
     
     {% block script %}
         
+    <script>
+        {% if messages %}
+        {% for message in messages %}
+        Swal.fire({
+            title: "{{message.tags}}",
+            text: "{{message}}",
+            icon: "{{message.tags}}",
+            timer: 2000,
+            showClass: {
+                popup: `
+                  animate__animated
+                  animate__fadeInUp
+                  animate__faster
+                `
+              },
+              hideClass: {
+                popup: `
+                  animate__animated
+                  animate__fadeOutDown
+                  animate__faster
+                `
+              }
+          });
+        {% endfor %}
+    {% endif %}
+    </script>
     
         
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
@@ -67,6 +93,8 @@
     <script src="{% static 'assets/js/server.js' %}"></script>
     <script src="{% static 'assets/js/wNumb.js' %}"></script>
     <script src="{% static 'js/jquery.js'}" type='text/javascript'></script>
+    <script src="{% static 'assets/js/demos/demo-2.js' %}"></script>
+
     {% endblock script %}
 </body>
 </html>

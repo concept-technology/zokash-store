@@ -12,11 +12,11 @@ from allauth.account.forms import LoginForm, SignupForm
 class StoreView(ListView):
     model = Product
     template_name = 'index.html'
-    paginate_by= 2
+    paginate_by= 5
     
 class ProductCategoriesView(ListView):
     model = Product
-    paginate_by = 3
+    paginate_by = 5
     template_name = 'ecommerce/category.html'
  
     
@@ -33,7 +33,7 @@ class ProductDetailView(DetailView):
 
 class ProductCategoriesView(ListView):
     model = Product
-    paginate_by = 3
+    paginate_by = 5
     template_name = 'ecommerce/category.html'
     
 def logout_view(request):
@@ -80,7 +80,7 @@ def delete_cart(request, slug,):
             cart.delete()
             messages.success(request, 'deleted from cart')          
         else:
-            messages.info(request, 'no item in cart')
+            messages.info(request, 'you have already removed this item from cart')
             return redirect('store:store_item',slug=slug)
     else:       
         return redirect('store:store_item', slug=slug)

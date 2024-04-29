@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "ecommerce/base.html" %}
 {%load static %}
 {%block content%}
 {{block.super}}
@@ -110,8 +110,10 @@
                                     </div><!-- End .details-filter-row -->
 
                                     <div class="product-details-action">
-                                        <a href="{{object.get_add_to_cart_url}}">
-                                            <button type="submit" class="btn-product btn-cart" id="cart-button" onclick="addToCart()"><span>add to cart</span></button>
+                                        <a href="{{object.get_add_to_cart_url}}" >
+                                        <button class="btn btn-primary" id="cart-button" onclick="addToCart()">
+                                                <span>add to cart</span>
+                                            </button>
                                         </a>
 
                                         <div class="details-action-wrapper">
@@ -504,27 +506,12 @@
             
             
             <script>
-          function addToCart(){        
-              let title = $('#product-title').val()
-                let qty = $('#product-qty').val()
-                let id = $('#product-id').val()
-                let price = $('#product-price').val()  
-                data = {qty: qty, title: title, price:price}
-
-                $.ajax({
-                    url:'add-to-cart/',
-                    data: data,
-                    beforeSend: function(res){
-                        console.log('processing')
-                    },
-                    success: function(res){
-                        console.log('added to cart')
-                    }
-                    
-                })
+          function addToCart(){              
+            console.log('added to cart')
+          
                 
             }
-            $('#product-qty').on("change", addToCart)
+        
             $('#cart-button').on('click', addToCart)
             </script>
             
