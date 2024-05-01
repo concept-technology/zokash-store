@@ -18,7 +18,7 @@ def cart_total(user):
         return queryset
     
 @register.filter
-def order_total(user):
-   pass
+def get_total(user):
+  pass
     
 

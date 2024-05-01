@@ -105,8 +105,6 @@ class Order(models.Model):
     
     def get_total(self):
         total = 0
-        qs = self.product.all()
-        for items in qs:
-            total +=items.get_total_price() 
-            return total
-        return 0 
+        for items in self.product.all():
+            total += items.get_total_price()
+        return total

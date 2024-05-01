@@ -1,4 +1,5 @@
 {% load cart_template_tag%}
+{% load static %}
 <header class="header header-2 header-intro-clearance">
     <div class="header-middle">
         <div class="container">
@@ -9,7 +10,7 @@
                 </button>
                 
                 <a href="{% url 'store:index'%}" class="logo">
-                    <img src="#" alt="Molla Logo" width="105" height="25">
+                    <img src="{% static 'atinuke/logo.jpg'%}" alt="Molla Logo" width="105" height="25">
                 </a>
             </div><!-- End .header-left -->
 

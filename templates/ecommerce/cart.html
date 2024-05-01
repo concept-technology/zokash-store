@@ -49,7 +49,7 @@
 														
 													</h3><!-- End .product-title -->
 												</div><!-- End .product -->
-												<br><span> buy today and save <b style="color: rgb(43, 255, 0);">N{{items.get_amount_saved}}</b></span>
+												<br><span> buy today and save <span style="color: rgb(43, 255, 0);">N{{items.get_amount_saved}}</span></span>
 											</td>
 											
 											<td class="price-col"><span>N{{items.get_price_tag}}</span></td>										
@@ -77,15 +77,14 @@
 							{% if object.cart %}
 	                		<aside class="col-lg-3">
 	                			<div class="summary summary-cart">
-	                				<h3 class="summary-title">Cart Total</h3><!-- End .summary-title -->
+	                				<h3 class="summary-title">Cart Order</h3><!-- End .summary-title -->
 
 	                				<table class="table table-summary">
 	                					<tbody>
 	                						<tr class="summary-subtotal">
-	                							<td>Subtotal:</td>
-											
-	                							$ {% for orders in object.order%} 
-												<td> {{orders.get_total}}</td>
+	                							<td>Subtotal:</td>									
+	                						   {% for items in object.order.all %} 
+												<td>N{{items.get_total}}</td>
 												{%endfor%}
 	                						</tr><!-- End .summary-subtotal -->
 	                						<tr class="summary-shipping">
