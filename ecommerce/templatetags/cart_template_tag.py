@@ -19,6 +19,7 @@ def cart_total(user):
     
 @register.filter
 def get_total(user):
-  pass
+    pass  
+      
     
 

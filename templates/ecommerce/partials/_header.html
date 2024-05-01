@@ -94,11 +94,11 @@
                             </div><!-- End .product -->
                             {%endfor%}
                             {% if user|cart_total%}
-                        <div class="dropdown-cart-total">
+                        <!-- <div class="dropdown-cart-total">
                             <span>Total</span>
 
-                            <span class="cart-total-price">$160.00</span>
-                        </div><!-- End .dropdown-cart-total -->
+                            <span class="cart-total-price">${{user|get_total}}</span>
+                        </div>End .dropdown-cart-total -->
                         <div class="dropdown-cart-action">
                             <a href="{% url 'store:cart' %}" class="btn btn-primary">View Cart</a>
                             <a href="checkout.html" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>

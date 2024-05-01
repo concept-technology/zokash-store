@@ -42,6 +42,9 @@ class ProductCategoriesView(ListView):
 def dash_board(request):
     return render(request, 'ecommerce/dashboard.html')
 
+def check_out(request):
+    return render(request, 'ecommerce/checkout.html')
+
 class CartView(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
         try:
