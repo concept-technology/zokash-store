@@ -21,6 +21,12 @@ urlpatterns = [
      path('add-to-cart/<slug>',views.add_to_cart, name='add-to-cart'),
      
      path('delete-cart/<slug>',views.delete_cart, name='delete_cart'),
-     path('cart/', views.CartView.as_view(), name='cart')
+     
+     path('delete-from-cart/<slug>',views.delete_cart, name='delete_cart_on_cart_page'),
+     
+     path('cart/', views.CartView.as_view(), name='cart'),
+     
+     path('account/dash-board',views.dash_board, name='dash-board' )
+     
 ]
 

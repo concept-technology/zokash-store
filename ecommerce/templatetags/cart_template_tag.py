@@ -1,6 +1,6 @@
 from django import template
 from django import template
-from ecommerce.models import Cart
+from ecommerce.models import Cart, Order
 
 register = template.Library()
 
@@ -12,7 +12,13 @@ def cart_item_count(user):
     return 0
     
 @register.filter
-def cart_object(user):
-    queryset = Cart.objects.all().filter(user=user)
-    return queryset
+def cart_total(user):
+    if user.is_authenticated:
+        queryset = Cart.objects.all().filter(user=user)
+        return queryset
+    
+@register.filter
+def order_total(user):
+   pass
+    
 

@@ -1,17 +1,16 @@
-{% extends 'ecommerce/base.html' %}
+{%extends 'ecommerce/base.html'%}
+{% load cart_template_tag%}
 
 {% block content %}
 	
 	
-    <div class="page-wrapper">
-
-        <main class="main">
+<main class="main">
             <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'store:index' %}">Home</a></li>
-                        <li class="breadcrumb-item"><a href="{% url  'store:categories' %}">Shop</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+                        <li class="breadcrumb-item"><a href="{% url 'store:index'%}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'store:categories'%}">Shop</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{user}}-cart</li>
                     </ol>
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
@@ -24,7 +23,7 @@
 	                			<table class="table table-cart table-mobile">
 									<thead>
 										<tr>
-											<th>Product</th>
+											<th>item</th>
 											<th>Price</th>
 											<th>Quantity</th>
 											<th>Total</th>
@@ -33,8 +32,10 @@
 									</thead>
 
 									<tbody>
-										{% for items in cart.all%}
+
+										{% for items in object.cart.all%}
 										<tr>
+											<!-- <td>{{forloop.counter}}</td> -->
 											<td class="product-col">
 												<div class="product">
 													<figure class="product-media">
@@ -45,43 +46,35 @@
 
 													<h3 class="product-title">
 														<a href="{{items.product.get_absolute_url}}">{{items.product.title}}</a>
+														
 													</h3><!-- End .product-title -->
 												</div><!-- End .product -->
+												<br><span> buy today and save <b style="color: rgb(43, 255, 0);">N{{items.get_amount_saved}}</b></span>
 											</td>
-											<td class="price-col">{{items.product.price}}</td>
+											
+											<td class="price-col"><span>N{{items.get_price_tag}}</span></td>										
 											<td class="quantity-col">
                                                 <div class="cart-product-quantity">
                                                     <input type="number" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
-											<td class="total-col">$84.00</td>
+										
+											<td class="total-col">{{items.get_total_price}}</td>
 											
 												<td class="remove-col">
-													<a href="{{items.product.delete_cart}}"></a>
+													<a href="{{items.product.delete_cart}}">
 													<button class="btn-remove"><i class="icon-close"></i></button>
 												</a>
 											</td>
+											<td></td>
 										</tr>
 										{%endfor%}
-
 									</tbody>
 								</table><!-- End .table table-wishlist -->
 
-	                			<div class="cart-bottom">
-			            			<div class="cart-discount">
-			            				<form action="#">
-			            					<div class="input-group">
-				        						<input type="text" class="form-control" required placeholder="coupon code">
-				        						<div class="input-group-append">
-													<button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
-												</div><!-- .End .input-group-append -->
-			        						</div><!-- End .input-group -->
-			            				</form>
-			            			</div><!-- End .cart-discount -->
-
-			            			<a href="#" class="btn btn-outline-dark-2"><span>UPDATE CART</span><i class="icon-refresh"></i></a>
-		            			</div><!-- End .cart-bottom -->
+	    
 	                		</div><!-- End .col-lg-9 -->
+							{% if object.cart %}
 	                		<aside class="col-lg-3">
 	                			<div class="summary summary-cart">
 	                				<h3 class="summary-title">Cart Total</h3><!-- End .summary-title -->
@@ -90,7 +83,9 @@
 	                					<tbody>
 	                						<tr class="summary-subtotal">
 	                							<td>Subtotal:</td>
-	                							<td>$160.00</td>
+											
+	                							<td>$ {{orders.get_order}} </td>
+										
 	                						</tr><!-- End .summary-subtotal -->
 	                						<tr class="summary-shipping">
 	                							<td>Shipping:</td>
@@ -142,8 +137,11 @@
 	                				<a href="checkout.html" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
 	                			</div><!-- End .summary -->
 
-		            			<a href="{% url 'store:categories'%}" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span><i class="icon-refresh"></i></a>
+		            			<a href="category.html" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span><i class="icon-refresh"></i></a>
 	                		</aside><!-- End .col-lg-3 -->
+							{%else%}
+							<p> you have No items in Cart <a href="{% url 'store:categories' %}">start Shopping</a> </p>
+							{%endif%}
 	                	</div><!-- End .row -->
 	                </div><!-- End .container -->
                 </div><!-- End .cart -->
@@ -154,8 +152,4 @@
     </div><!-- End .page-wrapper -->
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
 	{% endblock content %}
-
- 

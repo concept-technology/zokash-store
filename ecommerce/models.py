@@ -53,6 +53,7 @@ class Product(models.Model):
     
     def delete_cart(self):
         return reverse("store:delete_cart", kwargs={"slug": self.slug,})
+
     
     def __str__(self):
         return f"{self.title} : {self.price}"
@@ -63,7 +64,30 @@ class Cart(models.Model):
     quantity = models.IntegerField(default =1) 
     is_ordered = models.BooleanField(default=False)
     
+    def get_discount_price(self):
+        return self.quantity * self.product.discount_price
     
+    
+    def get_normal_price(self):
+        return self.quantity * self.product.price
+            
+    def get_amount_saved(self):
+        return self.get_normal_price() - self.get_discount_price()
+    
+    def get_price_tag(self):
+        discount_price = self.product.discount_price
+        normal_price = self.product.price
+        if discount_price:
+            return discount_price
+        return normal_price
+        
+    
+    def get_total_price(self):
+        if self.get_discount_price():
+            return self.get_discount_price()
+        return self.get_normal_price()
+        
+     
     def __str__(self):
         price = self.product.price
         dis_count_price = self.product.discount_price
@@ -78,3 +102,8 @@ class Order(models.Model):
     product = models.ManyToManyField(Cart)
     def __str__(self) -> str:
         return f"{self.user.username}"
+    
+    def get_order(self):
+        total = 0
+        qs = self.product.all()
+        return sum(qs.get_total_price(),total)

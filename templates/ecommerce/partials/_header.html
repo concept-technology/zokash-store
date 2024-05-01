@@ -28,16 +28,24 @@
 
             <div class="header-right">
                 <div class="account">
-                    <a href="dashboard.html" title="My account">
+                    <a href="{% url 'store:dash-board' %}" title="My account">
                         <div class="icon">
                             <i class="icon-user"></i>
                         </div>
-                        <p>Account</p>
+                        {%if user.is_authenticated %}
+                        <p>hello! {{user}}</p>
+                        {%else%}
+                        <!-- <a href="{% url 'store:signup'%}"> -->
+                            <p>
+                                signup or login
+                            </p>
+                        <!-- </a> -->
+                        {% endif%}
                     </a>
                 </div><!-- End .compare-dropdown -->
 
                 <div class="wishlist">
-                    <a href="wishlist.html" title="Wishlist">
+                    <a href="" title="Wishlist">
                         <div class="icon">
                             <i class="icon-heart-o"></i>
                             <span class="wishlist-count badge">3</span>
@@ -57,7 +65,7 @@
 
                     <div class="dropdown-menu dropdown-menu-right">
                         <div class="dropdown-cart-products">
-                            {% for cart in user|cart_object%}
+                            {% for cart in user|cart_total%}
                             <div class="product">
                                 <div class="product-cart-details">
                                     <h4 class="product-title">
@@ -84,17 +92,19 @@
                                 <a href="{{cart.product.delete_cart}}" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
                             </div><!-- End .product -->
                             {%endfor%}
-
+                            {% if user|cart_total%}
                         <div class="dropdown-cart-total">
                             <span>Total</span>
 
                             <span class="cart-total-price">$160.00</span>
                         </div><!-- End .dropdown-cart-total -->
-
                         <div class="dropdown-cart-action">
                             <a href="{% url 'store:cart' %}" class="btn btn-primary">View Cart</a>
                             <a href="checkout.html" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
                         </div><!-- End .dropdown-cart-total -->
+                        {% else %}
+                        <p>you have no items in cart <a href="{%url 'store:categories'%}">start Shopping</a></p>
+                        {%endif%}
                     </div><!-- End .dropdown-menu -->
                 </div><!-- End .cart-dropdown -->
             </div><!-- End .header-right -->
@@ -129,11 +139,11 @@
 
                         </li>
                         <li>
-                            <a href="{% url 'store:categories'%}" class="sf-with-ul">Shop</a>
+                            <a href="{% url 'store:categories' %}" class="sf-with-ul">Shop</a>
                             
                         </li>
                         <li>
-                            <a href="product.html" class="sf-with-ul">Product</a>
+                            <a href="#" class="sf-with-ul">Product</a>
 
  
                         </li>
