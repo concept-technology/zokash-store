@@ -103,7 +103,10 @@ class Order(models.Model):
     def __str__(self) -> str:
         return f"{self.user.username}"
     
-    def get_order(self):
+    def get_total(self):
         total = 0
         qs = self.product.all()
-        return sum(qs.get_total_price(),total)
+        for items in qs:
+            total +=items.get_total_price() 
+            return total
+        return 0 

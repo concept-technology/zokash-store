@@ -46,10 +46,10 @@ class CartView(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
         try:
             order = Order.objects.all().filter(user=self.request.user, is_ordered=False)
-            model = Cart.objects.filter(user=self.request.user, is_ordered=False) # filter cart by user
+            cart = Cart.objects.filter(user=self.request.user, is_ordered=False) # filter cart by user
             context = {
                 'object':{
-                    'cart':model, 'order':order
+                    'cart':cart, 'order':order
                 }
             }
             return render(self.request, 'ecommerce/cart.html', context )
