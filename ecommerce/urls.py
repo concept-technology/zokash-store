@@ -26,7 +26,9 @@ urlpatterns = [
      
      path('cart/', views.CartView.as_view(), name='cart'),
      
-     path('account/dash-board',views.dash_board, name='dash-board' )
+     path('account/dash-board',views.dash_board, name='dash-board' ),
+     
+     path('cart-increment/<slug>', views.cart_increment, name='cart-increment'),
      
 ]
 

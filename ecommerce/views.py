@@ -21,13 +21,31 @@ class ProductCategoriesView(ListView):
     paginate_by = 5
     template_name = 'ecommerce/category.html'
  
-    
-           
+
+def dash_board(request):
+    return render(request, 'ecommerce/dashboard.html')
+
+def check_out(request):
+    return render(request, 'ecommerce/checkout.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('ecommerce/index.html')
+
+def register(request):
+    form = SignupForm()
+    return render(request, 'account/signup.html', {'form': form})
+
+
+def login(request):
+    form = LoginForm()
+    return render(request, 'account/login.html', {'form': form})
+
 
 class HomeView(ListView):
     model = Product
     template_name = 'ecommerce/index.html'
-    paginate_by= 3
+    paginate_by= 6
               
 class ProductDetailView(DetailView):
     model = Product
@@ -35,15 +53,11 @@ class ProductDetailView(DetailView):
 
 class ProductCategoriesView(ListView):
     model = Product
-    paginate_by = 5
+    paginate_by = 6
     template_name = 'ecommerce/category.html'
     
 
-def dash_board(request):
-    return render(request, 'ecommerce/dashboard.html')
 
-def check_out(request):
-    return render(request, 'ecommerce/checkout.html')
 
 class CartView(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
@@ -61,18 +75,6 @@ class CartView(LoginRequiredMixin, View):
             return redirect('store:categories')
 
  
-def logout_view(request):
-    logout(request)
-    return redirect('ecommerce/index.html')
-
-def register(request):
-    form = SignupForm()
-    return render(request, 'account/signup.html', {'form': form})
-
-
-def login(request):
-    form = LoginForm()
-    return render(request, 'account/login.html', {'form': form})
 
 
 
@@ -94,9 +96,10 @@ def add_to_cart(request, slug):
         orders = Order.objects.create(user=request.user, is_ordered=False)
         orders.product.add(cart)
         orders.save()
-
     return redirect('store:store_item',slug=slug,)
-        
+  
+  
+      
 @login_required
 def delete_cart(request, slug,):
     product = get_object_or_404(Product, slug=slug,)
@@ -115,4 +118,25 @@ def delete_cart(request, slug,):
         return redirect('store:categories', slug=slug)
     return redirect('store:store_item', slug=slug)
     
-        
+
+
+@login_required
+def cart_increment(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+    cart, created = Cart.objects.get_or_create(product=product, user=request.user, is_ordered=False)
+    order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+    if  order_qs.exists():
+        orders =    order_qs[0]
+        if orders.product.filter(product__slug=product.slug).exists():
+            cart.quantity -=1
+            cart.save()
+            messages.error(request, "This item is already in cart")
+        else:
+            orders.product.remove(cart)
+            messages.success(request,f"{product.title} is added to cart ")
+    else: 
+        orders = Order.objects.create(user=request.user, is_ordered=False)
+        orders.product.add(cart)
+        orders.save()
+    return redirect('store:store_item',slug=slug,)
+     

@@ -1,22 +1,14 @@
 {% extends 'ecommerce/base.html' %}
-
-
-{% block content %}
-    
-    
+{% block content %}   
     <div class="page-wrapper">
 
         <main class="main">
-        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
-        		<div class="container">
-        			<h1 class="page-title">Checkout<span>Shop</span></h1>
-        		</div><!-- End .container -->
-        	</div><!-- End .page-header -->
             <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Shop</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'store:index' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'store:categories' %}">shop</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'store:cart' %}">Cart</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Checkout</li>
                     </ol>
                 </div><!-- End .container -->
@@ -110,11 +102,12 @@
 		                					</thead>
 
 		                					<tbody>
+                                                {% for items in order.product.all%}
 		                						<tr>
-		                							<td><a href="#">Beige knitted elastic runner shoes</a></td>
-		                							<td>$84.00</td>
+		                							<td><a href="#">{{items.title}}</a></td>
+		                							<td>N {{items.get_price_tag}}</td>
 		                						</tr>
-
+                                                {%endfor%}
 		                						<tr>
 		                							<td><a href="#">Blue utility pinafore denimdress</a></td>
 		                							<td>$76,00</td>

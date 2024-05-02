@@ -1,8 +1,6 @@
 from django.db import models
 from django.conf import settings
 # from django.utils import timezone
-
-
 # Create your models here.
 from django.urls import reverse
 category_choices = (
@@ -45,6 +43,7 @@ class Product(models.Model):
     is_banner =models.BooleanField(default=False)
     is_best_selling = models.BooleanField(default=False)
     
+   
     def get_absolute_url(self):
         return reverse("store:store_item", kwargs={"slug": self.slug})
     
@@ -53,10 +52,12 @@ class Product(models.Model):
     
     def delete_cart(self):
         return reverse("store:delete_cart", kwargs={"slug": self.slug,})
-
+    
+    def get_cart_increment(self):
+        return reverse("store:cart-increment", kwargs={"slug": self.slug,})
     
     def __str__(self):
-        return f"{self.title} : {self.price}"
+        return f"{self.title}"
     
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='')
@@ -91,20 +92,44 @@ class Cart(models.Model):
     def __str__(self):
         price = self.product.price
         dis_count_price = self.product.discount_price
+        user = self.user.username
+        title = self.product.title
         if not dis_count_price:
-            return f"product: {self.product.title} price: {price}  quantity: {self.quantity}"
-        else:
-            return f" product:  {self.product.title}: price: {dis_count_price} quantity: {self.quantity}"
+            return f"item: {title}, price: {price}, quantity: {self.quantity}"        
+        return f"item:{title} price: {dis_count_price}, quantity: {self.quantity}"
+            
     
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
     is_ordered = models.BooleanField(default=False)
     product = models.ManyToManyField(Cart)
+    
     def __str__(self) -> str:
         return f"{self.user.username}"
+    
+
+
+    # display the quantity in table
+    def quantity(self):
+        for items in self.product.all():
+            return items.quantity
+        return None
     
     def get_total(self):
         total = 0
         for items in self.product.all():
             total += items.get_total_price()
         return total
+    
+        # display the product title in datable
+    def number_of_items(request):
+        queryset = Cart.objects.filter(user=request.user, is_ordered=False).count()
+        if queryset == 0:
+            return '-'
+        return queryset
+    
+        # get the price in the order
+    def total_price(self):
+        return self.get_total()
+         
+    
