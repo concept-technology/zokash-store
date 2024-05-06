@@ -53,7 +53,10 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'blog',
     'rest_framework',
-    'ecommerce'
+    'ecommerce',
+    'crispy_forms',
+    "crispy_bootstrap4",
+    'django_countries'
     
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
@@ -224,7 +227,7 @@ ACCOUNT_USERNAME_REQUIRED =False
 ACCOUNT_LOGOUT_ON_GET =True
 ACCOUNT_EMAIL_REQUIRED =True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CRISPY_TEMPLATE_PACK = 'bootstrap5'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

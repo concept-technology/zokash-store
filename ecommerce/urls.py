@@ -7,8 +7,7 @@ urlpatterns = [
 
     path('', views.HomeView.as_view(),
          name='index'),
-    
-    
+      
     path('signup/',views.register,         
          name='signup'),
     
@@ -22,9 +21,10 @@ urlpatterns = [
      
      path('delete-cart/<slug>',views.delete_cart, name='delete_cart'),
      
-     path('check-out',views.check_out, name='check-out'),
+     path('check-out',views.CheckoutView.as_view(), name='check-out'),
      
      path('cart/', views.CartView.as_view(), name='cart'),
+     path('cart/<slug>', views.CartView.as_view(), name='cart_item'),
      
      path('account/dash-board',views.dash_board, name='dash-board' ),
      
