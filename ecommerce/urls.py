@@ -28,7 +28,9 @@ urlpatterns = [
      
      path('account/dash-board',views.dash_board, name='dash-board' ),
      
-     path('cart-increment/<slug>', views.cart_increment, name='cart-increment'),
+     path('reduce-item-from-cart/<slug>', views.reduce_cart_quantity, name='remove_cart'),
+     
+     path('increase-cart-quantity/<slug>', views.increase_cart_quantity, name='increase_cart')
      
 ]
 

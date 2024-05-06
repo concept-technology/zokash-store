@@ -54,7 +54,11 @@ class Product(models.Model):
         return reverse("store:delete_cart", kwargs={"slug": self.slug,})
     
     def get_cart_increment(self):
-        return reverse("store:cart-increment", kwargs={"slug": self.slug,})
+        return reverse("store:reduce_cart", kwargs={"slug": self.slug,})
+    
+    def get_cart_increment(self):
+        return reverse("store:increase_cart", kwargs={"slug": self.slug,})
+    
     
     def __str__(self):
         return f"{self.title}"
@@ -88,11 +92,13 @@ class Cart(models.Model):
             return self.get_discount_price()
         return self.get_normal_price()
         
-     
+    def add_quantity(self):
+        qty = self.quantity
+        qty +=1
+        return qty
     def __str__(self):
         price = self.product.price
         dis_count_price = self.product.discount_price
-        user = self.user.username
         title = self.product.title
         if not dis_count_price:
             return f"item: {title}, price: {price}, quantity: {self.quantity}"        

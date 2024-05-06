@@ -9,6 +9,9 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 from django.core.exceptions import ObjectDoesNotExist
+from.cart import SessionCart
+from django.http import JsonResponse 
+from .serializers import ProductSerializer
 
 # Create your views here.
 class StoreView(ListView):
@@ -86,7 +89,6 @@ def add_to_cart(request, slug):
     if  order_qs.exists():
         orders =    order_qs[0]
         if orders.product.filter(product__slug=product.slug).exists():
-            cart.quantity +=1
             cart.save()
             messages.error(request, "This item is already in cart")
         else:
@@ -96,10 +98,48 @@ def add_to_cart(request, slug):
         orders = Order.objects.create(user=request.user, is_ordered=False)
         orders.product.add(cart)
         orders.save()
-    return redirect('store:store_item',slug=slug,)
-  
-  
-      
+    return redirect('store:cart',slug=slug,)
+
+
+#reduce cart quantity 
+@login_required
+def reduce_cart_quantity(request, slug):
+    product = get_object_or_404(Product, slug=slug,)
+    cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)[0]
+    order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+    if  order_qs.exists():
+        orders =    order_qs[0]
+        if orders.product.filter(product__slug=product.slug).exists():
+            cart.quantity -=1
+            if cart.quantity >=1:
+                cart.save()         
+            return redirect('store:cart')       
+        else:
+            return redirect('store:store_item', slug=slug)
+    else:       
+        return redirect('store:reduce_cart', slug=slug)
+    # return redirect('store:store_item', slug=slug)
+
+
+#increase cart quantity
+@login_required
+def increase_cart_quantity(request, slug):
+    product = get_object_or_404(Product, slug=slug,)
+    cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)[0]
+    order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+    if  order_qs.exists():
+        orders =    order_qs[0]
+        if orders.product.filter(product__slug=product.slug).exists():
+            cart.quantity +=1
+            cart.save()         
+            return redirect('store:cart')       
+        else:
+            return redirect('store:cart', )
+    else:       
+        return redirect('store:cart', )
+    # return redirect('store:store_item', slug=slug)
+
+
 @login_required
 def delete_cart(request, slug,):
     product = get_object_or_404(Product, slug=slug,)
@@ -113,30 +153,17 @@ def delete_cart(request, slug,):
             return redirect('store:cart',)         
         else:
             messages.info(request, 'you have already removed this item from cart')
-            # return redirect('store:store_item',slug=slug)
+            return redirect('store:store_item ',slug=slug)
     else:       
         return redirect('store:categories', slug=slug)
-    return redirect('store:store_item', slug=slug)
+    # return redirect('store:store_item', slug=slug)
+  
+
+
+
+
+
     
-
-
-@login_required
-def cart_increment(request, slug):
-    product = get_object_or_404(Product, slug=slug)
-    cart, created = Cart.objects.get_or_create(product=product, user=request.user, is_ordered=False)
-    order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-    if  order_qs.exists():
-        orders =    order_qs[0]
-        if orders.product.filter(product__slug=product.slug).exists():
-            cart.quantity -=1
-            cart.save()
-            messages.error(request, "This item is already in cart")
-        else:
-            orders.product.remove(cart)
-            messages.success(request,f"{product.title} is added to cart ")
-    else: 
-        orders = Order.objects.create(user=request.user, is_ordered=False)
-        orders.product.add(cart)
-        orders.save()
-    return redirect('store:store_item',slug=slug,)
-     
+    
+        
+        

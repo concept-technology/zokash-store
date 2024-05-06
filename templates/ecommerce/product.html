@@ -96,9 +96,7 @@
 
                                         <label for="qty">Qty:</label>
                                         <div class="product-details-quantity">
-                                            <input type="hidden" id="product-id" value="{{object.id}}" class="form-control" required>
-                                            <input type="hidden" id="product-title" class="form-control" value="{{object.title}}" required>
-                                            <input type="number" id="product-qty" class="form-control" value="1"  required, onchange="addToCart()" min="1">
+                                    <input type="number" id="product-qty" class="form-control" value="1"  required, min="1">
                                             {%if object.discount_price%}
 
                                             <input type="hidden" id="product-price" class="form-control" value="{{object.discount_price}}"></input>
@@ -111,13 +109,13 @@
 
                                     <div class="product-details-action">
                                         <a href="{{object.get_add_to_cart_url}}" >
-                                        <button class="btn btn-primary" id="cart-button" onclick="addToCart()">
+                                        <button class="btn btn-primary" type="button" onclick="changeTecxt()" id="add-to-cart-btn">
                                                 <span>add to cart</span>
                                             </button>
                                         </a>
 
                                         <div class="details-action-wrapper">
-                                            <a href="{{object.delete_cart}}" class="btn-product btn-compare" title="Compare"><span>remove from cart</span></a>
+                                            <!-- <a href="{{object.delete_cart}}" class="btn-product btn-compare" title="Compare"><span>remove from cart</span></a> -->
                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
                                     
@@ -499,20 +497,18 @@
                 </div><!-- End .container -->
             </div><!-- End .page-content -->
 
-            <button class="btn btn-primary" id="btn-cart" onclick="fade()">click me</button>
+            <button class="btn btn-primary" id="btn-cart" onclick="addToCart()">click me</button>
             
             
             
             
             
             <script>
-          function addToCart(){              
-            console.log('added to cart')
-          
-                
-            }
-        
-            $('#cart-button').on('click', addToCart)
+                let btn = document.getElementById('add-to-cart-btn')
+                function changeTecxt(){
+                   btn.innerHTML('added to cart')
+                }
+                btn.addEventListener('click', changeTecxt)
             </script>
             
             {%endblock%}

@@ -1,9 +1,6 @@
 {%extends 'ecommerce/base.html'%}
 {% load cart_template_tag%}
-
-{% block content %}
-	
-	
+{% block content %}	
 <main class="main">
             <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
@@ -52,16 +49,16 @@
 												<br><span> buy today and save <span style="color: rgb(43, 255, 0);">N{{items.get_amount_saved}}</span></span>
 											</td>
 											
-											<td class="price-col"><span>N{{items.get_price_tag}}</span></td>										
+											<td class="price-col"><span>N {{items.get_price_tag}}</span></td>										
 											<td class="quantity-col">
-                                                <div class="cart-product-quantity"><span class="ml-5">qty</span>
-													<a href="{{items.get_cart_increment}}">add</a>
-                                                    <!-- <input type="number" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required> -->
+                                                <div class="cart-product-quantity"><b class="ml-5 p-2">{{items.quantity}}</b>			
+                                                     <a href="{% url 'store:increase_cart' items.product.slug %}" class="form-control"  style="padding: 3;">+</a>
+														
+                                                    <a href="{% url 'store:remove_cart' items.product.slug %}"  class="form-control" >-</a> 
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
 										
 											<td class="total-col">{{items.get_total_price}}</td>
-											
 												<td class="remove-col">
 													<a href="{{items.product.delete_cart}}">
 													<button class="btn-remove"><i class="icon-close"></i></button>
