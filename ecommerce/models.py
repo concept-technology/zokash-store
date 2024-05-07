@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from django_countries.fields import CountryField
+from django_countries import countries
 # from django.utils import timezone
 # Create your models here.
 from django.urls import reverse
@@ -138,4 +140,18 @@ class Order(models.Model):
     def total_price(self):
         return self.get_total()
          
-    
+ 
+class Address(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
+    street_address = models.CharField(max_length=300)
+    house_number = models.CharField(max_length=255)
+    city_or_town = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    zip_code = models.CharField(max_length=20)
+    country = CountryField(choices=list(countries))
+    save_info = models.BooleanField(default=False)
+    payment_option = models.BooleanField(default=False)
+   
+    def __str__(self):
+       return self.street_address
+   
