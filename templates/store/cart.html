@@ -1,4 +1,4 @@
-{%extends 'ecommerce/base.html'%}
+{%extends 'store/base.html'%}
 {% load cart_template_tag%}
 {% block content %}	
 <main class="main">
@@ -46,7 +46,12 @@
 														
 													</h3><!-- End .product-title -->
 												</div><!-- End .product -->
+												
+												{% if items.product.discount_price %}
+													
+												
 												<br><span> buy today and save <span style="color: rgb(43, 255, 0);">N{{items.get_amount_saved}}</span></span>
+												{% endif %}
 											</td>
 											
 											<td class="price-col"><span>N {{items.get_price_tag}}</span></td>										

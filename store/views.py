@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Product,Cart, Order
+from .models import Product,Cart, Order, BillingAddress
 from django.views.generic import DetailView, ListView,View
 from  django.shortcuts import get_object_or_404
 from django.contrib import messages
@@ -25,22 +25,55 @@ class ProductCategoriesView(ListView):
 def dash_board(request):
     return render(request, 'store/dashboard.html')
 
+
+
+
+
+# check out view
 class CheckoutView(View):
     def get(self, *args, **kwargs):
         form = CheckoutForm()
+    
+        order = Order.objects.filter(user=self.request.user, is_ordered=False)
+        cart= Cart.objects.filter(user=self.request.user, is_ordered=False)
+        
         context = {
-            'form': form
+            'order':{
+                'form': form,
+                'order': order,
+                'cart': cart,
+            }
         }
         return render(self.request, 'store/checkout.html', context)
     
     def post(self, *args, **kwargs):
         form = CheckoutForm(self.request.POST or None)
-        if form.is_valid():
-            print(form.cleaned_data, 'form is valid')
-            messages.success(self.request, 'please wait while we process your order')
-            return(redirect('store:check-out', ))
-        messages.error(self.request, 'thre was an error while processing your request')
-        return(redirect('store:check-out', ))
+        
+        try:
+            order = Order.objects.get(user=self.request.user, is_ordered=False)
+            if form.is_valid():       
+                street_address = form.cleaned_data.get('street_address')
+                apartment = form.cleaned_data.get('apartment')
+                town = form.cleaned_data.get('town')
+                state = form.cleaned_data.get('state')
+                country = form.cleaned_data.get('country')
+                zip_code = form.cleaned_data.get('zip_code')
+                payment_option = form.cleaned_data.get('payment_option')
+                billing_address = BillingAddress(user=self.request.user, street_address=street_address,apartment=apartment, town=town,
+                state=state, country=country,zip_code=zip_code,payment_option=payment_option)
+                billing_address.save()
+                order.billing_address= billing_address
+                order.save()
+                messages.success(self.request, 'order received')
+                return(redirect('store:check-out', ))
+            messages.warning(self.request, 'order failed')
+            return(redirect('store:cart', ))
+                  
+        except ObjectDoesNotExist:
+            messages.error(self.request, 'you dont have an active order')
+            return redirect('store:categories')
+
+
 
 def logout_view(request):
     logout(request)

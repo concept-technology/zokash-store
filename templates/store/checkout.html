@@ -16,21 +16,21 @@
 		                		<div class="col-lg-9">
 		                			<h2 class="checkout-title">Billing Details</h2><!-- End .checkout-title -->
 	            						<label>Street address *</label>
-                                        {{form.street_address}}
+                                        {{order.form.street_address}}
 	            						<!-- <input type="text" class="form-control" placeholder="House number and Street name" required> -->
 	            						<!-- <input type="text" class="form-control" placeholder="Appartments, suite, unit etc ..." required> -->
-                                        {{form.apartment}}
+                                        {{order.form.apartment}}
 	            						<div class="row">
 		                					<div class="col-sm-6">
 		                						<label>Town / City *</label>
-                                                {{form.town}}
+                                                {{order.form.town}}
 		                						<!-- <input type="text" class="form-control" required> -->
 		                					</div><!-- End .col-sm-6 -->
 
 
                                             <div class="col-sm-6">
 		                						<label>State *</label>
-                                                {{form.state}}
+                                                {{order.form.state}}
 		                						<!-- <input type="text" class="form-control" required> -->
 		                					</div><!-- End .col-sm-6 -->
 
@@ -40,7 +40,7 @@
 		                						<label>County *</label>
                                                 <b class="form-control">
 
-                                                    {{form.country}}
+                                                    {{order.form.country}}
                                                 </b> 
 		                						<!-- <input type="text" class="form-control" required> -->
 		                					</div><!-- End .col-sm-6 -->
@@ -49,15 +49,19 @@
 		                				<div class="row">
 		                					<div class="col-sm-6">
 		                						<label>Postcode / ZIP *</label>
-                                                {{form.zip_code}}
+                                                {{order.form.zip_code}}
 		                						<!-- <input type="text" class="form-control" required> -->
 		                					</div><!-- End .col-sm-6 -->
 
-		                					<div class="col-sm-6">
-		                						<label>Phone *</label>
-                                                {{form.telephone}}
-		                						<!-- <input type="tel" class="form-control" required> -->
-		                					</div><!-- End .col-sm-6 -->
+{% comment %}
+	
+
+<div class="col-sm-6">
+	<label>Phone *</label>
+	{{order.form.telephone}}
+	<!-- <input type="tel" class="form-control" required> -->
+</div>End .col-sm-6
+{% endcomment %}
 		                				</div><!-- End .row -->
 	                					<!-- <label>Order notes (optional)</label>
                                          -->
@@ -72,30 +76,29 @@
 		                						<tr>
 		                							<th>Product</th>
 		                							<th>Total</th>
+		                					
 		                						</tr>
 		                					</thead>
 
 		                					<tbody>
+												
+												{% for items  in order.cart %}							
 		                						<tr>
-		                							<td><a href="#">Beige knitted elastic runner shoes</a></td>
-		                							<td>$84.00</td>
+													<td><a href="{{items.product.get_absolute_url}}">{{items.product.title}} {{items.get_price_tag}} * {{items.quantity}}</a></td>
+		                							<td>{{items.get_total_price}}</td>
 		                						</tr>
+												{% endfor %}
 
-		                						<tr>
-		                							<td><a href="#">Blue utility pinafore denimdress</a></td>
-		                							<td>$76,00</td>
-		                						</tr>
-		                						<tr class="summary-subtotal">
-		                							<td>Subtotal:</td>
-		                							<td>$160.00</td>
-		                						</tr><!-- End .summary-subtotal -->
-		                						<tr>
+		                						
 		                							<td>Shipping:</td>
 		                							<td>Free shipping</td>
 		                						</tr>
 		                						<tr class="summary-total">
 		                							<td>Total:</td>
-		                							<td>$160.00</td>
+												{% for items  in order.order %}							
+
+		                							<td>N{{items.get_total}}</td>
+													{%endfor%}
 		                						</tr><!-- End .summary-total -->
 		                					</tbody>
 		                				</table><!-- End .table table-summary -->
@@ -110,7 +113,7 @@
 										        </div><!-- End .card-header -->
 										        <div id="collapse-2" aria-labelledby="heading-2" >
 										            <div class="card-body">
-                                                        {{form.payment_option}}
+                                                        {{order.form.payment_option}}
 										            </div><!-- End .card-body -->
 										        </div><!-- End .collapse -->
 										    </div><!-- End .card -->

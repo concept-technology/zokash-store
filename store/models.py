@@ -107,6 +107,7 @@ class Cart(models.Model):
         qty = self.quantity
         qty +=1
         return qty
+    
     def __str__(self):
         price = self.product.price
         dis_count_price = self.product.discount_price
@@ -115,11 +116,30 @@ class Cart(models.Model):
             return f"item: {title}, price: {price}, quantity: {self.quantity}"        
         return f"item:{title} price: {dis_count_price}, quantity: {self.quantity}"
             
+
+
+
+class BillingAddress(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
+    street_address = models.CharField(max_length=300)
+    apartment = models.CharField(max_length=255)
+    town = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    # telephone= models.IntegerField(default=0)
+    zip_code = models.CharField(max_length=20)
+    country = CountryField(multiple=False)
+    payment_option = models.CharField(max_length=255, choices=payment_choices)
+   
+    def __str__(self):
+       return self.user.username
+   
+
     
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
     is_ordered = models.BooleanField(default=False)
     product = models.ManyToManyField(Cart)
+    billing_address = models.ForeignKey(BillingAddress, on_delete=models.SET_NULL, blank=True, null=True)
     
     def __str__(self) -> str:
         return f"{self.user.username}"
@@ -154,17 +174,4 @@ payment_choices = (
     ('ussd transfer', 'ussd transfer'),
     ('mobile transfer', 'mobile transfer'),
 ) 
-class Address(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
-    street_address = models.CharField(max_length=300)
-    apartment = models.CharField(max_length=255)
-    town = models.CharField(max_length=255)
-    state = models.CharField(max_length=255)
-    telephone= models.IntegerField(default=0)
-    zip_code = models.CharField(max_length=20)
-    country = CountryField(multiple=True)
-    payment_option = models.CharField(max_length=255, choices=payment_choices)
-   
-    def __str__(self):
-       return self.user.username
-   
+

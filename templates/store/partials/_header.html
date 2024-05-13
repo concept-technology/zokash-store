@@ -94,14 +94,14 @@
                             </div><!-- End .product -->
                             {%endfor%}
                             {% if user|cart_total%}
-                        <!-- <div class="dropdown-cart-total">
-                            <span>Total</span>
+                         <div class="dropdown-cart-tot??al"> 
+                            <!-- <span>Total</span> -->
 
-                            <span class="cart-total-price">${{user|get_total}}</span>
-                        </div>End .dropdown-cart-total -->
+                            <!-- <span class="cart-total-price">$</span> -->
+                        </div>
                         <div class="dropdown-cart-action">
                             <a href="{% url 'store:cart' %}" class="btn btn-primary">View Cart</a>
-                            <a href="checkout.html" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
+                            <a href="{% url 'store:check-out'%}" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
                         </div><!-- End .dropdown-cart-total -->
                         {% else %}
                         <p>you have no items in cart <a href="{%url 'store:categories'%}">start Shopping</a></p>
@@ -234,5 +234,5 @@
         </div><!-- End .container -->
         
     </div><!-- End .header-bottom -->
-    {% include 'ecommerce/mobile_nav.html' %}
+    {% include 'store/mobile_nav.html' %}
 </header><!-- End .header -->

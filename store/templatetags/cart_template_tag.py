@@ -19,7 +19,8 @@ def cart_total(user):
     
 @register.filter
 def get_total(user):
-    pass  
+    queryset = Order.objects.all().filter(user=user)
+    return queryset    
       
     
 

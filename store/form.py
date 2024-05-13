@@ -18,7 +18,7 @@ class CheckoutForm(forms.Form):
     )))
     apartment = forms.CharField(widget=forms.TextInput(attrs=(
         {
-            'placeholder':'appartments, suite, unit etc ...',
+            'placeholder':'apartments, suite, unit etc ...',
             'class': 'form-control',
             'required': True
         }
@@ -35,7 +35,12 @@ class CheckoutForm(forms.Form):
             'required': True
         }
     )))
-    telephone =forms.IntegerField()
+    # telephone = forms.CharField(widget=forms.TextInput(attrs=(
+    #     {
+    #         'class': 'form-control',
+    #         'required': True
+    #     }
+    # )))
     country = CountryField(blank_label="select_country").formfield(widget=CountrySelectWidget(attrs=(
         {
             'class': 'from-control'

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product,Cart,Order, Category, Address
+from .models import Product,Cart,Order, Category, BillingAddress
 from django.utils.html import format_html
 
 # # Register your models here.
@@ -28,4 +28,4 @@ admin.site.register(Category, CategoryAdmin)
 
 class AddressAdmin(admin.ModelAdmin):
     list_display = '__all__'
-admin.site.register(Address)
+admin.site.register(BillingAddress)
