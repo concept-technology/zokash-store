@@ -117,9 +117,14 @@
 								    	<p class="text-center">or sign in with</p>
 								    	<div class="row">
 								    		<div class="col-sm-6">
-								    			<a href="{% provider_login_url 'google' %}?next=store:index" class="btn btn-login btn-g">
-								    				<i class="icon-google"></i>
-								    				Login With Google
+                        
+                        {% comment %}
+                          
+                        
+                        <a href="{% provider_login_url 'google' %}?next=store:index" class="btn btn-login btn-g">
+                          <i class="icon-google"></i>
+                          Login With Google
+                          {% endcomment %}
 								    			</a>
 								    		</div><!-- End .col-6 -->
 								    		<div class="col-sm-6">
