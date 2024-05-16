@@ -65,7 +65,7 @@ class CheckoutView(View):
                 order.billing_address= billing_address
                 order.save()
                 messages.success(self.request, 'order received')
-                return(redirect('store:check-out', ))
+                return(redirect('store:payment',))
             messages.warning(self.request, 'order failed')
             return(redirect('store:cart', ))
                   
@@ -74,6 +74,12 @@ class CheckoutView(View):
             return redirect('store:categories')
 
 
+# payment vire
+class PaymentView(View):
+    def get(self, *args, **kwargs):
+        return render(self.request, 'store/paystack.html', {})
+        
+    
 
 def logout_view(request):
     logout(request)

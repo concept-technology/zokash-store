@@ -7,8 +7,7 @@
                 <button class="mobile-menu-toggler">
                     <span class="sr-only">Toggle mobile menu</span>
                     <i class="icon-bars"></i>
-                </button>
-                
+                </button>              
                 <a href="{% url 'store:index'%}" class="logo">
                     <img src="{% static 'atinuke/logo.jpg'%}" alt="Molla Logo" width="105" height="25">
                 </a>
@@ -96,7 +95,6 @@
                             {% if user|cart_total%}
                          <div class="dropdown-cart-tot??al"> 
                             <!-- <span>Total</span> -->
-
                             <!-- <span class="cart-total-price">$</span> -->
                         </div>
                         <div class="dropdown-cart-action">

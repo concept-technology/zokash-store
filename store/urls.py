@@ -24,13 +24,18 @@ urlpatterns = [
      path('check-out',views.CheckoutView.as_view(), name='check-out'),
      
      path('cart/', views.CartView.as_view(), name='cart'),
+     
      path('cart/<slug>', views.CartView.as_view(), name='cart_item'),
      
      path('account/dash-board',views.dash_board, name='dash-board' ),
      
      path('reduce-item-from-cart/<slug>', views.reduce_cart_quantity, name='remove_cart'),
      
-     path('increase-cart-quantity/<slug>', views.increase_cart_quantity, name='increase_cart')
+     path('increase-cart-quantity/<slug>', views.increase_cart_quantity, name='increase_cart'),
+     
+     path('checkout/payment', views.PaymentView.as_view(), name='payment'),
+     
+     
      
 ]
 

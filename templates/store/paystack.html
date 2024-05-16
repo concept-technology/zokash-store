@@ -1,0 +1,79 @@
+{% extends 'store/base.html' %}
+{{block.super}}
+{% block content %}
+
+    <div class="page-wrapper">
+
+            <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('assets/images/backgrounds/login-bg.jpg')">
+            	<div class="container">
+            		<div class="form-box">
+            			<div class="form-tab">
+
+							<div class="tab-content">
+							    </div><!-- .End .tab-pane -->
+							    <div class="tab-pane fade show active" id="register-2" role="tabpanel" aria-labelledby="register-tab-2">
+							    	<form id="paymentForm" action="/save-order-and-pay" method="POST">
+                                        {% csrf_token %}
+							    		<div class="form-group">
+							    			<label for="amount">Amount *</label>
+							    			<input type="number" class="form-control" id="amount" name="amount" required>
+							    		</div><!-- End .form-group -->
+
+                                        <div class="form-group">
+							    			<label for="first_name">First name *</label>
+							    			<input type="text" class="form-control" id="first_name" name="first_name" required>
+							    		</div><!-- End .form-group -->
+                                        <div class="form-group">
+							    			<label for="last_name">Last Name *</label>
+							    			<input type="text" class="form-control" id="last_name" name="last_name" required>
+							    		</div><!-- End .form-group -->
+                                        <div class="form-group">
+							    			<label for="email-address">Email *</label>
+							    			<input type="email" class="form-control" id="email-address" name="email" required>
+							    		</div><!-- End .form-group -->
+
+                                        <div class="form-footer">
+							    			<button type="submit" class="btn btn-outline-primary-2" onclick="payWithPaystack()">
+			                					<span>pay</span>
+			            						<i class="icon-long-arrow-right"></i>
+			                				</button>
+							    		</div><!-- End .form-footer -->
+							    	</form>
+							    </div><!-- .End .tab-pane -->
+							</div><!-- End .tab-content -->
+						</div><!-- End .form-tab -->
+            		</div><!-- End .form-box -->
+            	</div><!-- End .container -->
+            </div><!-- End .login-page section-bg -->
+      
+
+    </div><!-- End .page-wrapper -->
+ <script>
+    const paymentForm = document.getElementById('paymentForm');
+    paymentForm.addEventListener("submit", payWithPaystack, false);
+    
+    function payWithPaystack(e) {
+    
+      let handler = PaystackPop.setup({
+        key: 'pk_test_ea75ece062f2a82f8f18506dbeff5f085a1ca58a', // Replace with your public key
+        email: document.getElementById("email-address").value,
+        amount: document.getElementById("amount").value * 100,
+        ref: ''+Math.floor((Math.random() * 1000000000) + 1), // generates a pseudo-unique reference. Please replace with a reference you generated. Or remove the line entirely so our API will generate one for you
+        // label: "Optional string that replaces customer email"
+        onClose: function(){
+          alert('Window closed.');
+        },
+        callback: function(response){
+          let message = 'Payment complete! Reference: ' + response.reference;
+          alert(message);
+        }
+      });
+    
+      handler.openIframe();
+    }
+    
+ </script>
+ <script src="https://js.paystack.co/v1/inline.js"></script>
+    
+{% endblock content %}
+    

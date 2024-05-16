@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 SITE_ID=1
 
+from dotenv import load_dotenv
+load_dotenv()
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -55,7 +57,9 @@ INSTALLED_APPS = [
     'store',
     'crispy_forms',
     "crispy_bootstrap4",
-    'django_countries'
+    'django_countries',
+    'paystack',
+    'payments',
     
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
@@ -109,7 +113,8 @@ SECRET_KEY = 'django-insecure--z_2ma50$%ab+h24ef#bu_f_zsf4(d=d32$91dt8m6uh(!@9$!
 WSGI_APPLICATION = 'e_commerce.wsgi.application'
 
 
-
+PAYSTACK_SECRETE_KEY = os.getenv('SECRET_KEY')
+PAYSTACK_PUBLISHABLE = os.getenv('PUBLISHABLE')
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
