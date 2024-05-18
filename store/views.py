@@ -10,6 +10,7 @@ from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 from django.core.exceptions import ObjectDoesNotExist
 from .form import CheckoutForm
+
 # Create your views here.
 class StoreView(ListView):
     model = Product
@@ -26,60 +27,11 @@ def dash_board(request):
     return render(request, 'store/dashboard.html')
 
 
-
-
-
-# check out view
-class CheckoutView(View):
-    def get(self, *args, **kwargs):
-        form = CheckoutForm()
-    
-        order = Order.objects.filter(user=self.request.user, is_ordered=False)
-        cart= Cart.objects.filter(user=self.request.user, is_ordered=False)
-        
-        context = {
-            'order':{
-                'form': form,
-                'order': order,
-                'cart': cart,
-            }
-        }
-        return render(self.request, 'store/checkout.html', context)
-    
-    def post(self, *args, **kwargs):
-        form = CheckoutForm(self.request.POST or None)
-        
-        try:
-            order = Order.objects.get(user=self.request.user, is_ordered=False)
-            if form.is_valid():       
-                street_address = form.cleaned_data.get('street_address')
-                apartment = form.cleaned_data.get('apartment')
-                town = form.cleaned_data.get('town')
-                state = form.cleaned_data.get('state')
-                country = form.cleaned_data.get('country')
-                zip_code = form.cleaned_data.get('zip_code')
-                payment_option = form.cleaned_data.get('payment_option')
-                billing_address = BillingAddress(user=self.request.user, street_address=street_address,apartment=apartment, town=town,
-                state=state, country=country,zip_code=zip_code,payment_option=payment_option)
-                billing_address.save()
-                order.billing_address= billing_address
-                order.save()
-                messages.success(self.request, 'order received')
-                return(redirect('store:payment',))
-            messages.warning(self.request, 'order failed')
-            return(redirect('store:cart', ))
-                  
-        except ObjectDoesNotExist:
-            messages.error(self.request, 'you dont have an active order')
-            return redirect('store:categories')
-
-
-# payment vire
+# payment view
 class PaymentView(View):
     def get(self, *args, **kwargs):
         return render(self.request, 'store/paystack.html', {})
         
-    
 
 def logout_view(request):
     logout(request)
@@ -127,8 +79,6 @@ class CartView(LoginRequiredMixin, View):
 
  
 
-
-
 @login_required
 def add_to_cart(request, slug):
     product = get_object_or_404(Product, slug=slug)
@@ -149,14 +99,6 @@ def add_to_cart(request, slug):
     return redirect('store:store_item',slug=slug,)
 
 
-
-
-
-
-
-
-
-@login_required
 def delete_cart(request, slug,):
     product = get_object_or_404(Product, slug=slug,)
     cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)
@@ -173,10 +115,6 @@ def delete_cart(request, slug,):
     else:       
         return redirect('store:categories', slug=slug)
     # return redirect('store:store_item', slug=slug)
-
-
-
-
 
  
 #increase cart quantity 
@@ -219,6 +157,55 @@ def reduce_cart_quantity(request, slug):
         return redirect('store:cart',)
     # return redirect('store:store_item', slug=slug)
   
+
+
+# check out view
+class CheckoutView(View):
+    def get(self, *args, **kwargs):
+        form = CheckoutForm()
+    
+        order = Order.objects.filter(user=self.request.user, is_ordered=False)
+        cart= Cart.objects.filter(user=self.request.user, is_ordered=False)
+        
+        context = {
+            'order':{
+                'form': form,
+                'order': order,
+                'cart': cart,
+            }
+        }
+        return render(self.request, 'store/checkout.html', context)
+    
+    def post(self, *args, **kwargs):
+        form = CheckoutForm(self.request.POST or None)
+        
+        try:
+            order = Order.objects.get(user=self.request.user, is_ordered=False)
+            if form.is_valid():       
+                street_address = form.cleaned_data.get('street_address')
+                apartment = form.cleaned_data.get('apartment')
+                town = form.cleaned_data.get('town')
+                state = form.cleaned_data.get('state')
+                country = form.cleaned_data.get('country')
+                zip_code = form.cleaned_data.get('zip_code')
+                payment_option = form.cleaned_data.get('payment_option')
+                billing_address = BillingAddress(user=self.request.user, street_address=street_address,apartment=apartment, town=town,
+                state=state, country=country,zip_code=zip_code,payment_option=payment_option)
+                billing_address.save()
+                order.billing_address= billing_address
+                order.save()
+                amount = order.get_total()
+                payment = Payments.objects.create(user=self.request.user,amount=amount,)
+                messages.success(self.request, 'order received')
+                
+                
+                return(redirect('store:payment',))
+            messages.warning(self.request, 'order failed')
+            return(redirect('store:cart', ))
+                  
+        except ObjectDoesNotExist:
+            messages.error(self.request, 'you dont have an active order')
+            return redirect('store:categories')
 
 
     

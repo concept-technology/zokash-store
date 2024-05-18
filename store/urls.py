@@ -21,7 +21,7 @@ urlpatterns = [
      
      path('delete-cart/<slug>',views.delete_cart, name='delete_cart'),
      
-     path('check-out',views.CheckoutView.as_view(), name='check-out'),
+     path('cart/check-out',views.CheckoutView.as_view(), name='check-out'),
      
      path('cart/', views.CartView.as_view(), name='cart'),
      

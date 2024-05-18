@@ -9,8 +9,6 @@ class ProductAdmin(admin.ModelAdmin):
     image_tag.short_description = 'Image'
     
 
-
-
 class CartAdmin(admin.ModelAdmin):    
     list_display = ['product', 'user', 'get_price_tag'] 
     class Meta:

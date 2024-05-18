@@ -11,6 +11,7 @@ urlpatterns = [
     path('', include('store.urls')),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+    path('check-out/', include("payments.urls")),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

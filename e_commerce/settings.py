@@ -112,8 +112,7 @@ TEMPLATES = [
 SECRET_KEY = 'django-insecure--z_2ma50$%ab+h24ef#bu_f_zsf4(d=d32$91dt8m6uh(!@9$!'
 WSGI_APPLICATION = 'e_commerce.wsgi.application'
 
-
-PAYSTACK_SECRETE_KEY = os.getenv('SECRET_KEY')
+PAYSTACK_SECRET_KEY = os.getenv('SECRET_KEY')
 PAYSTACK_PUBLISHABLE = os.getenv('PUBLISHABLE')
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
