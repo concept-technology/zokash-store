@@ -194,12 +194,8 @@ class CheckoutView(View):
                 billing_address.save()
                 order.billing_address= billing_address
                 order.save()
-                amount = order.get_total()
-                payment = Payments.objects.create(user=self.request.user,amount=amount,)
-                messages.success(self.request, 'order received')
-                
-                
-                return(redirect('store:payment',))
+                messages.success(self.request, 'address created')          
+                return(redirect('initiate_payment',))
             messages.warning(self.request, 'order failed')
             return(redirect('store:cart', ))
                   

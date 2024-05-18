@@ -22,6 +22,7 @@ payment_choices= (
 )
 
 
+
 label_choices = (
     ('new', 'label-new'),
     ('out', 'label-out'),
@@ -168,10 +169,7 @@ class Order(models.Model):
         # get the price in the order
     def total_price(self):
         return self.get_total()
+    
+
          
-payment_choices = (
-    ('paypal', 'paypal'),
-    ('ussd transfer', 'ussd transfer'),
-    ('mobile transfer', 'mobile transfer'),
-) 
 
