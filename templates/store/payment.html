@@ -1,6 +1,10 @@
 {% extends 'store/base.html' %}
 <!-- CSS only -->
 {%include 'store/partials/_header.html'%}
+{% load paystack %}
+
+
+
 
 {% load crispy_forms_tags %}
 {% block content %}
@@ -48,9 +52,12 @@
                                                             {% for items in order %}							
                                                             <td>Grand Total:</td>
                                                             <td>N{{ items.get_total }}</td>
-                                                            <input type="hidden" name="amount" value="{{ items.get_total }}"/>
+                                                            <!-- <input type="hidden" name="amount" value="{{ items.get_total }}"/> -->
+
+                                        {% paystack_button amount={{ items.get_total }} email={{user.email}} %}
+
                                                             {%endfor%}
-                                                            <input type="hidden" value="{{user.email}}" name="email" />
+                                                            <!-- <input type="hidden" value="{{user.email}}" name="email" /> -->
                                                         	<transaction>
 
                                                             </transaction>		

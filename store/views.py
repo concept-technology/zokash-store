@@ -230,9 +230,10 @@ def initiate_payment(request):
             'amount_value': payment.amount_value(),
             'order':order         
         }
+
         return render(request, 'store/make-payment.html', context)
 
-    return render(request, 'store/payment.html', {'order':order,'cart':cart})
+    return render(request, 'store/payment.html', {'order':Order.objects.filter(is_ordered=False, user=request.user),'cart':cart})
 
 
 
@@ -244,12 +245,13 @@ def verify_payment(request, ref):
           
     
     if verified:
-        payment.order.is_ordered = True
+        order.is_ordered = True
+        order.save()
         payment.verified =True       
         payment.save()
         
         return render(request, "success.html")
-    return render(request, "store/success.html")
+    return redirect("store:initiate_payment")
 
  
     
