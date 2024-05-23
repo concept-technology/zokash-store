@@ -1,1 +1,1 @@
-web: gunicorn atinuke_couture.wsgi
+web: gunicorn e_commerce.wsgi
