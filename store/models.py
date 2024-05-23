@@ -1,6 +1,7 @@
 import secrets
 from django.db import models
 from django.conf import settings
+from django.shortcuts import redirect
 from django_countries.fields import CountryField
 from django_countries import countries
 from .paystack import Paystack
@@ -210,12 +211,12 @@ class Payment(models.Model):
         paystack = Paystack()
         status, result = paystack.verify_payment(self.ref, int(self.amount))
         if status:
-            if result['amount'] / 100 == self.amount:
+            if int(result['amount']) / 100 == int(self.amount):
                 self.verified = True
                 self.save()
-        if self.verified:
-            return True
-        return False
+            self.verified = False
+        return status
+        
     
     
     

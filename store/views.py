@@ -235,22 +235,23 @@ def initiate_payment(request):
 
     return render(request, 'store/payment.html', {'order':Order.objects.filter(is_ordered=False, user=request.user),'cart':cart})
 
-
+def not_varified(request):
+    return render(request, 'store/not_varified.html')
 
 
 def verify_payment(request, ref):
     order = Order.objects.get(user=request.user, is_ordered=False)
     payment = Payment.objects.get(ref=ref,order=order)
-    verified = payment.verify_payment()
+    verified = payment.verify_payment(ref)
           
     
     if verified:
-        payment.order.is_ordered = True
+        order.is_ordered = True
         payment.verified =True       
         payment.save()
         
         return render(request, "store/success.html")
-    return redirect('store:initiate_payment')
+    return redirect('store:not_varified')
 
  
     
