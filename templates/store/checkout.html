@@ -1,0 +1,158 @@
+{% extends 'store/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}    
+    <div class="page-wrapper">
+
+        <main class="main">
+            <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'store:index'">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'store:categories'%}">Shop</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'store:cart'%}">cart</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+                    </ol>
+                </div><!-- End .container -->
+            </nav><!-- End .breadcrumb-nav -->
+
+            <div class="page-content">
+            	<div class="checkout">
+	                <div class="container">
+            			<div class="checkout-discount">
+            				<form action="#">
+        						<input type="text" class="form-control" required id="checkout-discount-input">
+            					<label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
+            				</form>
+            			</div><!-- End .checkout-discount -->
+						
+            			<form action="{% url 'store:check-out'%}" method="post">
+                            {% csrf_token %}
+		                	<div class="row">
+		                		<div class="col-lg-9">
+		                			<h2 class="checkout-title">Billing Details</h2><!-- End .checkout-title -->
+	            						<label>Street address *</label>
+                                        {{order.form.street_address}}
+	            						<!-- <input type="text" class="form-control" placeholder="House number and Street name" required> -->
+	            						<!-- <input type="text" class="form-control" placeholder="Appartments, suite, unit etc ..." required> -->
+                                        {{order.form.apartment}}
+	            						<div class="row">
+		                					<div class="col-sm-6">
+		                						<label>Town / City *</label>
+                                        {{order.form.town}}
+
+		                						<!-- <input type="text" class="form-control" required> -->
+		                					</div><!-- End .col-sm-6 -->
+
+		                					<div class="col-sm-6">
+		                						<label>State</label>
+                                        {{order.form.state}}
+
+		                						<!-- <input type="text" class="form-control" required> -->
+		                					</div>
+                                            
+                                            <div class="col-sm-6">
+		                						<label class="form-control">
+                                        {{order.form.country}}
+                                                </label>
+		                					</div>
+                                            <!-- End .col-sm-6 -->
+                                            <div class="col-sm-6">
+		                						<label>Postcode / ZIP *</label>
+                                            {{order.form.zip_code}}                         
+		                						<!-- <input type="text" class="form-control" required> -->
+		                					</div><!-- End .col-sm-6 -->
+
+		                				</div><!-- End .row -->
+
+<!-- 
+	                					<label>Order notes (optional)</label>
+	        							<textarea class="form-control" cols="30" rows="4" placeholder="Notes about your order, e.g. special notes for delivery"></textarea>
+		                		 -->
+                                
+                                    </div><!-- End .col-lg-9 -->
+		                		<aside class="col-lg-3">
+		                			<div class="summary">
+		                				<h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
+
+		                				<table class="table table-summary">
+		                					<thead>
+		                						<tr>
+		                							<th>Product</th>
+		                							<th>Total</th>
+		                						</tr>
+		                					</thead>
+
+		                					<tbody>
+                                                
+                                                {% for items in order.cart %}
+                                                    
+		                						<tr>
+		                							<td><a href="#">{{items.product.title}} * {{items.quantity}}</a></td>
+		                							<td>${{items.get_price_tag}}</td>
+		                						</tr>
+                                                {% endfor %}
+                                                    
+
+                                                
+                                                {% for items in order.order %}
+                                                    
+		                						<tr class="summary-subtotal">
+		                							<td>Subtotal:</td>
+		                							<td>N {{items.get_total}}</td>
+		                						</tr><!-- End .summary-subtotal -->
+                                                {% endfor %}
+                                                    
+		                						<tr>
+		                							<td>Shipping:</td>
+		                							<td>Free shipping</td>
+		                						</tr>
+
+                                                
+                                                {% for items in order.order %}
+                                                    
+                                                
+                                            <tr class="summary-total">
+                                                <td>Total:</td>
+                                                <td>N {{items.get_total}}</td>
+                                            </tr><!-- End .summary-total -->
+                                                {% endfor %}
+		                					</tbody>
+		                				</table><!-- End .table table-summary -->
+
+		                				<div class="accordion-summary" id="accordion-payment">
+										    <div class="card">
+										        <div class="card-header" id="heading-2">
+										            <h2 class="card-title">
+										                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
+										                    payments options										                </a>
+										            </h2>
+										        </div><!-- End .card-header -->
+										        <div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
+										            <div class="card-body">
+                                                        {{order.form.payment_option}}
+										             
+										            </div><!-- End .card-body -->
+										        </div><!-- End .collapse -->
+										    </div><!-- End .card -->
+
+										 
+										    </div><!-- End .card -->
+
+	
+										</div><!-- End .accordion -->
+
+		                				<button type="submit" class="btn btn-outline-primary-2 btn-order">
+		                					<span class="btn">Place Order</span>
+		                				</button>
+		                			</div><!-- End .summary -->
+		                		</aside><!-- End .col-lg-3 -->
+		                	</div><!-- End .row -->
+            			</form>
+	                </div><!-- End .container -->
+                </div><!-- End .checkout -->
+            </div><!-- End .page-content -->
+        </main><!-- End .main -->
+
+    </div><!-- End .page-wrapper -->
+    <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+    {% endblock content %}

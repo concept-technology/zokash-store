@@ -1,21 +1,22 @@
 {% extends 'store/base.html' %}
 <!-- CSS only -->
+{%include 'store/partials/_header.html'%}
+
 {% load crispy_forms_tags %}
-
-
 {% block content %}
 <nav aria-label="breadcrumb" class="breadcrumb-nav">
     <div class="container">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'store:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url  'store:categories' %}">Shop</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+            <li class="breadcrumb-item"><a href="{% url  'store:cart' %}">cart</a></li>
+            <li class="breadcrumb-item"><a href="{% url  'store:check-out' %}">check-out</a></li>
+            <li class="breadcrumb-item active" aria-current="page">order</li>
         </ol>
     </div><!-- End .container -->
 </nav><!-- End .breadcrumb-nav -->
             <!-- <div class="container"> -->
                 <div class="row d-flex justify-content-center m-3">
-                                <form id="paymentForm"  method="POST" action="{% url 'initiate_payment' %}">
+                                <form id="paymentForm"  method="POST" action="{% url 'store:initiate_payment' %}">
 
                                     
                                             <div class="summary">
@@ -44,12 +45,15 @@
                                                             <td></td>
                                                         </tr>
                                                         <tr class="summary-total">
+                                                            {% for items in order %}							
                                                             <td>Grand Total:</td>
-                                                            
-                                                        {% for items  in order %}							
-        
-                                                            <td>N{{items.get_total}}</td>
+                                                            <td>N{{ items.get_total }}</td>
+                                                            <input type="hidden" name="amount" value="{{ items.get_total }}"/>
                                                             {%endfor%}
+                                                            <input type="hidden" value="{{user.email}}" name="email" />
+                                                        	<transaction>
+
+                                                            </transaction>		
                                                         </tr><!-- End .summary-total -->
                                                     </tbody>
                                                 </table><!-- End .table table-summary -->
@@ -57,8 +61,7 @@
                                             </div><!-- End .summary -->
                                     {% csrf_token %}
                                             
-                                    <input type="hidden" name="amount"/>
-                                    <input type="hidden" value="{{user.email}}" name="email" />
+                                  
                                     <div class="form-footer">
                                         <button type="submit" class="btn btn-primary">
                                             <span>pay</span>

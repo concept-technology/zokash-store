@@ -1,7 +1,10 @@
+import secrets
 from django.db import models
 from django.conf import settings
 from django_countries.fields import CountryField
 from django_countries import countries
+from .paystack import Paystack
+
 # from django.utils import timezone
 
 from django.urls import reverse
@@ -41,8 +44,8 @@ class Category(models.Model):
 class Product(models.Model):
     title = models.CharField(max_length=255)
     description= models.TextField(max_length=1000)
-    price = models.DecimalField(decimal_places=2, max_digits=9)
-    discount_price = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True, default='')
+    price = models.IntegerField(default=0)
+    discount_price = models.IntegerField(default=0)
     img_1  = models.ImageField(upload_to='static/media/img', default='img')
     img_2  = models.ImageField(upload_to='static/media/img', default='img')
     img_3  = models.ImageField(upload_to='static/media/img', default='img')
@@ -139,11 +142,11 @@ class BillingAddress(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
     is_ordered = models.BooleanField(default=False)
-    product = models.ManyToManyField(Cart)
+    product = models.ManyToManyField(Cart,)
     billing_address = models.ForeignKey(BillingAddress, on_delete=models.SET_NULL, blank=True, null=True)
     
-    def __str__(self) -> str:
-        return f"{self.user.username}"
+    def __str__(self):
+        return f" {self.user.username}, address:  {self.billing_address}"
     
 
 
@@ -169,6 +172,54 @@ class Order(models.Model):
         # get the price in the order
     def total_price(self):
         return self.get_total()
+    
+    
+    
+    
+    
+    
+class Payment(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, default='', null=True, blank=True)
+    amount = models.PositiveIntegerField()
+    ref = models.CharField(max_length=200)
+    email = models.EmailField()
+    verified = models.BooleanField(default=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-date_created',)
+
+    def __str__(self):
+        return f"Payment: {self.amount}"
+
+    def save(self, *args, **kwargs):
+        while not self.ref:
+            ref = secrets.token_urlsafe(10)
+            object_with_similar_ref = Payment.objects.filter(ref=ref)
+            if not object_with_similar_ref:
+                self.ref = ref
+
+        super().save(*args, **kwargs)
+        
+        
+    def amount_value(self):
+        amount = int(self.amount * 100)
+        return amount
+
+    def verify_payment(self):
+        paystack = Paystack()
+        status, result = paystack.verify_payment(self.ref, int(self.amount), self.verified)
+        if status:
+            if result['amount'] / 100 == self.amount:
+                self.verified = True
+                self.save()
+        if self.verified:
+            return True
+        return False
+    
+    
+    
+
     
 
          

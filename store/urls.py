@@ -36,6 +36,10 @@ urlpatterns = [
      path('checkout/payment', views.PaymentView.as_view(), name='payment'),
      
      
+     path('payment/', views.initiate_payment, name='initiate_payment'),
+     path('verify-payment/<str:ref>/', views.verify_payment, name='verify_payment'),
+     
+     
      
 ]
 

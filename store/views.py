@@ -10,6 +10,9 @@ from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 from django.core.exceptions import ObjectDoesNotExist
 from .form import CheckoutForm
+from .models import Payment
+from django.conf import settings
+
 
 # Create your views here.
 class StoreView(ListView):
@@ -113,7 +116,7 @@ def delete_cart(request, slug,):
             messages.info(request, 'you have already removed this item from cart')
             return redirect('store:cart')
     else:       
-        return redirect('store:categories', slug=slug)
+        return redirect('store:categories',)
     # return redirect('store:store_item', slug=slug)
 
  
@@ -175,7 +178,8 @@ class CheckoutView(View):
             }
         }
         return render(self.request, 'store/checkout.html', context)
-    
+
+
     def post(self, *args, **kwargs):
         form = CheckoutForm(self.request.POST or None)
         
@@ -189,13 +193,16 @@ class CheckoutView(View):
                 country = form.cleaned_data.get('country')
                 zip_code = form.cleaned_data.get('zip_code')
                 payment_option = form.cleaned_data.get('payment_option')
-                billing_address = BillingAddress(user=self.request.user, street_address=street_address,apartment=apartment, town=town,
-                state=state, country=country,zip_code=zip_code,payment_option=payment_option)
-                billing_address.save()
+                billing_address = BillingAddress.objects.create(user=self.request.user,
+                            order=order,                                     
+                            street_address=street_address,
+                            apartment=apartment, town=town,
+                            state=state, country=country,
+                            zip_code=zip_code,
+                            payment_option=payment_option)              
                 order.billing_address= billing_address
                 order.save()
-                messages.success(self.request, 'address created')          
-                return(redirect('initiate_payment',))
+                return redirect('store:initiate_payment')
             messages.warning(self.request, 'order failed')
             return(redirect('store:cart', ))
                   
@@ -204,7 +211,47 @@ class CheckoutView(View):
             return redirect('store:categories')
 
 
+
+
+def initiate_payment(request):
+    order = Order.objects.get(is_ordered=False, user=request.user)
+    cart =Cart.objects.filter(user=request.user, is_ordered=False)
+    if request.method == "POST":
+        amount = request.POST['amount']
+        email = request.POST['email']
+        pk = settings.PAYSTACK_PUBLIC_KEY
+
+        payment = Payment.objects.create(amount=int(amount), email=email,order=order)
+        payment.save()
+        context = {
+            'payment': payment,
+            'field_values': request.POST,
+            'paystack_pub_key': pk,
+            'amount_value': payment.amount_value(),
+            'order':order         
+        }
+        return render(request, 'store/make-payment.html', context)
+
+    return render(request, 'store/payment.html', {'order':order,'cart':cart})
+
+
+
+
+def verify_payment(request, ref):
+    order = Order.objects.get(user=request.user, is_ordered=False)
+    payment = Payment.objects.get(ref=ref,order=order)
+    verified = payment.verify_payment()
+          
     
+    if verified:
+        payment.order.is_ordered = True
+        payment.verified =True       
+        payment.save()
+        
+        return render(request, "success.html")
+    return render(request, "store/success.html")
+
+ 
     
         
         

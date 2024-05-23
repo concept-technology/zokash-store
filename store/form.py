@@ -4,8 +4,7 @@ from  django_countries.widgets import CountrySelectWidget
 payment_choices= (
     ('paypal', 'paypal'),
     ('paystack', 'paystack'),
-    ('ussd transfer', 'ussd transfer'),
-    ('mobile transfer', 'mobile transfer')
+
 )
 
 class CheckoutForm(forms.Form):

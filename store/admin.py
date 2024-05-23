@@ -2,6 +2,14 @@ from django.contrib import admin
 from .models import Product,Cart,Order, Category, BillingAddress
 from django.utils.html import format_html
 
+from .models  import  Payment
+
+class  PaymentAdmin(admin.ModelAdmin):
+    list_display  = ['order', "ref", 'amount', "verified", "date_created"]
+
+admin.site.register(Payment, PaymentAdmin)
+
+
 class ProductAdmin(admin.ModelAdmin):
     def image_tag(self, obj):
         return format_html('<img src="{}" style="max-width:50px; max-height:100px"/>'.format(obj.img_1.url))
