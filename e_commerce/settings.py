@@ -61,6 +61,8 @@ INSTALLED_APPS = [
     'paystack',
     'payments',
     'dotenv',
+    'paystackapi',
+    # 'request',
     
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False

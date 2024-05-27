@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from store.paystack import Paystack
 from .models import Product,Cart, Order, BillingAddress
 from django.views.generic import DetailView, ListView,View
 from  django.shortcuts import get_object_or_404
@@ -12,6 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .form import CheckoutForm
 from .models import Payment
 from django.conf import settings
+
 
 
 # Create your views here.
@@ -68,7 +70,7 @@ class ProductCategoriesView(ListView):
 class CartView(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
         try:
-            order = Order.objects.all().filter(user=self.request.user, is_ordered=False)
+            order = Order.objects.filter(user=self.request.user, is_ordered=False)
             cart = Cart.objects.filter(user=self.request.user, is_ordered=False) # filter cart by user
             context = {
                 'object':{
@@ -221,7 +223,7 @@ def initiate_payment(request):
         email = request.POST['email']
         pk = settings.PAYSTACK_PUBLIC_KEY
 
-        payment = Payment.objects.create(amount=int(amount), email=email,order=order)
+        payment = Payment.objects.create(amount=int(amount), email=email,order=order, user=request.user)
         payment.save()
         context = {
             'payment': payment,
@@ -235,25 +237,27 @@ def initiate_payment(request):
 
     return render(request, 'store/payment.html', {'order':Order.objects.filter(is_ordered=False, user=request.user),'cart':cart})
 
-def not_varified(request):
-    return render(request, 'store/not_varified.html')
-
-
 def verify_payment(request, ref):
-    order = Order.objects.get(user=request.user, is_ordered=False)
-    payment = Payment.objects.get(ref=ref,order=order)
-    verified = payment.verify_payment(ref)
-          
     
-    if verified:
-        order.is_ordered = True
-        payment.verified =True       
+    order = Order.objects.filter(is_ordered= False, user=request.user)[0] 
+    payment = Payment.objects.get(ref=ref,)
+
+    if payment.amount == order.get_total():
+        payment.verified = True
         payment.save()
         
-        return render(request, "store/success.html")
-    return redirect('store:not_varified')
-
- 
+        order_product = order.product.all()
+        order_product.update(is_ordered=True)
+        for items in order_product:
+            items.save()       
+        order.is_ordered = True
+        order.Payment = payment
+        order.save()
+        
+        
+        return render(request, 'store/success.html',)  
+    return redirect('')  
+    
     
         
         

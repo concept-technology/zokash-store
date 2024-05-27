@@ -139,48 +139,14 @@ class BillingAddress(models.Model):
        return self.user.username
    
 
-    
-class Order(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
-    is_ordered = models.BooleanField(default=False)
-    product = models.ManyToManyField(Cart,)
-    billing_address = models.ForeignKey(BillingAddress, on_delete=models.SET_NULL, blank=True, null=True)
-    
-    def __str__(self):
-        return f" {self.user.username}, address:  {self.billing_address}"
-    
-
-
-    # display the quantity in table
-    def quantity(self):
-        for items in self.product.all():
-            return items.quantity
-        return None
-    
-    def get_total(self):
-        total = 0
-        for items in self.product.all():
-            total += items.get_total_price()
-        return total
-    
-        # display the product title in datable
-    def number_of_items(request):
-        queryset = Cart.objects.filter(user=request.user, is_ordered=False).count()
-        if queryset == 0:
-            return '-'
-        return queryset
-    
-        # get the price in the order
-    def total_price(self):
-        return self.get_total()
-    
+  
     
     
     
     
     
 class Payment(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.PROTECT, default='', null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
     amount = models.PositiveIntegerField()
     ref = models.CharField(max_length=200)
     email = models.EmailField()
@@ -204,24 +170,65 @@ class Payment(models.Model):
         
         
     def amount_value(self):
-        amount = int(self.amount * 100)
-        return amount
+        return int(self.amount) * 100
 
     def verify_payment(self):
         paystack = Paystack()
-        status, result = paystack.verify_payment(self.ref, int(self.amount))
+        status, result = paystack.verify_payment(self.ref)
         if status:
-            if int(result['amount']) / 100 == int(self.amount):
+            if result / 100 == self.amount:
                 self.verified = True
-                self.save()
-            self.verified = False
-        return status
-        
+            self.save()
+        if self.verified:
+            return True
+        return False  
     
     
     
 
     
 
-         
+      
+class Order(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
+    is_ordered = models.BooleanField(default=False)
+    product = models.ManyToManyField(Cart,)
+    billing_address = models.ForeignKey(BillingAddress, on_delete=models.SET_NULL, blank=True, null=True)
+    Payment = models.ForeignKey(Payment, on_delete=models.PROTECT, blank=True, null=True)
+    
+    def __str__(self):
+        return f" {self.user.username}, address:  {self.billing_address}"
+    
+
+
+    # display the quantity in table
+    def quantity(self):
+        for items in self.product.all():
+            return items.quantity
+        return None
+    
+    def get_total(self):
+        total = 0
+        for items in self.product.all():
+            total += items.get_total_price()
+        return total
+    
+        # display the product title in datable
+    def number_of_items(self):
+        queryset = Cart.objects.filter(user=self.user, is_ordered=False).count()
+        if queryset == 0:
+            return '-'
+        return queryset
+    
+    def items(self):
+        queryset = self.product.count()
+        if queryset == 0:
+            return '-'
+        return queryset
+    
+        # get the price in the order
+    def total_price(self):
+        return self.get_total()
+
+       
 

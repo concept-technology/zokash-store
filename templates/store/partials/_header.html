@@ -66,6 +66,9 @@
                     <div class="dropdown-menu dropdown-menu-right">
                         <div class="dropdown-cart-products">
                             {% for cart in user|cart_total%}
+                            
+                                                        
+                            
                             <div class="product">
                                 <div class="product-cart-details">
                                     <h4 class="product-title">
@@ -93,19 +96,20 @@
                             </div><!-- End .product -->
                             {%endfor%}
                             {% if user|cart_total%}
-                         <div class="dropdown-cart-tot??al"> 
-                            <!-- <span>Total</span> -->
-                            <!-- <span class="cart-total-price">$</span> -->
-                        </div>
-                        <div class="dropdown-cart-action">
-                            <a href="{% url 'store:cart' %}" class="btn btn-primary">View Cart</a>
-                            <a href="{% url 'store:check-out'%}" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
-                        </div><!-- End .dropdown-cart-total -->
-                        {% else %}
-                        <p>you have no items in cart <a href="{%url 'store:categories'%}">start Shopping</a></p>
-                        {%endif%}
-                    </div><!-- End .dropdown-menu -->
-                </div><!-- End .cart-dropdown -->
+                            <div class="dropdown-cart-tot??al"> 
+                                <!-- <span>Total</span> -->
+                                <!-- <span class="cart-total-price">$</span> -->
+                            </div>
+                            <div class="dropdown-cart-action">
+                                <a href="{% url 'store:cart' %}" class="btn btn-primary">View Cart</a>
+                                <a href="{% url 'store:check-out'%}" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
+                            </div><!-- End .dropdown-cart-total -->
+                            {% else %}
+                            <p>you have no items in cart <a href="{%url 'store:categories'%}">start Shopping</a></p>
+                            {%endif%}
+
+                        </div><!-- End .dropdown-menu -->
+                    </div><!-- End .cart-dropdown -->
             </div><!-- End .header-right -->
         </div><!-- End .container -->
     </div><!-- End .header-middle -->

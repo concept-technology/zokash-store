@@ -5,7 +5,7 @@ from django.utils.html import format_html
 from .models  import  Payment
 
 class  PaymentAdmin(admin.ModelAdmin):
-    list_display  = ['order', "ref", 'amount', "verified", "date_created"]
+    list_display  = ["user","ref",'amount', "verified", "date_created"]
 
 admin.site.register(Payment, PaymentAdmin)
 
@@ -26,7 +26,7 @@ class CartAdmin(admin.ModelAdmin):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display= [ 'user','number_of_items','total_price','is_ordered',]
+    list_display= [ 'user','items','total_price','is_ordered',]
     readonly_fields = ('user',)
 
 class CategoryAdmin(admin.ModelAdmin):

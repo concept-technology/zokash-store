@@ -14,7 +14,7 @@ def cart_item_count(user):
 @register.filter
 def cart_total(user):
     if user.is_authenticated:
-        queryset = Cart.objects.all().filter(user=user)
+        queryset = Cart.objects.all().filter(user=user, is_ordered=False)
         return queryset
     
 @register.filter
