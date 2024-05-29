@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product,Cart,Order, Category, BillingAddress
+from .models import Product,Cart,Order, Category,CustomersAddress, Coupon, Refunds
 from django.utils.html import format_html
 
 from .models  import  Payment
@@ -23,12 +23,23 @@ class CartAdmin(admin.ModelAdmin):
         Model= Cart
                     
 
+class make_accept_refund(admin.ModelAdmin, ):
+    autocomplete_fields = ['is_refund_request', 'refund_granted']
 
+
+make_accept_refund.short_description = 'update refund granted'
+    
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display= [ 'user','items','total_price','is_ordered',]
+    list_display= [ 'user','items','total_price','reference','is_ordered','is_delivered', 'is_received', 'is_refund_request', 'refund_granted']
     readonly_fields = ('user',)
-
+    list_filter =  [ 'is_ordered','is_delivered', 'is_received', 'is_refund_request', ]
+    
+    list_display_links = ['user','items',]
+    search_fields = ['user__username', 'reference']
+    
+    
+    
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['title']
 
@@ -37,6 +48,14 @@ class AddressAdmin(admin.ModelAdmin):
     list_display = '__all__'
 
 
+class CouponAdmin(admin.ModelAdmin):
+        list_display = ['code', 'valid_from', 'valid_to',
+
+                    'discount', 'active','is_used']
+
+        list_filter = ['active', 'valid_from', 'valid_to']
+
+        search_fields = ['code']
 
 
 
@@ -45,4 +64,9 @@ admin.site.register(Cart, CartAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Category, CategoryAdmin)
 
-admin.site.register(BillingAddress)
+admin.site.register(CustomersAddress)
+admin.site.register(Coupon, CouponAdmin)
+admin.site.register(Refunds)
+
+
+actions = [make_accept_refund]

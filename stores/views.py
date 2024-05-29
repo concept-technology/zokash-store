@@ -2,21 +2,25 @@ from django.shortcuts import render
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from store.paystack import Paystack
-from .models import Product,Cart, Order, BillingAddress
+from .models import Product,Cart, Order, CustomersAddress, Coupon
 from django.views.generic import DetailView, ListView,View
 from  django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 from django.core.exceptions import ObjectDoesNotExist
-from .form import CheckoutForm
-from .models import Payment
+from .form import CheckoutForm, CouponForm,RefundRequestForm
+from .models import Payment, Refunds
 from django.conf import settings
+import random
+import string
 
 
 
 # Create your views here.
+
+def create_ref_code():
+    return ''.join(random.choices(string.ascii_lowercase + string.digits,k=15))
 class StoreView(ListView):
     model = Product
     template_name = 'index.html'
@@ -30,13 +34,7 @@ class ProductCategoriesView(ListView):
 
 def dash_board(request):
     return render(request, 'store/dashboard.html')
-
-
-# payment view
-class PaymentView(View):
-    def get(self, *args, **kwargs):
-        return render(self.request, 'store/paystack.html', {})
-        
+       
 
 def logout_view(request):
     logout(request)
@@ -177,6 +175,7 @@ class CheckoutView(View):
                 'form': form,
                 'order': order,
                 'cart': cart,
+                'coupon':CouponForm
             }
         }
         return render(self.request, 'store/checkout.html', context)
@@ -195,7 +194,7 @@ class CheckoutView(View):
                 country = form.cleaned_data.get('country')
                 zip_code = form.cleaned_data.get('zip_code')
                 payment_option = form.cleaned_data.get('payment_option')
-                billing_address = BillingAddress.objects.create(user=self.request.user,
+                billing_address = CustomersAddress.objects.create(user=self.request.user,
                             order=order,                                     
                             street_address=street_address,
                             apartment=apartment, town=town,
@@ -252,12 +251,72 @@ def verify_payment(request, ref):
             items.save()       
         order.is_ordered = True
         order.Payment = payment
+        order.reference = create_ref_code()
         order.save()
         
         
         return render(request, 'store/success.html',)  
     return redirect('')  
     
+
+def get_coupon(request,code):
+        try: 
+            coupon =  Coupon.objects.get(code=code)
+            return coupon         
+        except ObjectDoesNotExist:
+            messages.error(request, 'coupon does not exist')
+            return redirect('store:check-out')
+
+ 
+def add_coupon(request):
+    if request.method == 'POST':
+        form = CouponForm(request.POST or None)
+        if form.is_valid():
+            code =form.cleaned_data.get('code')
+            order = Order.objects.get(user=request.user,is_ordered=False,)
+            coupon = Coupon.objects.get(code=code, active=True)
+            if order.coupon == get_coupon(request, code):
+                discount = order.get_total() * coupon.discount / 100
+                order.get_total = discount
+                order.coupon = coupon
+                order.save()
+                messages.success(request, 'coupon applied',)
+                return redirect('store:check-out')
+            messages.error(request, 'ops invalid coupon')
+            return redirect('store:check-out')
+        return redirect('store:check-out')
+    return redirect('store:cart')
+                         
+
+class RequestRefund(View):
     
-        
-        
+    def get(self, *args, **kwargs):
+        form = RefundRequestForm()
+        context = {'form': form}
+        return render(self.request, 'store/refundpage.html', context)
+    
+    def post(self, *args, **kwargs):
+        form = RefundRequestForm(self.request.POST or None)
+        if form.is_valid():
+            try:
+                reference = form.cleaned_data.get('reference_code')
+                message = form.cleaned_data.get('message')
+                email = form.cleaned_data.get('email')
+                
+                order = Order.objects.get(reference= reference)
+                order.is_refund_request = True
+                order.save()
+                
+                refund = Refunds()
+                refund.order = order
+                refund.reason = message
+                refund.email = email
+                refund.save()
+                messages.success(self.request, 'your request is received')
+                return redirect('store:index')
+            except ObjectDoesNotExist:
+                messages.error(self.request, 'invalid order')
+                return redirect('store:refund-request')
+            
+                
+            

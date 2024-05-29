@@ -1,11 +1,11 @@
 import secrets
 from django.db import models
 from django.conf import settings
-from django.shortcuts import redirect
+from django.utils import dates
 from django_countries.fields import CountryField
-from django_countries import countries
-from .paystack import Paystack
-
+from django.core.validators import MinValueValidator, MaxValueValidator
+from datetime import datetime
+from django.utils import timezone
 # from django.utils import timezone
 
 from django.urls import reverse
@@ -122,9 +122,12 @@ class Cart(models.Model):
         return f"item:{title} price: {dis_count_price}, quantity: {self.quantity}"
             
 
+address_choices =(
+    ('shipping', 'shipping Address'),
+    ('billing', 'billing Address')
+)
 
-
-class BillingAddress(models.Model):
+class CustomersAddress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
     street_address = models.CharField(max_length=300)
     apartment = models.CharField(max_length=255)
@@ -133,6 +136,8 @@ class BillingAddress(models.Model):
     # telephone= models.IntegerField(default=0)
     zip_code = models.CharField(max_length=20)
     country = CountryField(multiple=False)
+    address_type = models.CharField(max_length=20, choices=address_choices)
+    default  = models.BooleanField(default=False)
     payment_option = models.CharField(max_length=255, choices=payment_choices)
    
     def __str__(self):
@@ -172,19 +177,26 @@ class Payment(models.Model):
     def amount_value(self):
         return int(self.amount) * 100
 
-    def verify_payment(self):
-        paystack = Paystack()
-        status, result = paystack.verify_payment(self.ref)
-        if status:
-            if result / 100 == self.amount:
-                self.verified = True
-            self.save()
-        if self.verified:
-            return True
-        return False  
     
     
     
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=50)
+    amount = models.IntegerField(default=0,)
+    valid_from = models.DateTimeField(default=timezone.now())
+    valid_to = models.DateTimeField(default=timezone.now())
+    discount = models.IntegerField(validators=[MinValueValidator(0),
+                               MaxValueValidator(100)],
+                   help_text='Percentage value (0 to 100)', default=0)
+
+    active = models.BooleanField(default=True)
+    is_used = models.BooleanField(default=False)
+    
+ 
+    def __str__(self) -> str:
+        return f"{self.code}   {self.amount}"
+       
 
     
 
@@ -193,8 +205,15 @@ class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
     is_ordered = models.BooleanField(default=False)
     product = models.ManyToManyField(Cart,)
-    billing_address = models.ForeignKey(BillingAddress, on_delete=models.SET_NULL, blank=True, null=True)
+    reference = models.CharField(max_length=50, default='')
+    billing_address = models.ForeignKey(CustomersAddress, related_name='billing_address', on_delete=models.SET_NULL, blank=True, null=True)
+    shipping_address = models.ForeignKey(CustomersAddress, related_name='shipping_address', on_delete=models.SET_NULL, blank=True, null=True)
     Payment = models.ForeignKey(Payment, on_delete=models.PROTECT, blank=True, null=True)
+    coupon = models.ForeignKey(Coupon,  on_delete=models.SET_NULL, blank=True, null=True)
+    is_delivered = models.BooleanField(default=False)
+    is_received = models.BooleanField(default=False)
+    is_refund_request = models.BooleanField(default=False)
+    refund_granted = models.BooleanField(default=False)
     
     def __str__(self):
         return f" {self.user.username}, address:  {self.billing_address}"
@@ -211,8 +230,13 @@ class Order(models.Model):
         total = 0
         for items in self.product.all():
             total += items.get_total_price()
-        return total
-    
+        # if self.coupon.code:
+        # total -= self.coupon.amount
+        return total 
+    def get_coupon(self):
+ 
+        return self.get_total() - self.coupon.amount
+  
         # display the product title in datable
     def number_of_items(self):
         queryset = Cart.objects.filter(user=self.user, is_ordered=False).count()
@@ -230,5 +254,12 @@ class Order(models.Model):
     def total_price(self):
         return self.get_total()
 
-       
 
+class Refunds(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    reason = models.TextField(default= '')
+    accepted = models.BooleanField(default=False)
+    email = models.EmailField()
+    
+    def __str__(self) -> str:
+        return f"{self.order} {self.reason}"

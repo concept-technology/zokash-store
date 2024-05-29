@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 # from .models import Payment
 from django.conf import settings
-from store.models import Order,Cart
+from stores.models import Order,Cart
 
 
 

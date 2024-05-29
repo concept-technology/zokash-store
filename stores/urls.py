@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from . import coupon
+
 app_name ='store'
 
 urlpatterns = [
@@ -33,13 +35,13 @@ urlpatterns = [
      
      path('increase-cart-quantity/<slug>', views.increase_cart_quantity, name='increase_cart'),
      
-     path('checkout/payment', views.PaymentView.as_view(), name='payment'),
+     path('add_coupon/', views.add_coupon, name='add_coupon'),
      
      
      path('payment/', views.initiate_payment, name='initiate_payment'),
      path('verify-payment/<str:ref>/', views.verify_payment, name='verify_payment'),
      
-     # path('not_varified/', views.not_varified, name='not_varified')
-     
+     path('refund-request', views.RequestRefund.as_view(), name='refund-request')
+  
 ]
 
