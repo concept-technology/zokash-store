@@ -31,11 +31,11 @@ make_accept_refund.short_description = 'update refund granted'
     
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display= [ 'user','items','total_price','reference','is_ordered','is_delivered', 'is_received', 'is_refund_request', 'refund_granted']
+    list_display= [ 'user','items','shipping_address','total_price','reference','is_ordered','is_delivered', 'is_received', 'is_refund_request', 'refund_granted']
     readonly_fields = ('user',)
     list_filter =  [ 'is_ordered','is_delivered', 'is_received', 'is_refund_request', ]
     
-    list_display_links = ['user','items',]
+    list_display_links = ['user','items', 'shipping_address']
     search_fields = ['user__username', 'reference']
     
     

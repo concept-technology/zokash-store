@@ -206,8 +206,7 @@ class Order(models.Model):
     is_ordered = models.BooleanField(default=False)
     product = models.ManyToManyField(Cart,)
     reference = models.CharField(max_length=50, default='')
-    billing_address = models.ForeignKey(CustomersAddress, related_name='billing_address', on_delete=models.SET_NULL, blank=True, null=True)
-    shipping_address = models.ForeignKey(CustomersAddress, related_name='shipping_address', on_delete=models.SET_NULL, blank=True, null=True)
+    shipping_address = models.ForeignKey(CustomersAddress, on_delete=models.SET_NULL, blank=True, null=True)
     Payment = models.ForeignKey(Payment, on_delete=models.PROTECT, blank=True, null=True)
     coupon = models.ForeignKey(Coupon,  on_delete=models.SET_NULL, blank=True, null=True)
     is_delivered = models.BooleanField(default=False)
@@ -216,7 +215,7 @@ class Order(models.Model):
     refund_granted = models.BooleanField(default=False)
     
     def __str__(self):
-        return f" {self.user.username}, address:  {self.billing_address}"
+        return f" {self.user.username}, address:  {self.Payment}"
     
 
 

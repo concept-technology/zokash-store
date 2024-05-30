@@ -201,7 +201,7 @@ class CheckoutView(View):
                             state=state, country=country,
                             zip_code=zip_code,
                             payment_option=payment_option)              
-                order.billing_address= billing_address
+                order.shipping_address= billing_address
                 order.save()
                 return redirect('store:initiate_payment')
             messages.warning(self.request, 'order failed')
