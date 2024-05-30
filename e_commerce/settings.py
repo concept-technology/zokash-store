@@ -60,7 +60,8 @@ INSTALLED_APPS = [
     'paystack',
     'dotenv',
     'paystackapi',
-    'my_store'
+    'my_store',
+    'django_filters',
     # 'request',
     
 ]

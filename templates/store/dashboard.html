@@ -36,7 +36,7 @@
 								        <a class="nav-link" id="tab-account-link" data-toggle="tab" href="#tab-account" role="tab" aria-controls="tab-account" aria-selected="false">Account Details</a>
 								    </li>
 								    <li class="nav-item">
-								        <a class="nav-link" href="{% url 'account_logout' %}">Sign Out</a>
+								        <a class="nav-link" ">Sign Out</a>
 								    </li>
 								</ul>
 	                		</aside><!-- End .col-lg-3 -->
@@ -50,7 +50,38 @@
 								    </div><!-- .End .tab-pane -->
 
 								    <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
-								    	<p>No order has been made yet.</p>
+								    	
+
+
+										<table class="table">
+											<thead>
+											  <tr>
+												<th scope="col">#</th>
+												<th scope="col">item</th>
+												<th scope="col">quantity</th>
+												<th scope="col">amount</th>
+											  </tr>
+											</thead>
+											<tbody>
+												
+												{% for items in order|add:'product' %}
+													
+													
+											  <tr>
+												<th scope="row">{{forloop.counter}}</th>
+												<td>{{product.title}}</td>
+
+												<td>{{items.quantity}}</td>
+												<td>N{{items.get_price_tag}}</td>
+											  </tr>
+												{% endfor %}
+
+									
+											</tbody>
+										  </table>
+
+
+
 								    	<a href="category.html" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
 								    </div><!-- .End .tab-pane -->
 
@@ -97,21 +128,21 @@
 			                				<div class="row">
 			                					<div class="col-sm-6">
 			                						<label>First Name *</label>
-			                						<input type="text" class="form-control" required>
+			                						<input type="text" value="{{user.first_name}}" class="form-control" required>
 			                					</div><!-- End .col-sm-6 -->
 
 			                					<div class="col-sm-6">
 			                						<label>Last Name *</label>
-			                						<input type="text" class="form-control" required>
+			                						<input type="text" class="form-control" value="{{user.last_name}}"required>
 			                					</div><!-- End .col-sm-6 -->
 			                				</div><!-- End .row -->
 
 		            						<label>Display Name *</label>
-		            						<input type="text" class="form-control" required>
+		            						<input type="text" class="form-control" value="{{user.username}}" required>
 		            						<small class="form-text">This will be how your name will be displayed in the account section and in reviews</small>
 
 		                					<label>Email address *</label>
-		        							<input type="email" class="form-control" required>
+		        							<input type="email" class="form-control" value="{{user.email}}" required>
 
 		            						<label>Current password (leave blank to leave unchanged)</label>
 		            						<input type="password" class="form-control">

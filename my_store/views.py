@@ -14,26 +14,36 @@ from .models import Payment, Refunds
 from django.conf import settings
 import random
 import string
-
+from django_filters.views import FilterView
+from .filters import ProductFilter
 
 
 # Create your views here.
 
-def create_ref_code():
+def create_ref_code():#generate order reference code
     return ''.join(random.choices(string.ascii_lowercase + string.digits,k=15))
+
+
 class StoreView(ListView):
     model = Product
     template_name = 'index.html'
     paginate_by= 5
     
-class ProductCategoriesView(ListView):
+class ProductCategoriesView(FilterView):
+    context_object_name = 'product'
+    filterset_class = [ProductFilter]
     model = Product
     paginate_by = 5
     template_name = 'store/category.html'
+    
  
 
 def dash_board(request):
-    return render(request, 'store/dashboard.html')
+    cart = Cart.objects.filter(user=request.user, is_ordered=True)
+    order = Order.objects.filter(user=request.user, is_ordered=True,)
+    
+    context = {'order':order, 'cart':cart}
+    return render(request, 'store/dashboard.html', context)
        
 
 def logout_view(request):

@@ -105,12 +105,22 @@
 									        Category
 									    </a>
 									</h3><!-- End .widget-title -->
-
+									<form method="get" action=".">
+										<!-- <h5 class="card-header">Filters</h5> -->
+										<div class="card-body">
+											{{ filter.form.as_p }}
+										</div>
+										<div class="card-footer text-center">
+											<!-- <input class="btn" type="submit" /> -->
+										</div>
+									</form>
 									<div class="collapse show" id="widget-1">
 										<div class="widget-body">
 											<div class="filter-items filter-items-count">
 												<div class="filter-item">
 													<div class="custom-control custom-checkbox">
+
+												
 														<input type="checkbox" class="custom-control-input" id="cat-1">
 														<label class="custom-control-label" for="cat-1">Dresses</label>
 													</div><!-- End .custom-checkbox -->

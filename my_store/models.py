@@ -122,6 +122,9 @@ class Cart(models.Model):
         return f"item:{title} price: {dis_count_price}, quantity: {self.quantity}"
             
 
+    def get_title(self):
+        return self.product.title
+
 address_choices =(
     ('shipping', 'shipping Address'),
     ('billing', 'billing Address')
