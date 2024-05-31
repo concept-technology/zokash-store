@@ -20,6 +20,8 @@ from .filters import ProductFilter
 from .cart import Cart as SessionCart
 from django.http import JsonResponse
 # Create your views here.
+from rest_framework.decorators import api_view
+from .serializers import ProductSerializer
 
 def create_ref_code():#generate order reference code
     return ''.join(random.choices(string.ascii_lowercase + string.digits,k=15))
@@ -30,14 +32,34 @@ class StoreView(ListView):
     template_name = 'index.html'
     paginate_by= 5
     
-class ProductCategories(View):
-    def get(self, *args, **kwargs):
+
+
+def ProductCategories_view(request):
+    if request.method == 'GET':
+        product = Product.objects.select_related('category').all()
+        category = Category.objects.all()
         context= {
-           'product': Product.objects.all(),
-           'category': Category.objects.all()
+            'product':product,
+            'category': category
             }
-        return render(self.request, 'store/category.html', context)
+        print(product)
+        return render(request, 'store/category.html', context)
     
+
+
+
+
+def category_filter(request, pk):
+
+    if(Category.objects.filter(pk=pk)):
+        product = Product.objects.filter(category__pk=pk)
+        category = Category.objects.filter(pk=pk).first()
+        context = {'product': product, 'category':category}
+        messages.success(request, 'ok')
+        return render(request, 'store/filter.html',context)
+    return redirect('store:categories-list')
+    
+ 
  
 @login_required
 def dash_board(request):   

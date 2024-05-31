@@ -105,7 +105,7 @@
                                 <a href="{% url 'store:check-out'%}" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
                             </div><!-- End .dropdown-cart-total -->
                             {% else %}
-                            <p>you have no items in cart <a href="{%url 'store:categories'%}">start Shopping</a></p>
+                            <p>you have no items in cart <a href="{%url 'store:categories-list'%}">start Shopping</a></p>
                             {%endif%}
 
                         </div><!-- End .dropdown-menu -->
@@ -142,7 +142,7 @@
 
                         </li>
                         <li>
-                            <a href="{% url 'store:categories' %}" class="sf-with-ul">Shop</a>
+                            <a href="{% url 'store:categories-list' %}" class="sf-with-ul">Shop</a>
                             
                         </li>
                         <li>

@@ -38,9 +38,19 @@ gender_choices =(
 )
 
 class Category(models.Model):
-    title = models.CharField(max_length=255, choices=category_choices)
+    title = models.CharField(max_length=255,)
+    slug =models.SlugField(default='')
+    
+    def save(self, *args, **kwargs):
+        self.slug = self.slug 
+        super().save(*args, **kwargs)
+
     def __str__(self) -> str:
         return f'{self.title}'
+    
+    def get_absolute_url(self):
+        return reverse("store:categories", kwargs={"pk":self.pk,"slug": self.slug})
+    
     
 class Product(models.Model):
     title = models.CharField(max_length=255)

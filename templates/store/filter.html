@@ -11,21 +11,22 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url 'store:index' %}">Home</a></li>
                         <li class="breadcrumb-item"><a href="{% url 'store:categories-list'%}">catalogue</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">products</li>
+                        <li class="breadcrumb-item" >products</li>
+                        <li class="breadcrumb-item active" aria-current="page">
+
+                        <a style="color: rgb(113, 13, 245);">
+                            {{category.title}}
+                        </a>
+                        
+                        </li>
                     </ol>
                 </div><!-- End .container -->
+        
             </nav><!-- End .breadcrumb-nav -->
             <div class="page-content">
                 <div class="container">
-                	<div class="row">
-                		<div class="col-lg-9">
-                			<!-- <div class="toolbox">
-                				<div class="toolbox-left">
-                					<div class="toolbox-info">
-                						Showing <span>9 of 56</span> Products
-                					</div><!-- End .toolbox-info -->
-                				<!-- </div>End .toolbox-left -->
-                			<!-- </div>End .toolbox --> 
+                    <div class="row">
+                        <div class="col-lg-9">
 
                             <div class="products mb-3">
                                 <div class="row justify-content-center">
@@ -37,13 +38,13 @@
                                                 <a href="{{items.get_absolute_url}}">
                                                     <img src="{{items.img_1.url}}" alt="Product image" class="product-image" style=" float: left;
                                                     height: 350px;
-                                                    object-fit: cover;;">
+                                                    object-fit: cover;">
                                                 </a>
 
                                                 <div class="product-action-vertical">
                                                     <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                                    <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                                    <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
+                                                    <a href="" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
+                                                    <!-- <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a> -->
                                                 </div><!-- End .product-action-vertical -->
 
                                                 <div class="product-action">
@@ -53,7 +54,7 @@
 
                                             <div class="product-body">
                                                 <div class="product-cat">
-                                                    <a href="#">{{items.category.title}}</a>
+                                                    <a href="#">{{category.title}}</a>
                                                 </div><!-- End .product-cat -->
                                                 <h3 class="product-title"><a href="product.html">{{items.title}}</a></h3><!-- End .product-title -->
 												{% if items.discount_price%}
@@ -116,17 +117,20 @@
                                             <div class="collapse show" id="widget-1">
                                                 <div class="widget-body">
                                                     <div class="filter-items filter-items-count">         
-                                                {% for items  in category %}
-                                                <a href="{% url 'store:categories-filter' items.pk  %}">
+                                                
+                                                {% for items in product %}
+                                                    
+                                                
                                                 <div class="filter-item">
                                                     <div class="custom-control custom-checkbox">
-                                                            <input type="checkbox" id="cat-2" value="{{items.title}}">
-                                                            <label for="cat-2">{{items.title}}</label>
-                                                        </div><!-- End .custom-checkbox -->
-                                                        <span class="item-count">0</span>
-                                                    </div><!-- End .filter-item -->
-                                                </a>
+                                                        <input type="checkbox" id="cat-2">
+                                                        <label for="cat-2">{{item.category.title}}</label>
+                                                    </div><!-- End .custom-checkbox -->
+                                                    <span class="item-count">0</span>
+                                                </div><!-- End .filter-item -->
                                                 {% endfor %}
+                                                </a>
+                                            
                                                     
                                                 </div><!-- End .filter-items -->
                                             </div><!-- End .widget-body -->
