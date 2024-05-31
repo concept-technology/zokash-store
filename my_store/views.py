@@ -30,13 +30,13 @@ class StoreView(ListView):
     template_name = 'index.html'
     paginate_by= 5
     
-def  ProductCategoriesView(request):
-
-    qs = Product.objects.all()
-    context = {
-            'product': qs
-        }
-    return render(request, 'store/category.html', context)
+class ProductCategories(View):
+    def get(self, *args, **kwargs):
+        context= {
+           'product': Product.objects.all(),
+           'category': Category.objects.all()
+            }
+        return render(self.request, 'store/category.html', context)
     
  
 @login_required

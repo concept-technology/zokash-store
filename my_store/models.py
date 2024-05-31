@@ -58,7 +58,6 @@ class Product(models.Model):
     display_on_home_page =models.BooleanField(default=False)
     is_banner =models.BooleanField(default=False)
     is_best_selling = models.BooleanField(default=False)
- 
    
     def get_absolute_url(self):
         return reverse("store:store_item", kwargs={"slug": self.slug})
@@ -264,3 +263,11 @@ class Refunds(models.Model):
     
     def __str__(self) -> str:
         return f"{self.order} {self.reason}"
+    
+    
+class Inventory(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    
+    def __str__(self) -> str:
+        return f"{self.product} {self.quantity}"

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product,Cart,Order, Category,CustomersAddress, Coupon, Refunds
+from .models import Product,Cart,Order, Category,CustomersAddress, Coupon, Refunds, Inventory
 from django.utils.html import format_html
 
 from .models  import  Payment
@@ -45,7 +45,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class AddressAdmin(admin.ModelAdmin):
-    list_display = '__all__'
+    list_display = ['__all__']
 
 
 class CouponAdmin(admin.ModelAdmin):
@@ -57,7 +57,8 @@ class CouponAdmin(admin.ModelAdmin):
 
         search_fields = ['code']
 
-
+class InventAdmin(admin.ModelAdmin):
+    list_display = ['product', 'quantity']
 
 admin.site.register(Product, ProductAdmin) 
 admin.site.register(Cart, CartAdmin)
@@ -67,6 +68,7 @@ admin.site.register(Category, CategoryAdmin)
 admin.site.register(CustomersAddress)
 admin.site.register(Coupon, CouponAdmin)
 admin.site.register(Refunds)
+admin.site.register(Inventory, InventAdmin)
 
 
 actions = [make_accept_refund]
