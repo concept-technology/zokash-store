@@ -134,49 +134,22 @@ def delete_cart(request, slug,):
     # return redirect('store:store_item', slug=slug)
 
  
-# #increase cart quantity 
-# @login_required
-# def increase_cart_quantity(request, slug):
-#     product = get_object_or_404(Product, slug=slug,)
-#     cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)[0]
-#     order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-#     if  order_qs.exists():
-#         orders =    order_qs[0]
-#         if orders.product.filter(product__slug=product.slug).exists():
-#             cart.quantity +=1
-#             cart.save()         
-#             return redirect('store:cart', )       
-#         else:
-#             return redirect('store:cart',)
-#     else:       
-#         return redirect('store:cart',)
-
-
-# @login_required
-class increase_cart_quantity(View):
-    def post(self, *args, **kwargs):
-        if self.request.method =='POST':
-            qty = self.request.POST.get('qty')
-            pk = self.request.POST.get('pk')
-            print(qty)
-            print(pk)
-            product = get_object_or_404(Product,)
-            cart = Cart.objects.filter(product=product, user=self.request.user, is_ordered=False)[0]
-            order_qs = Order.objects.filter(user=self.request.user, is_ordered=False)
-            if  order_qs.exists():
-                orders =    order_qs[0]
-                if orders.product.filter(product__slug=product.slug).exists():
-                    cart.quantity = int(qty)
-                    cart.save()         
-                    return redirect('store:cart', )       
-                else:
-                    return redirect('store:cart',)
-            else:       
-                return redirect('store:cart',)
+#increase cart quantity 
+@login_required
+def increase_cart_quantity(request, slug):
+    product = get_object_or_404(Product, slug=slug,)
+    cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)[0]
+    order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+    if  order_qs.exists():
+        orders =    order_qs[0]
+        if orders.product.filter(product__slug=product.slug).exists():
+            cart.quantity +=1
+            cart.save()         
+            return redirect('store:cart', )       
+        else:
+            return redirect('store:cart',)
+    else:       
         return redirect('store:cart',)
-
-
-
 
 
 #reduce cart quantity 
