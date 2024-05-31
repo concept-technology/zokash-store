@@ -63,6 +63,7 @@
                                                     <a href="{% url 'store:remove_cart' items.product.slug %}"  class="form-control" >-</a> 
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
+											
 										
 											<td class="total-col">{{items.get_total_price}}</td>
 												<td class="remove-col">
@@ -158,4 +159,8 @@
     </div><!-- End .page-wrapper -->
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
+
+
+
+	
 	{% endblock content %}

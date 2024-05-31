@@ -1,7 +1,14 @@
-from ..my_store.models import Product
+from .models import ProductsItem, Categories
 from rest_framework import serializers
+
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
-        model = Product
+        model = ProductsItem
+        
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = '__all__'
+        model = Categories

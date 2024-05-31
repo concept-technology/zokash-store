@@ -16,6 +16,8 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 
+CART_SESSION_ID = 'cart'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -62,7 +64,8 @@ INSTALLED_APPS = [
     'paystackapi',
     'my_store',
     'django_filters',
-    # 'request',
+    'product_store',
+
     
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
@@ -90,6 +93,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
 ]
+
+
+DAJAXICE_MEDIA_PREFIX = 'dajaxice'
 
 CORS_ALLOW_ALL_ORIGINS: True
 

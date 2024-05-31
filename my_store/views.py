@@ -1,8 +1,9 @@
+from django.db.models.query import QuerySet
 from django.shortcuts import render
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Product,Cart, Order, CustomersAddress, Coupon
+from .models import Product,Cart, Order, CustomersAddress, Coupon, Category
 from django.views.generic import DetailView, ListView,View
 from  django.shortcuts import get_object_or_404
 from django.contrib import messages
@@ -16,8 +17,8 @@ import random
 import string
 from django_filters.views import FilterView
 from .filters import ProductFilter
-
-
+from .cart import Cart as SessionCart
+from django.http import JsonResponse
 # Create your views here.
 
 def create_ref_code():#generate order reference code
@@ -29,16 +30,18 @@ class StoreView(ListView):
     template_name = 'index.html'
     paginate_by= 5
     
-class ProductCategoriesView(FilterView):
-    context_object_name = 'product'
-    filterset_class = [ProductFilter]
-    model = Product
-    paginate_by = 5
-    template_name = 'store/category.html'
+def  ProductCategoriesView(request):
+
+    qs = Product.objects.all()
+    context = {
+            'product': qs
+        }
+    return render(request, 'store/category.html', context)
     
  
-
-def dash_board(request):
+@login_required
+def dash_board(request):   
+  
     cart = Cart.objects.filter(user=request.user, is_ordered=True)
     order = Order.objects.filter(user=request.user, is_ordered=True,)
     
@@ -64,15 +67,16 @@ class HomeView(ListView):
     model = Product
     template_name = 'store/index.html'
     paginate_by= 6
-              
+
+ 
 class ProductDetailView(DetailView):
     model = Product
     template_name = 'store/product.html'
 
-class ProductCategoriesView(ListView):
-    model = Product
-    paginate_by = 6
-    template_name = 'store/category.html'
+# class ProductCategoriesView(ListView):
+#     model = Product
+#     paginate_by = 6
+#     template_name = 'store/category.html'
     
 
 class CartView(LoginRequiredMixin, View):
@@ -130,22 +134,48 @@ def delete_cart(request, slug,):
     # return redirect('store:store_item', slug=slug)
 
  
-#increase cart quantity 
-@login_required
-def increase_cart_quantity(request, slug):
-    product = get_object_or_404(Product, slug=slug,)
-    cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)[0]
-    order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-    if  order_qs.exists():
-        orders =    order_qs[0]
-        if orders.product.filter(product__slug=product.slug).exists():
-            cart.quantity +=1
-            cart.save()         
-            return redirect('store:cart', )       
-        else:
-            return redirect('store:cart',)
-    else:       
+# #increase cart quantity 
+# @login_required
+# def increase_cart_quantity(request, slug):
+#     product = get_object_or_404(Product, slug=slug,)
+#     cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)[0]
+#     order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+#     if  order_qs.exists():
+#         orders =    order_qs[0]
+#         if orders.product.filter(product__slug=product.slug).exists():
+#             cart.quantity +=1
+#             cart.save()         
+#             return redirect('store:cart', )       
+#         else:
+#             return redirect('store:cart',)
+#     else:       
+#         return redirect('store:cart',)
+
+
+# @login_required
+class increase_cart_quantity(View):
+    def post(self, *args, **kwargs):
+        if self.request.method =='POST':
+            qty = self.request.POST.get('qty')
+            pk = self.request.POST.get('pk')
+            print(qty)
+            print(pk)
+            product = get_object_or_404(Product,)
+            cart = Cart.objects.filter(product=product, user=self.request.user, is_ordered=False)[0]
+            order_qs = Order.objects.filter(user=self.request.user, is_ordered=False)
+            if  order_qs.exists():
+                orders =    order_qs[0]
+                if orders.product.filter(product__slug=product.slug).exists():
+                    cart.quantity = int(qty)
+                    cart.save()         
+                    return redirect('store:cart', )       
+                else:
+                    return redirect('store:cart',)
+            else:       
+                return redirect('store:cart',)
         return redirect('store:cart',)
+
+
 
 
 
@@ -327,6 +357,4 @@ class RequestRefund(View):
             except ObjectDoesNotExist:
                 messages.error(self.request, 'invalid order')
                 return redirect('store:refund-request')
-            
-                
             

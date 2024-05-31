@@ -58,7 +58,7 @@ class Product(models.Model):
     display_on_home_page =models.BooleanField(default=False)
     is_banner =models.BooleanField(default=False)
     is_best_selling = models.BooleanField(default=False)
-    
+ 
    
     def get_absolute_url(self):
         return reverse("store:store_item", kwargs={"slug": self.slug})
@@ -74,8 +74,7 @@ class Product(models.Model):
     
     def get_cart_increment(self):
         return reverse("store:increase_cart", kwargs={"slug": self.slug,})
-    
-    
+
     def __str__(self):
         return f"{self.title}"
     

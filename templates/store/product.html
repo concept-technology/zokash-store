@@ -98,23 +98,27 @@
 
                                         <label for="qty">Qty:</label>
                                         <div class="product-details-quantity">
-                                    <input type="number" id="product-qty" class="form-control" value="1"  required, min="1">
-                                            {%if object.discount_price%}
-
-                                            <input type="hidden" id="product-price" class="form-control" value="{{object.discount_price}}"></input>
-                                            {%else%}
-                                        
-                                            <input type="hidden" id="product-price" class="form-control" value="{{object.price}}"></input>
-                                            {%endif%}
+                                            <input type="number" id="qty"  class="form-control" value="{{object.quantity}}"  required, min="1">
+                                            <!-- <input type="hidden" id="product-id" class="form-control" value="{{object.id}}"  required, min="1">
+                                            <input type="hidden" id="product-title" class="form-control" value="{{object.title}}"  required, min="1">
+                                             -->
+                                            {% if object.discount_price %}
+                                            <input type="hidden" id="product-price" class="form-control" value="{{object.discount_price}}"  required, min="1">
+                                                {% else %}
+                                                <input type="hidden" id="product-price" class="form-control" value="{{object.price}}"  required, min="1">
+                                            {% endif %}
+                                                
                                         </div><!-- End .product-details-quantity -->
                                     </div><!-- End .details-filter-row -->
 
                                     <div class="product-details-action">                                 
-                                            <a href="{{object.get_add_to_cart_url}}" >
-                                                <button class="btn btn-primary" type="button" onclick="changeTecxt()" id="add-to-cart-btn">
-                                                        <span>add to cart</span>
-                                                    </button>
-                                                </a>
+                                           <a href="{{object.get_add_to_cart_url}}">
+
+                                               <button class="btn btn-primary" type="button"  id="add-to-cart-btn">
+                                                   <span>add to cart</span>
+                                                </button>
+                                            </a>
+                                             
                                         <div class="details-action-wrapper">
                                             <!-- <a href="{{object.delete_cart}}" class="btn-product btn-compare" title="Compare"><span>remove from cart</span></a> -->
                                         </div><!-- End .details-action-wrapper -->
@@ -498,18 +502,44 @@
                 </div><!-- End .container -->
             </div><!-- End .page-content -->
 
-            <button class="btn btn-primary" id="btn-cart" onclick="addToCart()">click me</button>
+            <!-- <button class="btn btn-primary" id="btn-cart" onclick="addToCart()">click me</button> -->
             
-            
-            
-            
-            
+
+            <!-- id="product-price"            -->
+            <!-- id="product-id" -->
+            <!-- id="product-title" -->
+            <!-- addToCart -->
+            <!-- 'add-to-cart-btn' -->
+            <input type="hidden" value="{{object.slug}}" id="slug">
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
             <script>
-                let btn = document.getElementById('add-to-cart-btn')
-                function changeTecxt(){
-                   btn.innerHTML('added to cart')
-                }
-                btn.addEventListener('click', changeTecxt)
+                $('#qty').on('change', function(event){
+                     event.preventDefault();
+                    let qty = $("#qty").val()                      
+                    let pk = $("{{object.pk}}").val()                      
+                    let button = $(this)
+                    console.log(qty)
+
+                $.ajax({
+                    url: "{% url 'store:increase_cart' slug=object.slug %}",
+                    data:{
+                        qty:qty,
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                    },
+                    method:'post',
+                    dataType:'json',
+                    beforeSend: function(){
+                        console.log('sendind data')
+                        button.html('item added to card')
+                    },
+                    success: function(){
+                        
+                        console.log('processed')
+                    }
+                })
+
+                })
             </script>
             
             {%endblock%}

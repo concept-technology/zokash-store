@@ -1,69 +1,15 @@
-{% extends 'store/base.html' %}
-{{block.super}}
-{% block content %}
-{% extends 'store/base.html' %}
-{% block content %}
-<div class="container newsletter-popup-container">
-	<div class="row justify-content-center">
-		<div class="col-10">
-				<div class="col-xl-3-5col col-lg-7 banner-content-wrap">
-					<div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('assets/images/backgrounds/login-bg.jpg')">
-						<div class="container row">
-							<div class="form-box">
-										<transaction>
-											<h6>You are about to pay N {{ payment.amount }} for your order</h6>
-										</transaction>
-										<div>
-											<button onclick="payWithPaystack()" class="btn btn-primary btn-primary mb-4">Pay</button>			
-											<a class="btn mb-4" href="{% url 'store:cart'%}">cancel</a>			
-										</div>
-										
-							</div><!-- End .form-box -->
-						</div><!-- End .container -->
-					</div><!-- End .login-page section-bg -->
-				</div>
-			
-			</div>
-		</div>
-	</div>
-</div>
-
-
-
-
-
-
-
-    
-    
-<script src="https://js.paystack.co/v1/inline.js"></script>
-
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script>
-	function payWithPaystack() {
-		let currency = "NGN";
-		let plan = "";
-		let ref = "{{ payment.ref }}";
-		let amount = "{{ payment.amount }}";
-		let obj = {
-			key: "{{ paystack_pub_key }}",
-			email: "{{ payment.email }}",
-			amount: "{{ amount_value }}",
-			ref: ref,
-			callback: function (response) {
-				window.location.href = "{% url 'store:verify_payment' payment.ref %}";
-			},
-		};
-		if (Boolean(currency)) {
-			obj.currency = currency.toUpperCase();
-		}
-		if (Boolean(plan)) {
-			obj.plan - plan;
-		}
 
-		var handler = PaystackPop.setup(obj);
-		handler.openIframe();
-	}
+	$(document).ready(
+		function(){
+			console.log('loaded')
+		$.ajax({
+			url: "{% url 'api:product_view'%}",
+			success: function(data){
+				console.log(data)
+			}
+		})
+		}
+	)
 </script>
-
-{% endblock content %}
-
