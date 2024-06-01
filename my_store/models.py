@@ -49,7 +49,7 @@ class Category(models.Model):
         return f'{self.title}'
     
     def get_absolute_url(self):
-        return reverse("store:categories", kwargs={"pk":self.pk,"slug": self.slug})
+        return reverse("store:categories-filter", kwargs={"slug": self.pk})
     
     
 class Product(models.Model):

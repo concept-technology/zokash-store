@@ -49,17 +49,14 @@ def ProductCategories_view(request):
 
 
 
-def category_filter(request, pk):
-
-    if(Category.objects.filter(pk=pk)):
-        product = Product.objects.filter(category__pk=pk)
-        category = Category.objects.filter(pk=pk).first()
+def category_filter(request, title,):
+    if(Category.objects.filter(title=title)):
+        product = Product.objects.filter(category__title=title,)
+        category = Category.objects.filter(title=title).first()
         context = {'product': product, 'category':category}
-        messages.success(request, 'ok')
         return render(request, 'store/filter.html',context)
     return redirect('store:categories-list')
     
- 
  
 @login_required
 def dash_board(request):   

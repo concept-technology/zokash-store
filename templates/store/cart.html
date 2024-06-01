@@ -127,7 +127,7 @@
 	                						</tr>End .summary-shipping-row --> 
 
 	                						<tr class="summary-shipping-estimate">
-	                							<td>Estimate for Your Country<br> <a href="dashboard.html">Change address</a></td>
+	                							<td>Estimate for Your Country<br> <a href="">Change address</a></td>
 	                							<td>&nbsp;</td>
 	                						</tr>End .summary-shipping-estimate
 
@@ -146,7 +146,7 @@
 		            			<a href="{% url 'store:categories-list'%}" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span><i class="icon-refresh"></i></a>
 	                		</aside><!-- End .col-lg-3 -->
 							{%else%}
-							<p class="ml-2"> you have No items in your Shopping Cart <a href="{% url 'store:categories' %}">start Shopping</a> </p>
+							<p class="ml-2"> you have No items in your Shopping Cart <a href="{% url 'store:categories-list' %}">start Shopping</a> </p>
 							{%endif%}
 	                	</div><!-- End .row --> 
 	                </div><!-- End .container -->

@@ -6,7 +6,7 @@ app_name ='store'
 
 urlpatterns = [
     path('category/', views.ProductCategories_view, name='categories-list'),
-    path('categories/<int:pk>', views.category_filter, name='categories-filter'),
+    path('categories/<str:title>', views.category_filter, name='categories-filter'),
 
     path('', views.HomeView.as_view(),
          name='index'),
