@@ -8,7 +8,7 @@
                 <div class="container">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url 'store:index'%}">Home</a></li>
-                        <li class="breadcrumb-item"><a href="{% url 'store:categories'%}">Shop</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'store:categories-list'%}">Shop</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{user}}-cart</li>
                     </ol>
                 </div><!-- End .container -->
@@ -58,8 +58,7 @@
 											<td class="price-col"><span>N {{items.get_price_tag}}</span></td>										
 											<td class="quantity-col">
                                                 <div class="cart-product-quantity"><b class="ml-5 p-2">{{items.quantity}}</b>			
-                                                     <a href="{% url 'store:increase_cart' items.product.slug %}" class="form-control"  style="padding: 3;">+</a>
-														
+                                                     <a href="{% url 'store:increase_cart' items.product.slug %}" class="form-control"  style="padding: 3;">+</a>														
                                                     <a href="{% url 'store:remove_cart' items.product.slug %}"  class="form-control" >-</a> 
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
