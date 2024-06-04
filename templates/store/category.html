@@ -102,11 +102,11 @@
                 				<div class="widgett">
                                   
                                                         <div class="col-md-4 mb-5">
-                                                            <h5 class="text-secondary">Category</h5>
+                                                            <h5  style="color: blue;">Category</h5>
                                                             {% for items in category %}
                                                                 <a href="{% url 'store:categories-filter' items.title %}">
                                                             <div class="d-flex justify-content-center">        
-                                                                <button  class="btn btn-secondary m-2" ><i class="fa fa-angle-right mr-2"></i>{{items.title}}</button>
+                                                                <button  class="btn  m-2" style="color:rgb(243, 243, 247); background-color:blue; font-size:medium"><i class="fa fa-angle-right mr-2"></i>{{items.title}}</button>
                                                             </a>
                                                             </div>
                                                         {% endfor %}

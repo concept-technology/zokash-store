@@ -1,4 +1,4 @@
-from django.db.models.query import QuerySet
+
 from django.shortcuts import render
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
@@ -15,13 +15,10 @@ from .models import Payment, Refunds
 from django.conf import settings
 import random
 import string
-from django_filters.views import FilterView
-from .filters import ProductFilter
-from .cart import Cart as SessionCart
-from django.http import JsonResponse
+
+
+
 # Create your views here.
-from rest_framework.decorators import api_view
-from .serializers import ProductSerializer
 
 def create_ref_code():#generate order reference code
     return ''.join(random.choices(string.ascii_lowercase + string.digits,k=15))

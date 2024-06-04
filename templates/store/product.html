@@ -11,7 +11,7 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url 'store:index'%}">Home</a></li>
                         <li class="breadcrumb-item"><a href="#">style</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{object.title}}</li>
+                        <li class="breadcrumb-item active" aria-current="page" id="bg">{{object.title}}</li>
                     </ol>
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
@@ -55,7 +55,7 @@
 
                             <div class="col-md-6">
                                 <div class="product-details sticky-content">
-                                    <h1 class="product-title">{{object.title}}</h1><!-- End .product-title -->
+                                    <h1 class="product-title" id="bg">{{object.title}}</h1><!-- End .product-title -->
 
                                     <div class="ratings-container">
                                         <div class="ratings">
@@ -66,10 +66,10 @@
 
                                     <div class="product-price">
                                         {%if object.discount_price%}
-                                        <span class="new-price">N {{object.discount_price}}</span>
+                                        <span class="new-price" style="color:blue;">N {{object.discount_price}}</span>
                                         <span class="old-price">N {{object.price}}</span>
                                         {%else%}
-                                        <span class="old-price">N {{object.price}}</span>
+                                        <span class="old-price" style="color:blue;">N {{object.price}}</span>
                                         {%endif%}
                                     </div><!-- End .product-price -->
 
@@ -114,7 +114,7 @@
                                     <div class="product-details-action">                                 
                                            <a href="{{object.get_add_to_cart_url}}">
 
-                                               <button class="btn btn-primary" type="button"  id="add-to-cart-btn">
+                                               <button class="btn btn-primary" type="button"  style="background-color: blue;" >
                                                    <span>add to cart</span>
                                                 </button>
                                             </a>
@@ -144,7 +144,7 @@
                                         <div class="card card-box card-sm">
                                             <div class="card-header" id="product-desc-heading">
                                                 <h2 class="card-title">
-                                                    <a class="collapsed" role="button" data-toggle="collapse" href="#product-accordion-desc" aria-expanded="false" aria-controls="product-accordion-desc">
+                                                    <a class="collapsed" role="button" data-toggle="collapse" href="#product-accordion-desc" aria-expanded="false" aria-controls="product-accordion-desc"style="color:blue;">
                                                         Description
                                                     </a>
                                                 </h2>
@@ -152,7 +152,7 @@
                                             <div id="product-accordion-desc" class="collapse" aria-labelledby="product-desc-heading" data-parent="#product-accordion">
                                                 <div class="card-body">
                                                     <div class="product-desc-content">
-                                                        <p>{{object.description}} </p>
+                                                        <p id="bg">{{object.description}} </p>
                                                         <ul>
                                                             <li>Nunc nec porttitor turpis. In eu risus enim. In vitae mollis elit. </li>
                                                             <li>Vivamus finibus vel mauris ut vehicula.</li>
@@ -168,7 +168,7 @@
                                         <div class="card card-box card-sm">
                                             <div class="card-header" id="product-info-heading">
                                                 <h2 class="card-title">
-                                                    <a role="button" data-toggle="collapse" href="#product-accordion-info" aria-expanded="true" aria-controls="product-accordion-info">
+                                                    <a role="button" data-toggle="collapse" href="#product-accordion-info" aria-expanded="true" aria-controls="product-accordion-info" style="color:blue;">
                                                         Additional Information
                                                     </a>
                                                 </h2>
@@ -198,7 +198,7 @@
                                         <div class="card card-box card-sm">
                                             <div class="card-header" id="product-shipping-heading">
                                                 <h2 class="card-title">
-                                                    <a class="collapsed" role="button" data-toggle="collapse" href="#product-accordion-shipping" aria-expanded="false" aria-controls="product-accordion-shipping">
+                                                    <a class="collapsed" role="button" data-toggle="collapse" href="#product-accordion-shipping" aria-expanded="false" aria-controls="product-accordion-shipping" style="color:blue;">
                                                         Shipping & Returns
                                                     </a>
                                                 </h2>

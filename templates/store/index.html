@@ -8,13 +8,14 @@
         <main class="main">
             <div class="intro-slider-container">
                 <div class="intro-slider owl-carousel owl-simple owl-nav-inside owl-light" data-toggle="owl" data-owl-options='{"nav":false, "dots": false, "loop": false}'>
-                    <div class="intro-slide" style="background-image: url(static/assets/images/demos/demo-16/slider/slide-1.jpg);">
+                    <div class="intro-slide" id="bg-img" style="background-image: url(static/atinuke/homepage.jpg);">
                         <div class="container intro-content text-center">
-                            <h3 class="intro-subtitle">Elevate your Wardrobe</h3><!-- End .h3 intro-subtitle -->
-                            <h1 class="intro-title text-white">Unvailing the essence of fashion</h1><!-- End .intro-title -->
+                            <h3 class="intro-subtitle"  id="bg">cleanest</h3><!-- End .h3 intro-subtitle -->
+                            <h1 class="intro-title "  id="bg"></h1><!-- End .intro-title -->
 
                             <a href="{% url 'store:categories-list' %}" class="btn btn-outline-white scroll-to">
-                                <span>explore our fashion catalogue</span>
+                                <span style="background-color: blue; color:rgb(245, 243, 243); border-color: #8400ff;
+                                ">explore</span>
                                 <i class="icon-long-arrow-down"></i>
                             </a>
                         </div><!-- End .intro-content -->
@@ -25,9 +26,9 @@
             </div><!-- End .intro-slider-container -->
             <div class="products-display">
                 <div class="heading text-center">
-                    <h4 class="subtitle text-primary">Womens Clothing</h4><!-- End .subtitle -->
-                    <h2 class="title">Refresh Your Wardrobe</h2><!-- End .title -->
-                    <p class="title-desc">Discover this season’s latest trends with the newest additions to <br>our women’s clothing collection.</p><!-- End .title-desc -->
+                    <h4 class="subtitle text-primary">Shop the</h4><!-- End .subtitle -->
+                    <h2 class="title">Eco-friendly</h2><!-- End .title -->
+                    <p class="title-desc">and natural  <br>Liquid Soap</p><!-- End .title-desc -->
                 </div><!-- End .heading -->
 
                 <div class="row">
@@ -227,36 +228,4 @@
     </div><!-- End .page-wrapper -->
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
-
-    
-    <div class="container newsletter-popup-container mfp-hide" id="newsletter-popup-form">
-        <div class="row justify-content-center">
-            <div class="col-10">
-                <div class="row no-gutters bg-white newsletter-popup-content">
-                    <div class="col-xl-3-5col col-lg-7 banner-content-wrap">
-                        <div class="banner-content text-center">
-                            <img src="assets/images/popup/newsletter/logo.png" class="logo" alt="logo" width="60" height="15">
-                            <h2 class="banner-title">get <span>25<light>%</light></span> off</h2>
-                            <p>Subscribe to the Molla eCommerce newsletter to receive timely updates from your favorite products.</p>
-                            <form action="#">
-                                <div class="input-group input-group-round">
-                                    <input type="email" class="form-control form-control-white" placeholder="Your Email Address" aria-label="Email Adress" required>
-                                    <div class="input-group-append">
-                                        <button class="btn" type="submit"><span>go</span></button>
-                                    </div><!-- .End .input-group-append -->
-                                </div><!-- .End .input-group -->
-                            </form>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="register-policy-2" required>
-                                <label class="custom-control-label" for="register-policy-2">Do not show this popup again</label>
-                            </div><!-- End .custom-checkbox -->
-                        </div>
-                    </div>
-                    <div class="col-xl-2-5col col-lg-5 ">
-                        <img src="assets/images/popup/newsletter/img-1.jpg" class="newsletter-img" alt="newsletter">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 {%endblock%}

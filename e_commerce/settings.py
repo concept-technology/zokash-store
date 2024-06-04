@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'paystackapi',
     'my_store',
     'django_filters',
-    'product_store',
+   
 
     
 ]
