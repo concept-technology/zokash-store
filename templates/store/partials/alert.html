@@ -1,0 +1,20 @@
+
+{% block content %}
+ 
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-primary" role="alert">
+        {{message.tag}}
+        {{message.title}}
+
+      </div>
+     
+    {% endfor %}
+{% endif %}
+
+
+
+
+{% endblock content %}
+    

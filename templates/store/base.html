@@ -40,36 +40,10 @@
     {% block content %}   
     {% endblock content %}
     {%include 'store/partials/_footer.html'%}
+    {%include 'store/messages.html'%}
     
     {% block script %}
-        
-    <script>
-        {% if messages %}
-        {% for message in messages %}
-        Swal.fire({
-            title: "{{message.tags}}",
-            text: "{{message}}",
-            icon: "{{message.tags}}",
-            timer: 2000,
-            showClass: {
-                popup: `
-                  animate__animated
-                  animate__fadeInUp
-                  animate__faster
-                `
-              },
-              hideClass: {
-                popup: `
-                  animate__animated
-                  animate__fadeOutDown
-                  animate__faster
-                `
-              }
-          });
-        {% endfor %}
-    {% endif %}
-    </script>
-    
+      
 
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
