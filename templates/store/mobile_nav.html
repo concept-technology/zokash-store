@@ -63,6 +63,10 @@
             <a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
             <a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
         </div><!-- End .social-icons -->
+        
+        {% if user.is_authenticated %}
+            
+            
         <a href="{% url 'account_logout'%}">
 
             <button class="icon btn m-2"> 
@@ -71,5 +75,16 @@
                 <i class="icon-user" style="size: 50px;"></i>
             </button>
         </a> 
+        {% else %}
+        <a href="{% url 'store:signup'%}">
+
+            <button class="icon btn m-2"> 
+         
+                <p style="color: blue;">login</p>
+                <i class="icon-user" style="size: 50px;"></i>
+            </button>
+        </a>
+        {% endif %}
+
     </div><!-- End .mobile-menu-wrapper -->
 </div><!-- End .mobile-menu-container -->

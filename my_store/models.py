@@ -55,6 +55,7 @@ class Category(models.Model):
 class Product(models.Model):
     title = models.CharField(max_length=255)
     description= models.TextField(max_length=1000)
+    additional_information= models.TextField(max_length=1000)
     price = models.IntegerField(default=0)
     discount_price = models.IntegerField(default=0)
     img_1  = models.ImageField(upload_to='static/media/img', default='img')
@@ -64,7 +65,7 @@ class Product(models.Model):
     label = models.CharField(choices=label_choices, max_length=255, default='', blank=True)
     category = models.ForeignKey(Category, default='', on_delete=models.CASCADE)
     slug = models.SlugField( default=title)
-    gender= models.CharField(max_length=10, choices=gender_choices, default='female')
+    gender= models.CharField(max_length=10, choices=gender_choices, default='female', blank=True, null=True)
     display_on_home_page =models.BooleanField(default=False)
     is_banner =models.BooleanField(default=False)
     is_best_selling = models.BooleanField(default=False)

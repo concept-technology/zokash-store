@@ -63,7 +63,7 @@ INSTALLED_APPS = [
     'dotenv',
     'paystackapi',
     'my_store',
-    'django_filters',
+
    
 
     

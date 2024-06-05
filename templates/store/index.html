@@ -50,7 +50,7 @@
                     </div><!-- End .col-lg-6 -->
                     {%endif%}
 
-                    {%if items.is_banner %}
+                    {%if items.display_on_home_page %}
                     <div class="col-sm-4 col-lg-3 order-lg-first">
                         <div class="display-products-col">
                             <div class="product product-4 mb-7">
@@ -71,9 +71,9 @@
                                     </div><!-- End .product-action -->
                                 </figure><!-- End .product-media -->
 
-                                <div class="product-body">
-                                    <h3 class="product-title"><a href="product.html">{{items.title}}</a></h3><!-- End .product-title -->
-                                    <div class="product-price ml-2">
+                                <div class="product-body ml-5">
+                                    <h2 class="product-title"><a href="product.html">{{items.title}}</a></h2><!-- End .product-title -->
+                                    <div class="product-price ">
                                         {{items.price}}
                                     </div><!-- End .product-price -->
                                 </div><!-- End .product-body -->
