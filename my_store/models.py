@@ -209,10 +209,7 @@ class Coupon(models.Model):
     def __str__(self) -> str:
         return f"{self.code}   {self.amount}"
        
-
-    
-
-      
+     
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
     is_ordered = models.BooleanField(default=False)
@@ -229,7 +226,6 @@ class Order(models.Model):
     def __str__(self):
         return f" {self.user.username}, address:  {self.Payment}"
     
-
 
     # display the quantity in table
     def quantity(self):

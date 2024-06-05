@@ -55,6 +55,15 @@
 
                             <div class="col-md-6">
                                 <div class="product-details sticky-content">
+                                    
+                                    {% block seo %}
+                                        <meta name="{{object.title}}" content="{{object.description}}">
+                                    {% endblock seo %}
+                                      
+                                      {% block title %}
+                                        | {{object.title}}
+                                      {% endblock title %}
+                                          
                                     <h1 class="product-title" id="bg">{{object.title}}</h1><!-- End .product-title -->
 
                                     <div class="ratings-container">

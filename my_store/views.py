@@ -346,4 +346,6 @@ class RequestRefund(View):
             except ObjectDoesNotExist:
                 messages.error(self.request, 'invalid order')
                 return redirect('store:refund-request')
+        messages.error(self.request, 'invalid order')
+        return redirect('store:index')
             
