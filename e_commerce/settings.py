@@ -176,8 +176,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-DEBUG = 'RENDER' not in os.environ
+# DEBUG = 'RENDER' not in os.environ.get('DEBUG')
 
+DEBUG = True
+if 'RENDER' in os.environ:
+    DEBUG =False
 
 STATIC_URL = 'static/'
 # STATICFILES_DIRS = [
@@ -214,13 +217,13 @@ AUTHENTICATION_BACKENDS = [
 
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
-    "site_title": "Atinuke Admin",
+    "site_title": "zokash Admin",
 
     # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_header": "ATINUKE COUTURE",
+    "site_header": "zokash household",
 
     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_brand": "Atinuke Couture",
+    "site_brand": "zokash household",
 
     # Logo to use for your site, must be present in static files, used for brand on top left
     "site_logo": "atinuke/log",
