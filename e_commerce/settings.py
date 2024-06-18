@@ -178,9 +178,8 @@ USE_TZ = True
 
 # DEBUG = 'RENDER' not in os.environ.get('DEBUG')
 
-DEBUG = True
-if 'RENDER' in os.environ:
-    DEBUG =False
+DEBUG = os.environ.get('DEBUG', default=True)
+
 
 STATIC_URL = 'static/'
 # STATICFILES_DIRS = [
