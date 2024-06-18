@@ -330,8 +330,7 @@ class RequestRefund(View):
             try:
                 reference = form.cleaned_data.get('reference_code')
                 message = form.cleaned_data.get('message')
-                email = form.cleaned_data.get('email')
-                
+                email = form.cleaned_data.get('email')               
                 order = Order.objects.get(reference= reference)
                 order.is_refund_request = True
                 order.save()

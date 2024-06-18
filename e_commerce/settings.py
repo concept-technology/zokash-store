@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import dj_database_url
 SITE_ID=1
 
 from dotenv import load_dotenv
@@ -27,11 +28,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)_8%^jgfm$h(1pa=rv4m@6em#9rr1^n4^1rz$^5616o67!s99c'
+# SECRET_KEY = 'django-insecure-)_8%^jgfm$h(1pa=rv4m@6em#9rr1^n4^1rz$^5616o67!s99c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
-ALLOWED_HOSTS = ['127.0.0.1','zokash-store-c2f247825ef9.herokuapp.com' ]
+ALLOWED_HOSTS = ['127.0.0.1','zokash-store.onrender.com']
 
 
 # Application definition
@@ -132,6 +134,11 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
      }
 }
+# 'postgres://zokash_household_user:PQJ6jgHPGFjzS3zV3vmhGxRTevURRevd@dpg-cpojj7mehbks73ekcb7g-a.oregon-postgres.render.com/zokash_household'
+database_url  = os.environ.get("DATABASE_URL")
+
+DATABASES['default'] = dj_database_url.parse(database_url)
+
 
 # DATABASES = {
 #     'default': {
@@ -181,7 +188,7 @@ USE_TZ = True
 
 
 
-DEBUG = True
+DEBUG = os.environ.get("DEBUG","False").lower()== "true"
 
 
 STATIC_URL = 'static/'
