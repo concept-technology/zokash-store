@@ -134,23 +134,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
      }
 }
-# postgres://zokash_household_user:PQJ6jgHPGFjzS3zV3vmhGxRTevURRevd@dpg-cpojj7mehbks73ekcb7g-a.oregon-postgres.render.com/zokash_household'
-database_url  = os.environ.get("DATABASE_URL")
-
-# DATABASES['default'] = dj_database_url.parse(database_url)
 
 
-# # DATABASES = {
-# #     'default': {
-# #         'ENGINE': 'django.db.backends.postgresql',
-# #         'NAME': 'e-commerce-database',
-# #         'USER': 'postgres',
-# #         'PASSWORD': '006319',
-# #         'HOST': 'localhost',
-# #         'PORT': '5432',
-# #     }
-# # }
-# # Replace the SQLite DATABASES configuration with PostgreSQL:
 DATABASES = {
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
@@ -159,8 +144,6 @@ DATABASES = {
     )
 }
 
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -193,9 +176,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-
-
-DEBUG = True
+DEBUG = 'RENDER' not in os.environ
 
 
 STATIC_URL = 'static/'
@@ -214,6 +195,11 @@ if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 else:
     None
+    
+    
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
