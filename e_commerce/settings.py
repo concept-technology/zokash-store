@@ -134,23 +134,30 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
      }
 }
-# 'postgres://zokash_household_user:PQJ6jgHPGFjzS3zV3vmhGxRTevURRevd@dpg-cpojj7mehbks73ekcb7g-a.oregon-postgres.render.com/zokash_household'
+# postgres://zokash_household_user:PQJ6jgHPGFjzS3zV3vmhGxRTevURRevd@dpg-cpojj7mehbks73ekcb7g-a.oregon-postgres.render.com/zokash_household'
 database_url  = os.environ.get("DATABASE_URL")
 
-DATABASES['default'] = dj_database_url.parse(database_url)
+# DATABASES['default'] = dj_database_url.parse(database_url)
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'e-commerce-database',
-#         'USER': 'postgres',
-#         'PASSWORD': '006319',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
-
+# # DATABASES = {
+# #     'default': {
+# #         'ENGINE': 'django.db.backends.postgresql',
+# #         'NAME': 'e-commerce-database',
+# #         'USER': 'postgres',
+# #         'PASSWORD': '006319',
+# #         'HOST': 'localhost',
+# #         'PORT': '5432',
+# #     }
+# # }
+# # Replace the SQLite DATABASES configuration with PostgreSQL:
+DATABASES = {
+    'default': dj_database_url.config(
+        # Replace this value with your local database's connection string.
+        default='postgres://zokash_household_user:PQJ6jgHPGFjzS3zV3vmhGxRTevURRevd@dpg-cpojj7mehbks73ekcb7g-a.oregon-postgres.render.com/zokash_household',
+        conn_max_age=600,
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -188,31 +195,25 @@ USE_TZ = True
 
 
 
-DEBUG = os.environ.get("DEBUG","False").lower()== "true"
+DEBUG = True
 
 
 STATIC_URL = 'static/'
 # STATICFILES_DIRS = [
 #  os.path.join(BASE_DIR, 'static')
 # ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_HOST = os.environ.get('DJANGO_STATIC_HOST')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# if DEBUG:
+STATIC_HOST = os.environ.get('DJANGO_STATIC_HOST')
 
-
-# else:
-
-#     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+    None
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

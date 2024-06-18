@@ -1,0 +1,22 @@
+databases:
+  - name: e_commercedb
+    plan: free
+    databaseName: e_commerce
+    user: e_commerce
+
+services:
+  - type: web
+    plan: free
+    name: e_commerce
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "python -m gunicorn e_commerce.asgi:application -k uvicorn.workers.UvicornWorker"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: e_commercedb
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
