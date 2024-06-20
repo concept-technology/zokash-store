@@ -1,7 +1,12 @@
 from django import forms
 from django_countries.fields import CountryField
 from  django_countries.widgets import CountrySelectWidget
-from .models import CustomersAddress
+from .models import CustomersAddress,ShippingMethod
+
+class ShippingMethodForm(forms.Form):
+    address = forms.ModelChoiceField(queryset=ShippingMethod.objects.all(), empty_label="Select address")
+
+
 payment_choices= (
     ('paypal', 'paypal'),
     ('paystack', 'paystack'),

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product,Cart,Order, Category,CustomersAddress, Coupon, Refunds, Inventory
+from .models import Product,Cart,Order, Category,CustomersAddress, Coupon, Refunds, Inventory,ShippingMethod
 from django.utils.html import format_html
 
 from .models  import  Payment
@@ -49,9 +49,7 @@ class AddressAdmin(admin.ModelAdmin):
 
 
 class CouponAdmin(admin.ModelAdmin):
-        list_display = ['code', 'valid_from', 'valid_to',
-
-                    'discount', 'active','is_used']
+        list_display = ['code', 'valid_from', 'valid_to','active','user','is_used']
 
         list_filter = ['active', 'valid_from', 'valid_to']
 
@@ -73,6 +71,7 @@ admin.site.register(Category, CategoryAdmin)
 admin.site.register(CustomersAddress, AddressAdmin)
 admin.site.register(Coupon, CouponAdmin)
 admin.site.register(Refunds)
+admin.site.register(ShippingMethod)
 admin.site.register(Inventory, InventAdmin)
 
 

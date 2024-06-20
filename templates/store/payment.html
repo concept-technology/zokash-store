@@ -30,33 +30,37 @@
                                                         <tr>
                                                             <th>S/No.</th>
                                                             <th>Item(s)</th>
-                                                            <th>Total</th>
+                                                            <th></th>
+                                                            <th></th>
+                                                            <th>amount</th>
+                                                        
                                                     
                                                         </tr>
                                                     </thead>
         
                                                     <tbody>
                                                         
-                                                        {% for items  in cart %}							
+                                                        {% for orders  in order %}
+                                                        {% for item in cart %}
                                                         <tr>
-                                                            <td>{{forloop.counter}}</td>
-                                                            <td><a href="{{items.product.get_absolute_url}}">{{items.product.title}} {{items.get_price_tag}} * {{items.quantity}}</a></td>
-                                                            <td>N {{items.get_total_price}}</td>
-                                                        </tr>
-                                                        {% endfor %}    
-                                                            <td>Shipping:</td>
-                                                            <td></td>
-                                                        </tr>
+                                                        <td>{{forloop.counter}}</td>
+														<td>                                                            
+                                                                <img src="{{item.product.img_1.url}}" width="50" class="m-1">
+                                                            </td>
+                                                            <td>{{ item.product.title }}</td>
+                                                            {% endfor %}                                                       
+                                                            <td>{{ orders.quantity }}</td>
+                                                            
+                                                            <td>N{{ orders.get_total }}</td>
+                                                    </tr>
+                                                    <td>Shipping:</td>
                                                         <tr class="summary-total">
-                                                            {% for items in order %}							
                                                             <td>Grand Total:</td>
-                                                            <td>N{{ items.get_total }}</td>
-                                                            <input type="hidden" name="amount" value="{{ items.get_total }}"/>
+                                                            <td>N{{ orders.get_total }}</td>
+                                                            <input type="hidden" name="amount" value="{{orders.get_total}}"/>
                                                             {%endfor%}
                                                             <input type="hidden" value="{{user.email}}" name="email" />
-                                                        	<transaction>
-
-                                                            </transaction>		
+             		
                                                         </tr><!-- End .summary-total -->
                                                     </tbody>
                                                 </table><!-- End .table table-summary -->

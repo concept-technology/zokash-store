@@ -11,11 +11,12 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 from django.core.exceptions import ObjectDoesNotExist
-from .form import AddressForm, CouponForm,RefundRequestForm, AddressForm
+from .form import AddressForm, ShippingMethod, CouponForm,RefundRequestForm, AddressForm,ShippingMethodForm
 from .models import Payment, Refunds
 from django.conf import settings
 import random
 import string
+
 
 
 
@@ -60,9 +61,9 @@ def category_filter(request, title,):
 def dash_board(request):   
   
     cart = Cart.objects.filter(user=request.user, is_ordered=True)
-    order = Order.objects.filter(user=request.user, is_ordered=True,)
+    order = Order.objects.filter(user=request.user, is_ordered=True,).order_by('id')
     
-    context = {'order':order, 'cart':cart}
+    context = {'orders':order, 'cart':cart}
     return render(request, 'store/dashboard.html', context)
        
 
@@ -100,11 +101,14 @@ class CartView(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
         try:
             form = CouponForm(self.request.POST)
-            
+            delivery = ShippingMethodForm(self.request.POST)
             order = Order.objects.filter(user=self.request.user, is_ordered=False)
             cart = Cart.objects.filter(user=self.request.user, is_ordered=False) # filter cart by user
+            coupon = Order.objects.get(user=self.request.user, is_ordered=False)
             context = {
-                'form':form,
+                'coupon': coupon.coupon,
+                'delivery_form':delivery,
+                'coupon_form':form,
                 'object':{
                     'cart':cart, 'order':order
                 }
@@ -294,7 +298,9 @@ def initiate_payment(request):
         
         return render(request, 'store/make-payment.html', context)
 
-    return render(request, 'store/payment.html', {'order':Order.objects.filter(is_ordered=False, user=request.user),'cart':cart})
+    return render(request, 'store/payment.html',
+                  {'order':Order.objects.filter(is_ordered=False, 
+                    user=request.user).order_by('id'),'cart':cart})
 
 def verify_payment(request, ref):   
     order = Order.objects.filter(is_ordered= False, user=request.user)[0] 
@@ -349,19 +355,37 @@ class RequestRefund(View):
                 return redirect('store:refund-request')
         messages.error(self.request, 'invalid order')
         return redirect('store:index')
-  
+ 
+
 def apply_coupon(request):
     if request.method == 'POST':
         form = CouponForm(request.POST)
         if form.is_valid():
             code = form.cleaned_data.get('code')
             try:
-                coupon = Coupon.objects.get(code=code, active=True,)
+                coupon = Coupon.objects.get(code=code, active=True)
+                current_time = timezone.now()
+
+                # Check if the coupon is within the validity period
+                if coupon.valid_from and coupon.valid_to:
+                    if not (coupon.valid_from <= current_time <= coupon.valid_to):
+                        messages.warning(request, 'This coupon has expired.')
+                        return redirect('store:cart')
+
+                # Check if the user has already used this coupon
+                if coupon.used_by.filter(id=request.user.id).exists():
+                    messages.warning(request, 'You have already used this coupon.')
+                    return redirect('store:cart')
+
                 order = get_object_or_404(Order, user=request.user, is_ordered=False)
                 order.coupon = coupon
-                order.coupon.is_used = True
                 order.save()
-                messages.success(request, 'coupon is applied')
+
+                # Mark the coupon as used by this user
+                coupon.used_by.add(request.user)
+                coupon.save()
+
+                messages.success(request, 'Coupon is applied')
                 return redirect('store:cart')
             except Coupon.DoesNotExist:
                 messages.warning(request, 'This coupon does not exist or is not valid')
@@ -369,6 +393,9 @@ def apply_coupon(request):
     else:
         form = CouponForm()
     return render(request, 'store/apply_coupon.html', {'form': form})
+
+
+
 
 
 class DeliveryUpdate(View):
@@ -383,3 +410,28 @@ class DeliveryUpdate(View):
         messages.error(self.request, 'not updated')
         return redirect('store:dash-board')
         
+
+
+
+def select_shipping_method(request):
+    if request.method == 'POST':
+        form = ShippingMethodForm(request.POST)
+        if form.is_valid():
+            shipping_method = form.cleaned_data.get('shipping_method')
+            order = get_object_or_404(Order, user=request.user, is_ordered=False)
+            order.shipping_method = shipping_method
+            order.shipping_cost = shipping_method.cost
+            order.save()
+            messages.success(request, 'Shipping method selected.')
+            return redirect('store:order_summary')
+    else:
+        form = ShippingMethodForm()
+    return render(request, 'store/select_shipping_method.html', {'form': form})
+
+def order_summary(request):
+    order = get_object_or_404(Order, user=request.user, is_ordered=False)
+    context = {
+        'order': order,
+        'total': order.get_total()
+    }
+    return render(request, 'store/order_summary.html', context)

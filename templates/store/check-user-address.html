@@ -45,7 +45,22 @@
                 <div class="card-body">
                     <div class="summary summary-cart">
                         <h3 class="summary-title">Cart Order</h3><!-- End .summary-title -->
-
+                        <div class="checkout-discount"> 
+                            <form method="post" action="{% url 'store:apply-coupon' %}">
+                                {% csrf_token %}
+                                <div>
+                                   {% for items in order %} 
+                                    
+                                    {% for c in items.coupon %}                                   
+                                    <label>{{c.code}}</label>
+                                    <input class="form-control" placeholder="apply coupon here" name="code">
+                                    <button type="submit" class="btn btn-secondary">apply</button>
+                                    {% endfor %}
+                                {%endfor%}
+                                </div>
+                            </form>
+                        </div><!-- End .checkout-discount -->
+                       
                         <table class="table table-summary">
                             <tbody>
                                 <tr class="summary-subtotal">
@@ -78,7 +93,7 @@
                                     </td>
                                     <td>0.00</td>
                                 </tr>
-<!-- 
+ 
                                 <tr class="summary-shipping-row">
                                     <td>
                                         <div class="custom-control custom-radio">

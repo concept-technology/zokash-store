@@ -65,9 +65,15 @@ INSTALLED_APPS = [
     'dotenv',
     'paystackapi',
     'my_store',
+    "debug_toolbar",
+    
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
+INTERNAL_IPS = [
 
+    "127.0.0.1",
+
+]
 ACCOUNT_FORMS = {
     'add_email': 'allauth.account.forms.AddEmailForm',
     'change_password': 'allauth.account.forms.ChangePasswordForm',

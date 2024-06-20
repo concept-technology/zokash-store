@@ -144,15 +144,25 @@
 												
 	                							<td>&nbsp;</td>
 	                						</tr>
+											
+											{% if coupons %}
+												
+												
 											<td>
 												<form method="post" action="{% url 'store:apply-coupon' %}">
-													{{form}}
 													{% csrf_token %}
-							
-										
-													<button type="submit" style="color: rgb(6, 247, 166);" class="btn">apply</button>
+													<div>
+														
+														<label>have a coupon?</label>
+														<p>{{ coupon.code }}</p>
+														<input class="form-control" placeholder="apply coupon here" name="code">
+														<button type="submit" class="btn" >apply</button>
+											
+													</div>
 												</form>
 											</td>
+											{% endif %}
+
 	                						<tr class="summary-total">
 	                							<td>Total:</td>
 	                							{% for items in object.order.all %} 
@@ -182,9 +192,4 @@
 
     </div><!-- End .page-wrapper -->
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
-
-
-
-
-	
 	{% endblock content %}

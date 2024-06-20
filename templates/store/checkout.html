@@ -55,7 +55,17 @@
 		                						</tr>
                                                 {% endfor %}
                                                     
-
+												<div class="checkout-discount">
+													<form method="post" action="{% url 'store:apply-coupon' %}">
+														{% csrf_token %}
+														<div>
+															<label>have a coupon?</label>
+															<input class="form-control" placeholder="apply coupon here" name="code">
+															<button type="submit" class="btn btn-secondary">apply</button>
+														</div>
+													</form>
+												</div><!-- End .checkout-discount -->
+												
                                                 
                                                 {% for items in order.order %}
                                                     

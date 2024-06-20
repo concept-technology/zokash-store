@@ -1,4 +1,5 @@
 {% extends 'store/base.html' %}  
+
 {% block content %}  
 {%include 'store/partials/_header.html'%}
 
@@ -56,26 +57,34 @@
 										<table class="table">
 											<thead>
 											  <tr>
-												<th scope="col">#</th>
+												<th scope="col">S/No.</th>
 												<th scope="col">item</th>
-												<th scope="col">quantity</th>
+												<th scope="col">Date</th>
+												<th scope="col">Ref.</th>
 												<th scope="col">amount</th>
 											  </tr>
 											</thead>
 											<tbody>
-												
-												{% for items in order|add:'product' %}
+												{% for order in orders %}
+												<tr>
+													<td>{{forloop.counter}}</td>
+													<td>
+														<ul>
+															{% for item in order.product.all %}
+																<li><img src="{{item.product.img_1.url}}" width="50" class="m-1"><span>{{ item.product.title }}</span> <span>  (Quantity: {{ item.quantity }})</span></span>
+															{% endfor %}
+														</ul>
+													</td>
+													<td>{{ order.date }}</td>
+													<td>{{ order.reference }}</td>
 													
 													
-											  <tr>
-												<th scope="row">{{forloop.counter}}</th>
-												<td>{{product.title}}</td>
 
-												<td>{{items.quantity}}</td>
-												<td>N{{items.get_price_tag}}</td>
-											  </tr>
-												{% endfor %}
-
+													<td>{{ order.get_total }}</td>
+													<td>{{ order.is_delivered|yesno:"Delivered,Pending" }}</td>
+												</tr>
+											{% endfor %}
+								
 									
 											</tbody>
 										  </table>

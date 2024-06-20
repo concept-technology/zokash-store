@@ -11,6 +11,8 @@ from django.core.validators import RegexValidator
 # from django.utils import timezone
 
 from django.urls import reverse
+
+import humanize
 category_choices = (
         ('new', 'new'),
         ('featured', 'featured'),
@@ -110,8 +112,8 @@ class Cart(models.Model):
         if discount_price:
             return discount_price
         return normal_price
-        
-    
+
+   
     def get_total_price(self):
         if self.get_discount_price():
             return self.get_discount_price()
@@ -162,13 +164,6 @@ class CustomersAddress(models.Model):
     def get_absolute_url(self):
         return reverse("store:update-address", kwargs={"pk": self.pk})
     
-   
-
-  
-    
-    
-    
-    
     
 class Payment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
@@ -197,27 +192,35 @@ class Payment(models.Model):
     def amount_value(self):
         return int(self.amount) * 100
 
+class ShippingMethod(models.Model):
+    name = models.CharField(max_length=255)
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    delivery_time = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.name} - N{self.cost} (Delivery in {self.delivery_time})"
+
     
-    
+   
     
 
 class Coupon(models.Model):
     code = models.CharField(max_length=50)
     amount = models.IntegerField(default=0,)
     valid_from = models.DateTimeField(default=timezone.now())
-    valid_to = models.DateTimeField(default=timezone.now())
-    discount = models.IntegerField(validators=[MinValueValidator(0),
-                               MaxValueValidator(100)],
-                   help_text='Percentage value (0 to 100)', default=0)
-
+    valid_to = models.DateTimeField(default=timezone.now(), blank=True, null=True)
     active = models.BooleanField(default=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' ,blank=True,null=True)
     is_used = models.BooleanField(default=False)
-    
+    used_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='used_coupons', blank=True)
  
     def __str__(self) -> str:
         return f"{self.code}   {self.amount}"
-       
+del_status = (
+    ('processing', 'processing'),
+    ('in_progress', 'in_progress'),
+    ('delivered', 'delivered'),
+)      
      
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
@@ -231,6 +234,8 @@ class Order(models.Model):
     is_received = models.BooleanField(default=False)
     is_refund_request = models.BooleanField(default=False)
     refund_granted = models.BooleanField(default=False)
+    date = models.DateTimeField(default=timezone.datetime.now())
+    delivery_status = models.CharField(max_length=255, default='Processing',choices=del_status)
     
     def __str__(self):
         return f" {self.user.username}, address:  {self.Payment}"

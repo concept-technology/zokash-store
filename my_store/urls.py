@@ -48,6 +48,8 @@ urlpatterns = [
      
      
      path('apply-coupon/', views.apply_coupon, name='apply-coupon'),
+     
+     path('select-address/', views.select_shipping_method, name='select_address'),
 
 ]
 
