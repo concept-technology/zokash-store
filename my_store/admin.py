@@ -60,12 +60,17 @@ class CouponAdmin(admin.ModelAdmin):
 class InventAdmin(admin.ModelAdmin):
     list_display = ['product', 'quantity']
 
+class AddressAdmin(admin.ModelAdmin):
+    list_display = ['user', 'street_address', 'apartment', 'town', 'zip_code', 'telephone']
+
+
+
 admin.site.register(Product, ProductAdmin) 
 admin.site.register(Cart, CartAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Category, CategoryAdmin)
 
-admin.site.register(CustomersAddress)
+admin.site.register(CustomersAddress, AddressAdmin)
 admin.site.register(Coupon, CouponAdmin)
 admin.site.register(Refunds)
 admin.site.register(Inventory, InventAdmin)

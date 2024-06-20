@@ -6,6 +6,8 @@ from django_countries.fields import CountryField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
 from django.utils import timezone
+from django.core.validators import RegexValidator
+
 # from django.utils import timezone
 
 from django.urls import reverse
@@ -21,8 +23,6 @@ category_choices = (
 payment_choices= (
     ('paypal', 'paypal'),
     ('paystack', 'paystack'),
-    ('ussd transfer', 'ussd transfer'),
-    ('mobile transfer', 'mobile transfer')
 )
 
 
@@ -55,13 +55,13 @@ class Category(models.Model):
 class Product(models.Model):
     title = models.CharField(max_length=255)
     description= models.TextField(max_length=1000)
-    additional_information= models.TextField(max_length=1000)
+    additional_information= models.TextField(max_length=1000, default='')
     price = models.IntegerField(default=0)
     discount_price = models.IntegerField(default=0)
     img_1  = models.ImageField(upload_to='static/media/img', default='img')
-    img_2  = models.ImageField(upload_to='static/media/img', default='img')
-    img_3  = models.ImageField(upload_to='static/media/img', default='img')
-    img_4  = models.ImageField(upload_to='static/media/img', default='img')
+    img_2  = models.ImageField(upload_to='static/media/img', default='img', blank=True, null=True)
+    img_3  = models.ImageField(upload_to='static/media/img', default='img',blank=True, null=True)
+    img_4  = models.ImageField(upload_to='static/media/img', default='img',blank=True, null=True)
     label = models.CharField(choices=label_choices, max_length=255, default='', blank=True)
     category = models.ForeignKey(Category, default='', on_delete=models.CASCADE)
     slug = models.SlugField( default=title)
@@ -139,21 +139,29 @@ address_choices =(
     ('billing', 'billing Address')
 )
 
+phone_regex = RegexValidator(
+    regex=r'^\+?1?\d{9,15}$',
+    message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
+)
+
+
 class CustomersAddress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
     street_address = models.CharField(max_length=300)
     apartment = models.CharField(max_length=255)
     town = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
-    # telephone= models.IntegerField(default=0)
+    telephone = models.CharField(validators=[phone_regex], max_length=17, blank=True)
     zip_code = models.CharField(max_length=20)
     country = CountryField(multiple=False)
-    address_type = models.CharField(max_length=20, choices=address_choices)
-    default  = models.BooleanField(default=False)
-    payment_option = models.CharField(max_length=255, choices=payment_choices)
+    payment_option = models.CharField(max_length=255, choices=payment_choices, blank=True,null=True)
    
     def __str__(self):
-       return self.user.username
+       return f"{self.user.username}:   address is {self.street_address}" 
+   
+    def get_absolute_url(self):
+        return reverse("store:update-address", kwargs={"pk": self.pk})
+    
    
 
   
@@ -203,6 +211,7 @@ class Coupon(models.Model):
                    help_text='Percentage value (0 to 100)', default=0)
 
     active = models.BooleanField(default=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' ,blank=True,null=True)
     is_used = models.BooleanField(default=False)
     
  
@@ -235,11 +244,12 @@ class Order(models.Model):
     
     def get_total(self):
         total = 0
-        for items in self.product.all():
-            total += items.get_total_price()
-        # if self.coupon.code:
-        # total -= self.coupon.amount
+        for item in self.product.all():
+            total += item.get_total_price()
+        if self.coupon:
+            total -= self.coupon.amount
         return total 
+    
     def get_coupon(self):
  
         return self.get_total() - self.coupon.amount
@@ -278,3 +288,4 @@ class Inventory(models.Model):
     
     def __str__(self) -> str:
         return f"{self.product} {self.quantity}"
+    

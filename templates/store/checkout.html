@@ -19,7 +19,7 @@
             	<div class="checkout">
 	                <div class="container">
             			<div class="checkout-discount">
-            				<form action="{% url 'store:add_coupon' %}" method="POST">
+            				<form method="post" action="{% url 'store:apply-coupon' %}">
 								{% csrf_token %}
 								{{order.coupon.code}}
             		
@@ -33,49 +33,10 @@
 		                		<div class="col-lg-9">
 		                			<h2 class="checkout-title">Billing Details</h2><!-- End .checkout-title -->
 	            						<label>Street address *</label>
-                                        {{order.form.street_address}}
-	            						<!-- <input type="text" class="form-control" placeholder="House number and Street name" required> -->
-	            						<!-- <input type="text" class="form-control" placeholder="Appartments, suite, unit etc ..." required> -->
-                                        {{order.form.apartment}}
-	            						<div class="row">
-		                					<div class="col-sm-6">
-		                						<label>Town / City *</label>
-                                        {{order.form.town}}
-
-		                						<!-- <input type="text" class="form-control" required> -->
-		                					</div><!-- End .col-sm-6 -->
-
-		                					<div class="col-sm-6">
-		                						<label>State</label>
-                                        {{order.form.state}}
-
-		                						<!-- <input type="text" class="form-control" required> -->
-		                					</div>
-                                            
-                                            <div class="col-sm-6">
-		                						<label class="form-control">
-                                        {{order.form.country}}
-                                                </label>
-		                					</div>
-                                            <!-- End .col-sm-6 -->
-                                            <div class="col-sm-6">
-		                						<label>Postcode / ZIP *</label>
-                                            {{order.form.zip_code}}                         
-		                						<!-- <input type="text" class="form-control" required> -->
-		                					</div><!-- End .col-sm-6 -->
-
-		                				</div><!-- End .row -->
-
-<!-- 
-	                					<label>Order notes (optional)</label>
-	        							<textarea class="form-control" cols="30" rows="4" placeholder="Notes about your order, e.g. special notes for delivery"></textarea>
-		                		 -->
-                                
-                                    </div><!-- End .col-lg-9 -->
+										{{order.form|crispy}}
 		                		<aside class="col-lg-3">
 		                			<div class="summary">
 		                				<h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
-
 		                				<table class="table table-summary">
 		                					<thead>
 		                						<tr>

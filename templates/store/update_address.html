@@ -1,0 +1,25 @@
+{% extends 'store/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+<form action="" method="post" class="form">
+    {% csrf_token %}
+    <div class="col m-50">
+        <div>
+
+            {{form|crispy}}
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-outline-primary-2 btn-order m-3" >
+        <span >UPDATE...</span>
+    </button>
+                 
+    </div><!-- End .row -->
+
+</form>
+</div>
+{% endblock content %}
+    

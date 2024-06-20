@@ -89,9 +89,21 @@
 	                							<td>Subtotal:</td>									
 	                						   {% for items in object.order.all %} 
 												<td>N{{items.get_total}}</td>
+
+												
 												{%endfor%}
 	                						</tr><!-- End .summary-subtotal -->
+
+
+
+											
+
+
+
 	                						<tr class="summary-shipping">
+
+												
+
 	                							<td>Delivery:</td>
 	                							<td>&nbsp;</td>
 	                						</tr>
@@ -128,13 +140,26 @@
 
 	                						<tr class="summary-shipping-estimate">
 	                							<td>Estimate for Your Country<br> <a href="">Change address</a></td>
-	                							<td>&nbsp;</td>
-	                						</tr>End .summary-shipping-estimate
 
+												
+	                							<td>&nbsp;</td>
+	                						</tr>
+											<td>
+												<form method="post" action="{% url 'store:apply-coupon' %}">
+													{{form}}
+													{% csrf_token %}
+							
+										
+													<button type="submit" style="color: rgb(6, 247, 166);" class="btn">apply</button>
+												</form>
+											</td>
 	                						<tr class="summary-total">
 	                							<td>Total:</td>
 	                							{% for items in object.order.all %} 
 												<td>N{{items.get_total}}</td>
+
+
+												
 												{%endfor%}
 	                						</tr><!-- End .summary-total -->
 	                					</tbody>

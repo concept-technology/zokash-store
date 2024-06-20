@@ -36,13 +36,18 @@ urlpatterns = [
      
      path('increase-cart-quantity/<slug>', views.increase_cart_quantity, name='increase_cart'),
      
-     path('add_coupon/', views.add_coupon, name='add_coupon'),
-     
-     
      path('payment/', views.initiate_payment, name='initiate_payment'),
+     
      path('verify-payment/<str:ref>/', views.verify_payment, name='verify_payment'),
      
-     path('refund-request', views.RequestRefund.as_view(), name='refund-request')
-  
+     path('refund-request', views.RequestRefund.as_view(), name='refund-request'),
+     
+     path('verify-address', views.verify_address, name='verify-address'),
+     
+     path('address/edit/<int:pk>', views.Update_addressView, name='update-address'),
+     
+     
+     path('apply-coupon/', views.apply_coupon, name='apply-coupon'),
+
 ]
 

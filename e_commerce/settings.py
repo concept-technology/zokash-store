@@ -65,10 +65,6 @@ INSTALLED_APPS = [
     'dotenv',
     'paystackapi',
     'my_store',
-
-   
-
-    
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 
@@ -136,13 +132,13 @@ DATABASES = {
 }
 
 
-DATABASES = {
-    'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
-        default='postgres://zokash_household_user:PQJ6jgHPGFjzS3zV3vmhGxRTevURRevd@dpg-cpojj7mehbks73ekcb7g-a.oregon-postgres.render.com/zokash_household',
-        conn_max_age=600,
-    )
-}
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         # Replace this value with your local database's connection string.
+#         default='postgres://zokash_household_user:PQJ6jgHPGFjzS3zV3vmhGxRTevURRevd@dpg-cpojj7mehbks73ekcb7g-a.oregon-postgres.render.com/zokash_household',
+#         conn_max_age=600,
+#     )
+# }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -225,7 +221,7 @@ JAZZMIN_SETTINGS = {
     "site_brand": "zokash household",
 
     # Logo to use for your site, must be present in static files, used for brand on top left
-    "site_logo": "atinuke/log",
+    # "site_logo": "atinuke/zokashlogo.jpg",
 }
 
 

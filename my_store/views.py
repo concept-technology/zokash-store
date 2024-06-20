@@ -1,16 +1,17 @@
-
+from django.utils import timezone
 from django.shortcuts import render
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Product,Cart, Order, CustomersAddress, Coupon, Category
 from django.views.generic import DetailView, ListView,View
+
 from  django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 from django.core.exceptions import ObjectDoesNotExist
-from .form import CheckoutForm, CouponForm,RefundRequestForm
+from .form import AddressForm, CouponForm,RefundRequestForm, AddressForm
 from .models import Payment, Refunds
 from django.conf import settings
 import random
@@ -98,9 +99,12 @@ class ProductDetailView(DetailView):
 class CartView(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
         try:
+            form = CouponForm(self.request.POST)
+            
             order = Order.objects.filter(user=self.request.user, is_ordered=False)
             cart = Cart.objects.filter(user=self.request.user, is_ordered=False) # filter cart by user
             context = {
+                'form':form,
                 'object':{
                     'cart':cart, 'order':order
                 }
@@ -189,16 +193,25 @@ def reduce_cart_quantity(request, slug):
         return redirect('store:cart',)
     # return redirect('store:store_item', slug=slug)
   
+def verify_address(request):
+    user = CustomersAddress.objects.all().filter(user=request.user)
+    order = Order.objects.filter(user= request.user, is_ordered=False)
+    context = {
+        'address': user,
+        'order': order
+     }   
+    return render(request, 'store/check-user-address.html', context)    
+ 
 
 
 # check out view
 class CheckoutView(View):
     def get(self, *args, **kwargs):
-        form = CheckoutForm()
+        form = AddressForm(self.request.POST or None)
     
         order = Order.objects.filter(user=self.request.user, is_ordered=False)
         cart= Cart.objects.filter(user=self.request.user, is_ordered=False)
-        
+        address =CustomersAddress.objects.filter(user=self.request.user)
         context = {
             'order':{
                 'form': form,
@@ -207,15 +220,18 @@ class CheckoutView(View):
                 'coupon':CouponForm
             }
         }
+        if address.exists():
+            return redirect('store:verify-address')
         return render(self.request, 'store/checkout.html', context)
-
-
+    
     def post(self, *args, **kwargs):
-        form = CheckoutForm(self.request.POST or None)
+        form = AddressForm(self.request.POST or None)
         
         try:
             order = Order.objects.get(user=self.request.user, is_ordered=False)
-            if form.is_valid():       
+
+                     
+            if form.is_valid():
                 street_address = form.cleaned_data.get('street_address')
                 apartment = form.cleaned_data.get('apartment')
                 town = form.cleaned_data.get('town')
@@ -240,7 +256,22 @@ class CheckoutView(View):
             messages.error(self.request, 'you dont have an active order')
             return redirect('store:categories')
 
-
+def Update_addressView(request,pk):
+    address = CustomersAddress.objects.get(user=request.user)
+    if request.method == 'POST':
+        form = AddressForm(request.POST, instance=address)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'your address is updated')
+            return redirect('store:verify-address')
+    else:
+        form = AddressForm(instance=address)
+    
+    context = {
+        'form': form,
+        'address': address
+    }
+    return render(request, 'store/update_address.html', context)
 
 
 def initiate_payment(request):
@@ -265,8 +296,7 @@ def initiate_payment(request):
 
     return render(request, 'store/payment.html', {'order':Order.objects.filter(is_ordered=False, user=request.user),'cart':cart})
 
-def verify_payment(request, ref):
-    
+def verify_payment(request, ref):   
     order = Order.objects.filter(is_ordered= False, user=request.user)[0] 
     payment = Payment.objects.get(ref=ref,)
 
@@ -287,35 +317,7 @@ def verify_payment(request, ref):
         return render(request, 'store/success.html',)  
     return redirect('')  
     
-
-def get_coupon(request,code):
-        try: 
-            coupon =  Coupon.objects.get(code=code)
-            return coupon         
-        except ObjectDoesNotExist:
-            messages.error(request, 'coupon does not exist')
-            return redirect('store:check-out')
-
- 
-def add_coupon(request):
-    if request.method == 'POST':
-        form = CouponForm(request.POST or None)
-        if form.is_valid():
-            code =form.cleaned_data.get('code')
-            order = Order.objects.get(user=request.user,is_ordered=False,)
-            coupon = Coupon.objects.get(code=code, active=True)
-            if order.coupon == get_coupon(request, code):
-                discount = order.get_total() * coupon.discount / 100
-                order.get_total = discount
-                order.coupon = coupon
-                order.save()
-                messages.success(request, 'coupon applied',)
-                return redirect('store:check-out')
-            messages.error(request, 'ops invalid coupon')
-            return redirect('store:check-out')
-        return redirect('store:check-out')
-    return redirect('store:cart')
-                         
+                        
 
 class RequestRefund(View):
     
@@ -347,4 +349,37 @@ class RequestRefund(View):
                 return redirect('store:refund-request')
         messages.error(self.request, 'invalid order')
         return redirect('store:index')
-            
+  
+def apply_coupon(request):
+    if request.method == 'POST':
+        form = CouponForm(request.POST)
+        if form.is_valid():
+            code = form.cleaned_data.get('code')
+            try:
+                coupon = Coupon.objects.get(code=code, active=True,)
+                order = get_object_or_404(Order, user=request.user, is_ordered=False)
+                order.coupon = coupon
+                order.coupon.is_used = True
+                order.save()
+                messages.success(request, 'coupon is applied')
+                return redirect('store:cart')
+            except Coupon.DoesNotExist:
+                messages.warning(request, 'This coupon does not exist or is not valid')
+                return redirect('store:cart')
+    else:
+        form = CouponForm()
+    return render(request, 'store/apply_coupon.html', {'form': form})
+
+
+class DeliveryUpdate(View):
+    def post(self, *args, **kwargs):
+        status = self.request.POST.get('confirm')
+        order = Order.objects.get(user=self.request.user, is_ordered=True, is_received=False)
+        if status:
+            order.is_received = True
+            order.save()
+            messages.success(self.request, 'updated')
+            return redirect('store:dash-board')
+        messages.error(self.request, 'not updated')
+        return redirect('store:dash-board')
+        

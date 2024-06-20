@@ -1,0 +1,115 @@
+{% extends 'store/base.html' %}
+
+{% block content %}   
+{{block.super}} 
+
+<nav aria-label="breadcrumb" class="breadcrumb-nav">
+    <div class="container">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'store:index'%}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'store:categories-list'%}">Shop</a></li>
+            <li class="breadcrumb-item active" >{{user}}-cart</li>
+            <li class="breadcrumb-item"><a>checkout</a></li>
+            <li class="breadcrumb-item" aria-current="page"><a href="{% url 'store:categories-list'%}">Billing Address</a></li>
+        </ol>
+    </div><!-- End .container -->
+</nav><!-- End .breadcrumb-nav -->
+
+
+<div class="tab-pane " id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
+    <p>The following addresses will be used on the checkout page by default.</p>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card card-dashboard">
+                <div class="card-body">
+                    <h3 class="card-title">Ship to</h3><!-- End .card-title -->
+                    
+                    {% for items in address %}                       
+                    <p>{{user}}<br>
+                    {{items.street_address}}<br>
+                    {{items.apartment }},<br> 
+                    {{items.town}}<br>
+                    {{items.telephone}}<br>
+                    {{items.zip_code}}<br>
+                    {{items.country}}<br>
+                    {{user.email}}<br>
+                    <a href="{{items.get_absolute_url}}">Edit<i class="icon-edit"></i></a></p>
+                    {% endfor %}
+                </div><!-- End .card-body -->
+            </div><!-- End .card-dashboard -->
+        </div><!-- End .col-lg-6 -->
+
+        <div class="col-lg-6">
+            <div class="card card-dashboard">
+                <div class="card-body">
+                    <div class="summary summary-cart">
+                        <h3 class="summary-title">Cart Order</h3><!-- End .summary-title -->
+
+                        <table class="table table-summary">
+                            <tbody>
+                                <tr class="summary-subtotal">
+                                    <td>Subtotal:</td>									
+                                   {% for items in order %} 
+                                    <td>N{{items.get_total}}</td>
+                                    {%endfor%}
+                                </tr><!-- End .summary-subtotal -->
+                                <tr class="summary-shipping">
+                                    <td>Delivery:</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+
+                                <tr class="summary-shipping-row"> 
+                                    <td>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="free-shipping" name="shipping" class="custom-control-input">
+                                            <label class="custom-control-label" for="free-shipping">pay on delivery</label>
+                                        </div><!-- End .custom-control -->
+                                    </td>
+                                    <td>Not available</td>
+                                </tr>
+
+                                 <tr class="summary-shipping-row">
+                                    <td>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="standart-shipping" name="shipping" class="custom-control-input">
+                                            <label class="custom-control-label" for="standart-shipping">Standart:</label>
+                                        </div><!-- End .custom-control -->
+                                    </td>
+                                    <td>0.00</td>
+                                </tr>
+<!-- 
+                                <tr class="summary-shipping-row">
+                                    <td>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="express-shipping" name="shipping" class="custom-control-input">
+                                            <label class="custom-control-label" for="express-shipping">Express:</label>
+                                        </div><!-- End .custom-control -->
+                                    <!-- </td>
+                                    <td>$20.00</td>
+                                </tr>End .summary-shipping-row --> 
+
+                                <tr class="summary-shipping-estimate">
+                                    <td>Estimate for Your Country<br> <a href="">Change address</a></td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr class="summary-total">
+                                    <td>Total:</td>
+                                    {% for items in order %} 
+                                    <td>N{{items.get_total}}</td>
+                                    {%endfor%}
+                                </tr><!-- End .summary-total -->
+                            </tbody>
+                        </table><!-- End .table table-summary -->
+
+                        <a href="{% url 'store:initiate_payment' %}" class="btn btn-outline-primary-2 btn-order btn-block">proceed to payment</a>
+                    </div><!-- End .summary -->
+
+                </div><!-- End .card-body -->
+            </div><!-- End .card-dashboard -->
+        </div><!-- End .col-lg-6 -->
+    </div><!-- End .row -->
+</div><!-- .End .tab-pane -->
+
+
+    {% endblock content %}
