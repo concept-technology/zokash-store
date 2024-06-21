@@ -443,17 +443,28 @@ def order_summary(request):
 
 def search_view(request):
     query = request.GET.get('q')
-    results = []
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    
+    results = Product.objects.all()
     
     if query:
-        results = Product.objects.filter(
+        results = results.filter(
             Q(title__icontains=query) | 
             Q(description__icontains=query) |
             Q(category__title__icontains=query)
         )
     
+    if min_price:
+        results = results.filter(price__gte=min_price)
+        
+    if max_price:
+        results = results.filter(price__lte=max_price)
+    
     context = {
         'query': query,
+        'min_price': min_price,
+        'max_price': max_price,
         'results': results
     }
     
