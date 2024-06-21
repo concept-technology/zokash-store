@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Product,Cart, Order, CustomersAddress, Coupon, Category
 from django.views.generic import DetailView, ListView,View
-
+from django.db.models import Q
 from  django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -104,9 +104,9 @@ class CartView(LoginRequiredMixin, View):
             delivery = ShippingMethodForm(self.request.POST)
             order = Order.objects.filter(user=self.request.user, is_ordered=False)
             cart = Cart.objects.filter(user=self.request.user, is_ordered=False) # filter cart by user
-            coupon = Order.objects.get(user=self.request.user, is_ordered=False)
+            coupon = Coupon.objects.filter(active=True)
             context = {
-                'coupon': coupon.coupon,
+                'coupon': coupon,
                 'delivery_form':delivery,
                 'coupon_form':form,
                 'object':{
@@ -212,11 +212,13 @@ def verify_address(request):
 class CheckoutView(View):
     def get(self, *args, **kwargs):
         form = AddressForm(self.request.POST or None)
-    
+        coupon = Coupon.objects.filter(active=True)
+
         order = Order.objects.filter(user=self.request.user, is_ordered=False)
         cart= Cart.objects.filter(user=self.request.user, is_ordered=False)
         address =CustomersAddress.objects.filter(user=self.request.user)
         context = {
+            'coupon':coupon,
             'order':{
                 'form': form,
                 'order': order,
@@ -435,3 +437,24 @@ def order_summary(request):
         'total': order.get_total()
     }
     return render(request, 'store/order_summary.html', context)
+
+
+
+
+def search_view(request):
+    query = request.GET.get('q')
+    results = []
+    
+    if query:
+        results = Product.objects.filter(
+            Q(title__icontains=query) | 
+            Q(description__icontains=query) |
+            Q(category__title__icontains=query)
+        )
+    
+    context = {
+        'query': query,
+        'results': results
+    }
+    
+    return render(request, 'store/search_results.html', context)

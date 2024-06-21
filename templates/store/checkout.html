@@ -55,16 +55,28 @@
 		                						</tr>
                                                 {% endfor %}
                                                     
+												{% if coupon %}
 												<div class="checkout-discount">
-													<form method="post" action="{% url 'store:apply-coupon' %}">
-														{% csrf_token %}
-														<div>
-															<label>have a coupon?</label>
-															<input class="form-control" placeholder="apply coupon here" name="code">
-															<button type="submit" class="btn btn-secondary">apply</button>
-														</div>
-													</form>
+												
+												
+													<td>
+														{% for code in coupon %}													
+														<form method="post" action="{% url 'store:apply-coupon' %}">
+															{% csrf_token %}
+															<div>
+																
+																<label>you have a promo, use</label>
+																<span style="color: rgb(89, 168, 11);">{{ code.code }}</span>
+																<input class="form-control" placeholder="apply coupon here" name="code">
+																<button type="submit" class="btn" >apply</button>
+													
+															</div>
+														</form>
+														{% endfor %}
+													</td>
 												</div><!-- End .checkout-discount -->
+													{% endif %}
+		
 												
                                                 
                                                 {% for items in order.order %}

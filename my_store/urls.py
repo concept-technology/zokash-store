@@ -51,5 +51,7 @@ urlpatterns = [
      
      path('select-address/', views.select_shipping_method, name='select_address'),
 
+
+     path('search/', views.search_view, name='search'),
 ]
 

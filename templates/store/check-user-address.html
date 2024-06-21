@@ -46,19 +46,24 @@
                     <div class="summary summary-cart">
                         <h3 class="summary-title">Cart Order</h3><!-- End .summary-title -->
                         <div class="checkout-discount"> 
-                            <form method="post" action="{% url 'store:apply-coupon' %}">
-                                {% csrf_token %}
-                                <div>
-                                   {% for items in order %} 
+                            							
+                            <td>
+                                
                                     
-                                    {% for c in items.coupon %}                                   
-                                    <label>{{c.code}}</label>
-                                    <input class="form-control" placeholder="apply coupon here" name="code">
-                                    <button type="submit" class="btn btn-secondary">apply</button>
-                                    {% endfor %}
-                                {%endfor%}
-                                </div>
-                            </form>
+                                
+                                <form method="post" action="{% url 'store:apply-coupon' %}">
+                                    {% csrf_token %}
+                                    <div>                   
+                                        <label>you have a promo?</label>
+                                        <input class="form-control" placeholder="apply coupon here" name="code">
+                                        <span style="color: rgb(89, 168, 11);">{{ code.code }}</span>
+                                    </div>
+                                    <button type="submit" class="btn btn-secondary" >redeem</button>
+                                </form>
+                        
+                            </td>
+                
+                            
                         </div><!-- End .checkout-discount -->
                        
                         <table class="table table-summary">
