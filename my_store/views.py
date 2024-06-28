@@ -1,3 +1,5 @@
+import secrets
+from django.http import JsonResponse
 from django.utils import timezone
 from django.shortcuts import render
 from django.shortcuts import redirect, render
@@ -11,17 +13,15 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 from django.core.exceptions import ObjectDoesNotExist
-from .form import AddressForm, ShippingMethod, CouponForm,RefundRequestForm, AddressForm,ShippingMethodForm
+from .form import *
 from .models import Payment, Refunds
 from django.conf import settings
 import random
 import string
-
-
-
-
-# Create your views here.
-
+from django.contrib.sessions.models import Session
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.csrf import csrf_exempt
+import logging
 def create_ref_code():#generate order reference code
     return ''.join(random.choices(string.ascii_lowercase + string.digits,k=15))
 
@@ -37,25 +37,44 @@ def ProductCategories_view(request):
     if request.method == 'GET':
         product = Product.objects.select_related('category').all()
         category = Category.objects.all()
+        products_with_ratings = []
+        for product in product:
+            avg_rating = product.average_rating()
+            count = product.ratings.count()
+            products_with_ratings.append({'product': product, 'average_rating': avg_rating, 'count':count})
+
         context= {
             'product':product,
-            'category': category
+            'category': category,
+            'products_with_ratings': products_with_ratings,
             }
         print(product)
         return render(request, 'store/category.html', context)
     
 
 
-
-
-def category_filter(request, title,):
-    if(Category.objects.filter(title=title)):
-        product = Product.objects.filter(category__title=title,)
-        category = Category.objects.filter(title=title).first()
-        context = {'product': product, 'category':category}
-        return render(request, 'store/filter.html',context)
-    return redirect('store:categories-list')
+def product_list_by_category(request,slug):
+    category = get_object_or_404(Category, slug=slug)
+    products = Product.objects.filter(category=category)
+    category_count = Product.objects.filter(category=category).count()
     
+    category_count = products.count()
+    products_with_ratings = []
+
+    for product in products:
+        products_with_ratings.append({
+            'product': product,
+            'average_rating': product.average_rating()
+        })
+    context = {
+        'category': category,
+        'products': products,
+        'category_count': category_count,
+        'products_with_ratings': products_with_ratings,
+    }
+    return render(request, 'store/product_list_by_category.html', context)
+
+   
  
 @login_required
 def dash_board(request):   
@@ -123,38 +142,130 @@ class CartView(LoginRequiredMixin, View):
 @login_required
 def add_to_cart(request, slug):
     product = get_object_or_404(Product, slug=slug)
-    cart, created = Cart.objects.get_or_create(product=product, user=request.user, is_ordered=False)
+    cart_qs = Cart.objects.filter(user=request.user, product=product, is_ordered=False)
+
+    if cart_qs.exists():
+        cart_item = cart_qs.first()
+        # cart_item.quantity += 1
+        cart_item.save()
+        messages.error(request, f"{product.title} is already in cart")
+    else:
+        cart_item = Cart.objects.create(
+            user=request.user,
+            product=product,
+            quantity=1,
+            is_ordered=False
+        )
+        messages.success(request, f"{product.title} is added to cart")
+ 
+    # Create or update the order
     order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-    if  order_qs.exists():
-        orders =    order_qs[0]
-        if orders.product.filter(product__slug=product.slug).exists():
-            cart.save()
-            messages.error(request, "This item is already in cart")
-        else:
-            orders.product.add(cart)
-            messages.success(request,f"{product.title} is added to cart ")
-    else: 
-        orders = Order.objects.create(user=request.user, is_ordered=False)
-        orders.product.add(cart)
-        orders.save()
-    return redirect('store:store_item',slug=slug,)
+    if order_qs.exists():
+        order = order_qs.first()
+    else:
+        order = Order.objects.create(
+            user=request.user,
+            reference=f'order-{secrets.token_hex(8)}',
+            date=timezone.now(),
+            is_ordered=False
+        )
+
+    order.product.add(cart_item)
+    order.save()
+
+    next_url = request.GET.get('next')
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        return redirect(next_url)
+    
+    return redirect("store:index")  
+    
+
+
+# def add_to_cart(request, slug):
+    # product = get_object_or_404(Product, slug=slug)
+
+    # if request.user.is_authenticated:
+    #     cart_qs = Cart.objects.filter(user=request.user, product=product, is_ordered=False)
+
+    #     if cart_qs.exists():
+    #         cart_item = cart_qs.first()
+    #         cart_item.quantity += 1
+    #         cart_item.save()
+    #         messages.success(request, f"Updated {product.title} quantity in cart")
+    #     else:
+    #         cart_item = Cart.objects.create(
+    #             user=request.user,
+    #             product=product,
+    #             quantity=1,
+    #             is_ordered=False
+    #         )
+    #         messages.success(request, f"{product.title} is added to cart")
+
+    #     # Create or update the order
+    #     order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+    #     if order_qs.exists():
+    #         order = order_qs.first()
+    #     else:
+    #         order = Order.objects.create(
+    #             user=request.user,
+    #             reference=f'order-{secrets.token_hex(8)}',
+    #             date=timezone.now(),
+    #             is_ordered=False
+    #         )
+
+    #     order.product.add(cart_item)
+    #     order.save()
+
+    # else:
+    #     # Handle cart for anonymous users
+    #     cart = request.session.get('cart', {})
+
+    #     if str(product.id) in cart:
+    #         cart[str(product.id)]['quantity'] += 1
+    #         messages.success(request, f"Updated {product.title} quantity in cart")
+    #     else:
+    #         cart[str(product.id)] = {
+    #             'product_id': product.id,
+    #             'title': product.title,
+    #             'quantity': 1
+    #         }
+    #         messages.success(request, f"{product.title} is added to cart")
+
+    #     request.session['cart'] = cart
+
+    # next_url = request.GET.get('next')
+    # if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+    #     return redirect(next_url)
+
+    # return redirect("store:index")
+
+
+
+
 
 
 def delete_cart(request, slug,):
     product = get_object_or_404(Product, slug=slug,)
     cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)
     order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+    next_url = request.GET.get('next')
+    
     if  order_qs.exists():
         orders =    order_qs[0]
         if orders.product.filter(product__slug=product.slug).exists():          
             cart.delete()
             messages.success(request, 'deleted from cart') 
-            return redirect('store:cart',)         
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
+            return redirect("store:index")        
         else:
             messages.info(request, 'you have already removed this item from cart')
-            return redirect('store:cart')
-    else:       
-        return redirect('store:categories',)
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
+            return redirect("store:index")
+    else:
+        messages.error(request, 'not deleted')    
+        return redirect('store:index',)
     # return redirect('store:store_item', slug=slug)
 
  
@@ -250,8 +361,8 @@ class CheckoutView(View):
                             street_address=street_address,
                             apartment=apartment, town=town,
                             state=state, country=country,
-                            zip_code=zip_code,
-                            payment_option=payment_option)              
+                            zip_code=zip_code,)
+                            # payment_option=payment_option)              
                 order.shipping_address= billing_address
                 order.save()
                 return redirect('store:initiate_payment')
@@ -354,12 +465,14 @@ class RequestRefund(View):
                 return redirect('store:index')
             except ObjectDoesNotExist:
                 messages.error(self.request, 'invalid order')
-                return redirect('store:refund-request')
+                return redirect('store:index')
         messages.error(self.request, 'invalid order')
         return redirect('store:index')
  
 
 def apply_coupon(request):
+    next_url = request.GET.get('next')  # Define next_url early in the code
+
     if request.method == 'POST':
         form = CouponForm(request.POST)
         if form.is_valid():
@@ -372,12 +485,16 @@ def apply_coupon(request):
                 if coupon.valid_from and coupon.valid_to:
                     if not (coupon.valid_from <= current_time <= coupon.valid_to):
                         messages.warning(request, 'This coupon has expired.')
-                        return redirect('store:cart')
+                        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                            return redirect(next_url)
+                        return redirect("store:index")
 
                 # Check if the user has already used this coupon
                 if coupon.used_by.filter(id=request.user.id).exists():
                     messages.warning(request, 'You have already used this coupon.')
-                    return redirect('store:cart')
+                    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                        return redirect(next_url)
+                    return redirect("store:index")
 
                 order = get_object_or_404(Order, user=request.user, is_ordered=False)
                 order.coupon = coupon
@@ -388,10 +505,16 @@ def apply_coupon(request):
                 coupon.save()
 
                 messages.success(request, 'Coupon is applied')
-                return redirect('store:cart')
+                if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                    return redirect(next_url)
+                return redirect("store:index")        
+                
             except Coupon.DoesNotExist:
                 messages.warning(request, 'This coupon does not exist or is not valid')
-                return redirect('store:cart')
+                if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                    return redirect(next_url)
+                return redirect("store:index")        
+                
     else:
         form = CouponForm()
     return render(request, 'store/apply_coupon.html', {'form': form})
@@ -469,3 +592,98 @@ def search_view(request):
     }
     
     return render(request, 'store/search_results.html', context)
+
+
+
+
+
+
+def product_detail(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+    # cart =Cart.objects.get(product=product)
+    ratings = product.ratings.all()
+    average_rating = product.average_rating()
+    user_rating = product.average_rating()
+    now = timezone.now()
+    all_user_rating = product.ratings.filter(product=product) 
+    if request.method == 'POST':
+        if user_rating:
+            rating_form = CustomerRatingForm(request.POST, instance=user_rating)
+        else:
+            rating_form = CustomerRatingForm(request.POST)
+
+        if rating_form.is_valid():
+            rating = rating_form.save(commit=False)
+            rating.user = request.user
+            rating.product = product
+            rating.save()
+            return redirect('store:product-detail', slug=product.slug)
+    else:
+        if user_rating:
+            rating_form = None
+        else:
+            rating_form = CustomerRatingForm()
+
+    context = {
+        'user_rating': user_rating,
+        'product': product,
+        'ratings': ratings,
+        'average_rating': average_rating,
+        'count': product.ratings.count(),
+        'rating_form': rating_form,
+        'now': now,  # Current time
+        'all_user_rating':all_user_rating
+
+    }
+    return render(request, 'store/product_detail.html', context)
+
+
+
+
+logger = logging.getLogger('django')
+
+
+class UpdateCartQuantity(View):
+    def post(self, request, *args, **kwargs):
+        next_url = request.GET.get('next')  # Define next_url early in the code
+
+        id = int(request.POST.get('id'))
+        size = request.POST.get('size')
+        quantity = request.POST.get('quantity')
+        
+        if id is None or quantity is None or size is None:
+            print(f"id:{id} size{size} qty:{quantity}")
+            messages.error(request, 'missing some input fields')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
+        
+        product = get_object_or_404(Product, pk=id)    
+        cart = get_object_or_404(Cart, product=product, user=request.user, is_ordered=False)
+        
+        if cart:
+            cart.quantity = int(quantity)
+            cart.size =size
+            cart.save()
+            messages.success(request, 'Updated successfully')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
+            return redirect('store:index')
+        else:
+            messages.error(request, 'Cart item not found or cannot be updated')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
+            return redirect('store:index')
+            
+        
+        # if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        #     return redirect(next_url)
+        # return redirect('store:index')       
+            
+        
+        
+        
+  
+                                           
+                                            
+                                            
+                                            

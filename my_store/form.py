@@ -1,8 +1,10 @@
 from django import forms
 from django_countries.fields import CountryField
 from  django_countries.widgets import CountrySelectWidget
-from .models import CustomersAddress,ShippingMethod
 
+from my_store.widget import StarRatingWidget
+from .models import CustomersAddress,ShippingMethod
+from .models import CustomerRating
 class ShippingMethodForm(forms.Form):
     address = forms.ModelChoiceField(queryset=ShippingMethod.objects.all(), empty_label="Select address")
 
@@ -13,11 +15,26 @@ payment_choices= (
 
 )
 
+from django import forms
+from .models import CustomerRating
 
 
-
-
-
+class CustomerRatingForm(forms.ModelForm):
+    class Meta:
+        model = CustomerRating
+        fields = ['rating', 'review']
+        widgets = {
+            'rating': forms.Select(choices=[
+                (1, '★☆☆☆☆'),
+                (2, '★★☆☆☆'),
+                (3, '★★★☆☆'),
+                (4, '★★★★☆'),
+                (5, '★★★★★')
+            ], attrs=({
+                'class': 'form-control star',
+                'id':'star'
+            }))
+        }
 
 class CouponForm(forms.Form):
        code =forms.CharField(widget=forms.TextInput(attrs=(
@@ -55,13 +72,23 @@ class RefundRequestForm(forms.Form):
 class AddressForm(forms.ModelForm):
     class Meta:
         model = CustomersAddress
-        fields = '__all__'   
+        fields = ['street_address','apartment', 'apartment','town', 'state', 'telephone', 'zip_code', 'country','message']   
         widgets = {
             'street': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Street Address'}),
             'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}),
-            # Add other fields and their respective widgets
+            'town': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'town'}),
+            'zip_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'town'}),
+            'state': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'town'}),
+            'telephone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '08099999999'}),
+            'apartment': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'nearby land mark'}),
+            'street_address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'no. 1234, street name'}),
+            'message': forms.Textarea(attrs={'class': 'form-control','placeholder':'do you have any message about your delivery'})
         }
-        
+class CartUpdateForm(forms.Form):
+    pk  = forms.IntegerField()
+    size = forms.CharField(max_length=15)
+    quantity = forms.IntegerField()
+         
 # class CheckoutForm(forms.Form):
 #     street_address = forms.CharField(widget=forms.TextInput(attrs=(
 #         {

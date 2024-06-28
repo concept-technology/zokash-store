@@ -7,12 +7,13 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
 from django.utils import timezone
 from django.core.validators import RegexValidator
+from django.contrib.sessions.models import Session
+from star_ratings.models import Rating
 
 # from django.utils import timezone
 
 from django.urls import reverse
 
-import humanize
 category_choices = (
         ('new', 'new'),
         ('featured', 'featured'),
@@ -33,6 +34,7 @@ label_choices = (
     ('new', 'label-new'),
     ('out', 'label-out'),
     ('top', 'label-top'),
+    ('sale','label-sale')
 )
 gender_choices =(
     ('Male', 'male'),
@@ -51,13 +53,34 @@ class Category(models.Model):
         return f'{self.title}'
     
     def get_absolute_url(self):
-        return reverse("store:categories-filter", kwargs={"slug": self.pk})
+        return reverse("store:categories-filter", kwargs={"slug": self.slug})
+
+
+class Features(models.Model):
+    feature1 =  models.CharField(max_length=255, blank=True,null=True)
+    feature2 =  models.CharField(max_length=255,blank=True,null=True)
+    feature3 =  models.CharField(max_length=255,blank=True,null=True)
+    feature4 =  models.CharField(max_length=255,blank=True,null=True)
+    feature5 =  models.CharField(max_length=255,blank=True,null=True)
+    def __str__(self) -> str:
+        return self.feature1
+    
+size =(
+    ('500ml', '500ml'),
+    ('25ml', '25ml'),
+    ('1L', '1L'),
+    ('4L', '4L'),
+    ('10L', '10L'),
+    ('25L', '25L'),
     
     
+    
+)  
 class Product(models.Model):
     title = models.CharField(max_length=255)
     description= models.TextField(max_length=1000)
     additional_information= models.TextField(max_length=1000, default='')
+    size =models.CharField(max_length=255,choices=size, default='1L')
     price = models.IntegerField(default=0)
     discount_price = models.IntegerField(default=0)
     img_1  = models.ImageField(upload_to='static/media/img', default='img')
@@ -65,15 +88,19 @@ class Product(models.Model):
     img_3  = models.ImageField(upload_to='static/media/img', default='img',blank=True, null=True)
     img_4  = models.ImageField(upload_to='static/media/img', default='img',blank=True, null=True)
     label = models.CharField(choices=label_choices, max_length=255, default='', blank=True)
+    features = models.ForeignKey(Features, on_delete=models.CASCADE, blank=True,null=True)
     category = models.ForeignKey(Category, default='', on_delete=models.CASCADE)
-    slug = models.SlugField( default=title)
     gender= models.CharField(max_length=10, choices=gender_choices, default='female', blank=True, null=True)
     display_on_home_page =models.BooleanField(default=False)
     is_banner =models.BooleanField(default=False)
     is_best_selling = models.BooleanField(default=False)
+    slug = models.SlugField(unique=True, default='eg-product-title')
+    ratings = Rating()
+    
+    
    
     def get_absolute_url(self):
-        return reverse("store:store_item", kwargs={"slug": self.slug})
+        return reverse("store:product-detail", kwargs={"slug": self.slug})
     
     def get_add_to_cart_url(self):
         return reverse("store:add-to-cart", kwargs={"slug": self.slug})
@@ -90,11 +117,21 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.title}"
     
+    def average_rating(self):
+        ratings = self.ratings.all()
+        
+        if ratings:
+            return sum(rating.rating for rating in ratings) / ratings.count()
+        return 0
+    
+   
+   
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='')
     product = models.ForeignKey(Product, on_delete=models.CASCADE,)
     quantity = models.IntegerField(default =1) 
     is_ordered = models.BooleanField(default=False)
+    size = models.CharField(max_length=10,blank=True,null=True) 
     
     def get_discount_price(self):
         return self.quantity * self.product.discount_price
@@ -148,7 +185,7 @@ phone_regex = RegexValidator(
 
 
 class CustomersAddress(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='', blank=True, null=True )
     street_address = models.CharField(max_length=300)
     apartment = models.CharField(max_length=255)
     town = models.CharField(max_length=255)
@@ -156,7 +193,8 @@ class CustomersAddress(models.Model):
     telephone = models.CharField(validators=[phone_regex], max_length=17, blank=True)
     zip_code = models.CharField(max_length=20)
     country = CountryField(multiple=False)
-    payment_option = models.CharField(max_length=255, choices=payment_choices, blank=True,null=True)
+    message = models.TextField(max_length=500)
+    # payment_option = models.CharField(max_length=255, choices=payment_choices, blank=True,null=True)
    
     def __str__(self):
        return f"{self.user.username}:   address is {self.street_address}" 
@@ -294,3 +332,17 @@ class Inventory(models.Model):
     def __str__(self) -> str:
         return f"{self.product} {self.quantity}"
     
+
+class CustomerRating(models.Model):
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='ratings', on_delete=models.CASCADE)
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    review = models.TextField(max_length=500, blank=True, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
+
+    def __str__(self):
+        return f'{self.rating}'  

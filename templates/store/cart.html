@@ -1,9 +1,9 @@
 {%extends 'store/base.html'%}
 {% load cart_template_tag%}
 {% block content %}	
-{%include 'store/partials/_header.html'%}
+{% load humanize %}
 
-<main class="main">
+<main>
             <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
                     <ol class="breadcrumb">
@@ -12,7 +12,7 @@
                         <li class="breadcrumb-item active" aria-current="page">{{user}}-cart</li>
                     </ol>
                 </div><!-- End .container -->
-            </nav><!-- End .breadcrumb-nav -->
+            </nav>
 
             <div class="page-content">
             	<div class="cart">
@@ -48,14 +48,14 @@
 													</h3><!-- End .product-title -->
 												</div><!-- End .product -->
 												
-												{% if items.product.discount_price %}
+												{% if items.product.discount_price|floatformat:2|intcomma %}
 													
 												
-												<br><span> buy today and save <span style="color: rgb(43, 255, 0);">N{{items.get_amount_saved}}</span></span>
+												<br><span> buy today and save <span style="color: rgb(43, 255, 0);">&#8358;{{items.get_amount_saved|floatformat:2|intcomma}}</span></span>
 												{% endif %}
 											</td>
 											
-											<td class="price-col"><span>N {{items.get_price_tag}}</span></td>										
+											<td class="price-col"><span>&#8358;{{items.get_price_tag|floatformat:2|intcomma}}</span></td>										
 											<td class="quantity-col">
                                                 <div class="cart-product-quantity"><b class="ml-5 p-2">{{items.quantity}}</b>			
                                                      <a href="{% url 'store:increase_cart' items.product.slug %}" class="form-control"  style="padding: 3;">+</a>														
@@ -64,7 +64,7 @@
                                             </td>
 											
 										
-											<td class="total-col">{{items.get_total_price}}</td>
+											<td class="total-col">&#8358;{{items.get_total_price|floatformat:2|intcomma}}</td>
 												<td class="remove-col">
 													<a href="{{items.product.delete_cart}}">
 													<button class="btn-remove"><i class="icon-close"></i></button>
@@ -88,18 +88,9 @@
 	                						<tr class="summary-subtotal">
 	                							<td>Subtotal:</td>									
 	                						   {% for items in object.order.all %} 
-												<td>N{{items.get_total}}</td>
-
-												
+												<td>&#8358;{{items.get_total|floatformat:2|intcomma}}</td>					
 												{%endfor%}
 	                						</tr><!-- End .summary-subtotal -->
-
-
-
-											
-
-
-
 	                						<tr class="summary-shipping">
 
 												
@@ -168,7 +159,7 @@
 	                						<tr class="summary-total">
 	                							<td>Total:</td>
 	                							{% for items in object.order.all %} 
-												<td>N{{items.get_total}}</td>
+												<td>&#8358;{{items.get_total|floatformat:2|intcomma}}</td>
 
 
 												

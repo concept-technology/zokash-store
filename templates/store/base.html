@@ -7,7 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Zokash {% block title %} {% endblock%} </title>
-    <meta name="keywords" content="HTML5 Template">
+    <meta name="keywords" content="zokash household ventures">
+    <meta name="description" content="we specializes in the production and distribution of all kind of liquid soaps beach and and toiletries">
     <meta name="author" content="p-themes">
     {% block seo %}
     <meta>
@@ -27,7 +28,7 @@
     <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/plugins/owl-carousel/owl.carousel.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/plugins/magnific-popup/magnific-popup.css' %}">
-    <!-- Main CSS File -->
+    <!-- Main CSS File --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/plugins/jquery.countdown.css'">
     <link rel="stylesheet" href="{% static 'assets/css/plugins/nouislider/nouislider.css' %}">
@@ -35,7 +36,10 @@
   </head>
 
 <body>
+  <div>
     <!-- Plugins JS File -->
+    {%include 'store/partials/_header.html'%}
+    {% include 'store/mobile_nav.html' %}
     
     {% block content %}   
     {% endblock content %}
@@ -44,6 +48,7 @@
     
     {% block script %}
       
+  </div>
 
     <script src="{% static 'assets/js/jquery.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>

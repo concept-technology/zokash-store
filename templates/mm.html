@@ -1,0 +1,143 @@
+
+
+
+<form>
+    <div class="row">
+    {% csrf_token %}
+        <div class="col-lg-9">
+            <h2 class="checkout-title">Billing Details</h2><!-- End .checkout-title -->
+                <label>Street address *</label>
+                
+        <aside class="col-lg-3">
+            <div class="summary">
+                <h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
+                <table class="table table-summary">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        
+                          
+                
+                        
+                        
+                        {% for items in order.order %}
+                            
+                        <tr class="summary-subtotal">
+                            <td>Subtotal:</td>
+                            <td>&#8358;{{items.get_total|floatformat:2|intcomma}}</td>
+                        </tr><!-- End .summary-subtotal -->
+                        {% endfor %}
+                            
+                        <tr>
+                            <td>Shipping:</td>
+                            <td>Free shipping</td>
+                        </tr>
+
+                        
+                        {% for items in order.order %}
+                            
+                        
+                    <tr class="summary-total">
+                        <td>Total:</td>
+                        <td>&#8358;{{items.get_total|floatformat:2|intcomma}}</td>
+                    </tr><!-- End .summary-total -->
+                        {% endfor %}
+                    </tbody>
+                </table><!-- End .table table-summary -->
+
+                <div class="accordion-summary" id="accordion-payment">
+                    <div class="card">
+                        <div class="card-header" id="heading-2">
+                            <h2 class="card-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
+                                    payments options										                </a>
+                            </h2>
+                        </div><!-- End .card-header -->
+                        <div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
+                            <div class="card-body">
+                                {{order.form.payment_option}}
+                             
+                            </div><!-- End .card-body -->
+                        </div><!-- End .collapse -->
+                    </div><!-- End .card -->
+
+                 
+                    </div><!-- End .card -->
+
+
+                </div><!-- End .accordion -->
+
+                <button type="submit" class="btn btn-outline-primary-2 btn-order">
+                    <span class="btn">Place Order</span>
+                </button>
+            </div><!-- End .summary -->
+        </aside><!-- End .col-lg-3 -->
+    </div><!-- End .row -->
+</form>
+
+
+   <!-- $('#qty-input').on('change', function()  -->
+   <script>
+    function updateCart() {
+            let itemId = $('#id').val();
+            let quantity = $('#qty-input').val();
+
+
+            console.log('Sending AJAX request with item ID:', itemId, 'and quantity:', quantity);  // Debug statement
+           $.ajax({
+            async:false,
+            cache: false,
+            url: "{% url 'store:update_cart_quantity'%}",
+            method: 'POST',
+            data: {
+                'id': itemId,
+                'quantity': quantity,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                alert(response.message);
+            // Optionally reload the page to reflect changes -->
+            },
+            error: function(response) {
+                alert('not processed');
+            }
+        })
+    };
+</script>
+
+
+
+
+<script>
+    function updateCart() {
+            let itemId = $('#id').val();
+            let quantity = $('#qty-input').val();
+
+
+            console.log('Sending AJAX request with item ID:', itemId, 'and quantity:', quantity);  // Debug statement
+           $.ajax({
+            
+
+            url: "{% url 'store:update_cart_quantity'%}",
+            method: 'POST',
+            data: {
+                'id': itemId,
+                'quantity': quantity,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                alert(response.message);
+            // Optionally reload the page to reflect changes -->
+            },
+            error: function(response) {
+                alert('not processed');
+            }
+        })
+    };
+</script>
+href="{% url 'store:add-to-cart' product.slug %}?next={{ request.path }}"

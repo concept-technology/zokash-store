@@ -2,7 +2,7 @@
 
 {% block content %}   
 {{block.super}} 
-
+{% load humanize %}
 <nav aria-label="breadcrumb" class="breadcrumb-nav">
     <div class="container">
         <ol class="breadcrumb">
@@ -47,11 +47,8 @@
                         <h3 class="summary-title">Cart Order</h3><!-- End .summary-title -->
                         <div class="checkout-discount"> 
                             							
-                            <td>
-                                
-                                    
-                                
-                                <form method="post" action="{% url 'store:apply-coupon' %}">
+                            <td>                                
+                                <form method="post" action="{% url 'store:apply-coupon' %}?next={{request.path}}">
                                     {% csrf_token %}
                                     <div>                   
                                         <label>you have a promo?</label>
@@ -71,7 +68,7 @@
                                 <tr class="summary-subtotal">
                                     <td>Subtotal:</td>									
                                    {% for items in order %} 
-                                    <td>N{{items.get_total}}</td>
+                                    <td>&#8358;{{items.get_total|floatformat:2|intcomma}}</td>
                                     {%endfor%}
                                 </tr><!-- End .summary-subtotal -->
                                 <tr class="summary-shipping">
@@ -116,7 +113,7 @@
                                 <tr class="summary-total">
                                     <td>Total:</td>
                                     {% for items in order %} 
-                                    <td>N{{items.get_total}}</td>
+                                    <td>&#8358;{{items.get_total|floatformat:2|intcomma}}</td>
                                     {%endfor%}
                                 </tr><!-- End .summary-total -->
                             </tbody>

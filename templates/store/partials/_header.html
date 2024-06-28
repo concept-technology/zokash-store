@@ -117,7 +117,7 @@
     <div class="header-bottom sticky-header">
         <div class="container">
             <div class="header-left">
-                <div class="dropdown category-dropdown">
+                 <div class="dropdown category-dropdown">
                     <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static" title="Browse Categories">
                         Browse Categories
                     </a>
@@ -129,10 +129,9 @@
                                 <li class="item-lead"><a href="#">Gift Ideas</a></li>
                                 
                             </ul><!-- End .menu-vertical -->
-                        </nav><!-- End .side-nav -->
-                    </div><!-- End .dropdown-menu -->
-                </div><!-- End .category-dropdown -->
-            </div><!-- End .header-left -->
+                         </nav> 
+                </div>
+            </div>
 
             <div class="header-center">
                 <nav class="main-nav">
@@ -145,11 +144,7 @@
                             <a href="{% url 'store:categories-list' %}" class="sf-with-ul">Shop</a>
                             
                         </li>
-                        <li>
-                            <a href="#" class="sf-with-ul">Product</a>
-
- 
-                        </li>
+   
                         <li>
                             <a href="#" class="sf-with-ul">Pages</a>
 
@@ -167,7 +162,7 @@
 
                             </ul>
                         </li>
-                        <li>
+                        <!-- <li>
                             <a href="blog.html" class="sf-with-ul">Blog</a>
 
                             <ul>
@@ -207,8 +202,8 @@
                                     </ul>
                                 </li>
                             </ul>
-                        </li>
-                        <li>
+                        </li> -->
+                        <!-- <li>
                             <a href="elements-list.html" class="sf-with-ul">Elements</a>
 
                             <ul>
@@ -216,17 +211,19 @@
                                 <li><a href="elements-typography.html">Typography</a></li>
                                 <li><a href="elements-icon-boxes.html">Icon Boxes</a></li>
                             </ul>
-                        </li>
+                        </li> -->
                     </ul><!-- End .menu -->
                 </nav><!-- End .main-nav -->
             </div><!-- End .header-center -->
 
-            <div class="header-right">
+            <!-- <div class="header-right">
                 <i class="la la-lightbulb-o"></i><p>Clearance<span class="highlight">&nbsp;Up to 30% Off</span></p>
-            </div>
+            </div> -->
         </div><!-- End .container -->
         
     </div><!-- End .header-bottom -->
-    {% include 'store/mobile_nav.html' %}
+
+
+
 
 </header><!-- End .header -->

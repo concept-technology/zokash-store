@@ -5,20 +5,22 @@ from . import views
 app_name ='store'
 
 urlpatterns = [
+     path('submit_rating/', views.product_detail, name='submit_rating'),
+     
+     
     path('category/', views.ProductCategories_view, name='categories-list'),
-    path('categories/<str:title>', views.category_filter, name='categories-filter'),
+    
+    path('category/<slug>/', views.product_list_by_category, name='product_list_by_category'),
+    
+#     path('categories/<str:title>', views.category_filter, name='categories-filter'),
 
-    path('', views.HomeView.as_view(),
-         name='index'),
+    path('', views.HomeView.as_view(),name='index'),
       
-    path('signup/',views.register,         
-         name='signup'),
+    path('signup/',views.register, name='signup'),
     
     path('login', views.login, name='login'),
     
-    path('catalogue/<slug>', 
-         views.ProductDetailView.as_view(),
-         name='store_item'),
+    path('catalogue/<slug>', views.ProductDetailView.as_view(),name='store_item'),
 
      path('add-to-cart/<slug>',views.add_to_cart, name='add-to-cart'),
      
@@ -36,7 +38,7 @@ urlpatterns = [
      
      path('increase-cart-quantity/<slug>', views.increase_cart_quantity, name='increase_cart'),
      
-     path('payment/', views.initiate_payment, name='initiate_payment'),
+     path('order/payment/', views.initiate_payment, name='initiate_payment'),
      
      path('verify-payment/<str:ref>/', views.verify_payment, name='verify_payment'),
      
@@ -53,5 +55,12 @@ urlpatterns = [
 
 
      path('search/', views.search_view, name='search'),
+     
+     path('product/<slug>', views.product_detail, name='product-detail'),
+     
+     path('update-cart/', views.UpdateCartQuantity.as_view(), name='update_cart_quantity'),
+     
+ 
 ]
+
 

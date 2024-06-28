@@ -1,6 +1,10 @@
 import os
 from pathlib import Path
 import dj_database_url
+
+STAR_RATINGS_STAR_HEIGHT = 20  # Height of each star in pixels
+STAR_RATINGS_STAR_WIDTH = 20   # Width of each star in pixels
+STAR_RATINGS_RERATE = False    # Users can only rate once
 SITE_ID=1
 
 from dotenv import load_dotenv
@@ -33,7 +37,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-ALLOWED_HOSTS = ['127.0.0.1','zokash-store.onrender.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -65,8 +69,8 @@ INSTALLED_APPS = [
     'dotenv',
     'paystackapi',
     'my_store',
-    "debug_toolbar",
-    
+    'star_ratings',
+    'django.contrib.humanize'
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 INTERNAL_IPS = [
@@ -74,6 +78,29 @@ INTERNAL_IPS = [
     "127.0.0.1",
 
 ]
+
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': os.path.join(BASE_DIR, 'debug.log'),
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
+
+
+
 ACCOUNT_FORMS = {
     'add_email': 'allauth.account.forms.AddEmailForm',
     'change_password': 'allauth.account.forms.ChangePasswordForm',
@@ -117,6 +144,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
+                # 'django.core.context_processors.request',
             ],
         },
     },
@@ -171,10 +199,8 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
-
 USE_TZ = True
-
-
+USE_L10N =True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 

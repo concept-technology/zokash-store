@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import Product,Cart,Order, Category,CustomersAddress, Coupon, Refunds, Inventory,ShippingMethod
 from django.utils.html import format_html
-
+from.models import *
 from .models  import  Payment
 
 class  PaymentAdmin(admin.ModelAdmin):
@@ -71,6 +70,8 @@ admin.site.register(Category, CategoryAdmin)
 admin.site.register(CustomersAddress, AddressAdmin)
 admin.site.register(Coupon, CouponAdmin)
 admin.site.register(Refunds)
+admin.site.register(Features)
+# admin.site.register(CustomerRating)
 admin.site.register(ShippingMethod)
 admin.site.register(Inventory, InventAdmin)
 

@@ -3,7 +3,7 @@
 {%include 'store/partials/_header.html'%}
 
 
-
+{% load humanize %}
 
 {% load crispy_forms_tags %}
 {% block content %}
@@ -51,12 +51,12 @@
                                                             {% endfor %}                                                       
                                                             <td>{{ orders.quantity }}</td>
                                                             
-                                                            <td>N{{ orders.get_total }}</td>
+                                                            <td>N{{ orders.get_total|floatformat:2|intcomma}}</td>
                                                     </tr>
                                                     <td>Shipping:</td>
                                                         <tr class="summary-total">
                                                             <td>Grand Total:</td>
-                                                            <td>N{{ orders.get_total }}</td>
+                                                            <td>N{{ orders.get_total|floatformat:2|intcomma }}</td>
                                                             <input type="hidden" name="amount" value="{{orders.get_total}}"/>
                                                             {%endfor%}
                                                             <input type="hidden" value="{{user.email}}" name="email" />
