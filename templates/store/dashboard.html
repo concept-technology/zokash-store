@@ -44,7 +44,7 @@
 	                		<div class="col-md-8 col-lg-9">
 	                			<div class="tab-content">
 								    <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel" aria-labelledby="tab-dashboard-link">
-								    	<p>Hello <span class="font-weight-normal text-dark">{{user}}</span> 
+								    	<p>Hello  {{user}}<span} class="font-weight-normal text-dark">{{user}}</span> 
 								    	<br>
 								    	From your account dashboard you can view your <a href="#tab-orders" class="tab-trigger-link link-underline">recent orders</a>, manage your <a href="#tab-address" class="tab-trigger-link">shipping and billing addresses</a>, and <a href="#tab-account" class="tab-trigger-link">edit your password and account details</a>.</p>
 								    </div><!-- .End .tab-pane -->
@@ -80,7 +80,17 @@
 													
 
 													<td>{{ order.get_total }}</td>
-													<td>{{ order.is_delivered|yesno:"Delivered,Pending" }}</td>
+													<td>{{ order.is_delivered|yesno:"Delivered,Pending" }}
+
+														{% if not order.is_received %}
+														<form method="post" action="{% url 'store:mark-order-received' order.id %}?next={{request.path}}">
+															{% csrf_token %}
+															<button type="submit">Mark as Received</button>
+														</form>
+													{% else %}
+														<p>Order received</p>
+													{% endif %}
+													</td>
 												</tr>
 											{% endfor %}
 								

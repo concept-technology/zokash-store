@@ -60,6 +60,8 @@ urlpatterns = [
      
      path('update-cart/', views.UpdateCartQuantity.as_view(), name='update_cart_quantity'),
      
+     path('order/<int:order_id>/received/', views.mark_order_as_received, name='mark-order-received')
+     
  
 ]
 

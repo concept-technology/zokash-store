@@ -131,7 +131,9 @@ class Cart(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE,)
     quantity = models.IntegerField(default =1) 
     is_ordered = models.BooleanField(default=False)
-    size = models.CharField(max_length=10,blank=True,null=True) 
+    size = models.CharField(max_length=10,blank=True,null=True)
+    is_in_cart = models.BooleanField(default=False)
+    
     
     def get_discount_price(self):
         return self.quantity * self.product.discount_price

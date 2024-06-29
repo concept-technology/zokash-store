@@ -139,105 +139,105 @@ class CartView(LoginRequiredMixin, View):
 
  
 
-@login_required
+# @login_required
+# def add_to_cart(request, slug):
+#     product = get_object_or_404(Product, slug=slug)
+#     cart_qs = Cart.objects.filter(user=request.user, product=product, is_ordered=False)
+
+#     if cart_qs.exists():
+#         cart_item = cart_qs.first()
+#         cart_item.quantity += 1
+#         cart_item.save()
+#         messages.error(request, f"{product.title} is already in cart")
+#     else:
+#         cart_item = Cart.objects.create(
+#             user=request.user,
+#             product=product,
+#             quantity=1,
+#             is_ordered=False
+#         )
+#         messages.success(request, f"{product.title} is added to cart")
+ 
+#     # Create or update the order
+#     order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+#     if order_qs.exists():
+#         order = order_qs.first()
+#     else:
+#         order = Order.objects.create(
+#             user=request.user,
+#             reference=f'order-{secrets.token_hex(8)}',
+#             date=timezone.now(),
+#             is_ordered=False
+#         )
+
+#     order.product.add(cart_item)
+#     order.save()
+
+#     next_url = request.GET.get('next')
+#     if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+#         return redirect(next_url)
+    
+#     return redirect("store:index")  
+    
+
+
 def add_to_cart(request, slug):
     product = get_object_or_404(Product, slug=slug)
-    cart_qs = Cart.objects.filter(user=request.user, product=product, is_ordered=False)
 
-    if cart_qs.exists():
-        cart_item = cart_qs.first()
-        # cart_item.quantity += 1
-        cart_item.save()
-        messages.error(request, f"{product.title} is already in cart")
-    else:
-        cart_item = Cart.objects.create(
-            user=request.user,
-            product=product,
-            quantity=1,
-            is_ordered=False
-        )
-        messages.success(request, f"{product.title} is added to cart")
- 
-    # Create or update the order
-    order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-    if order_qs.exists():
-        order = order_qs.first()
-    else:
-        order = Order.objects.create(
-            user=request.user,
-            reference=f'order-{secrets.token_hex(8)}',
-            date=timezone.now(),
-            is_ordered=False
-        )
+    if request.user.is_authenticated:
+        cart_qs = Cart.objects.filter(user=request.user, product=product, is_ordered=False)
 
-    order.product.add(cart_item)
-    order.save()
+        if cart_qs.exists():
+            cart_item = cart_qs.first()
+            cart_item.is_in_cart =True
+            cart_item.save()
+            messages.success(request, f"Updated {product.title} quantity in cart")
+        else:
+            cart_item = Cart.objects.create(
+                user=request.user,
+                product=product,
+                quantity=1,
+                is_ordered=False
+            )
+            messages.success(request, f"{product.title} is added to cart")
+
+        # Create or update the order
+        order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+        if order_qs.exists():
+            order = order_qs.first()
+        else:
+            order = Order.objects.create(
+                user=request.user,
+                reference=f'order-{secrets.token_hex(8)}',
+                date=timezone.now(),
+                is_ordered=False
+            )
+
+        order.product.add(cart_item)
+        order.save()
+
+    else:
+        # Handle cart for anonymous users
+        cart = request.session.get('cart', {})
+
+        if str(product.id) in cart:
+            cart[str(product.id)]['quantity'] += 1
+            messages.success(request, f"Updated {product.title} quantity in cart")
+        else:
+            cart[str(product.id)] = {
+                'product_id': product.id,
+                'title': product.title,
+                'quantity': 1
+            }
+            messages.success(request, f"{product.title} is added to cart")
+
+        request.session['cart'] = cart
 
     next_url = request.GET.get('next')
     if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
         return redirect(next_url)
-    
-    return redirect("store:index")  
-    
 
-
-# def add_to_cart(request, slug):
-    # product = get_object_or_404(Product, slug=slug)
-
-    # if request.user.is_authenticated:
-    #     cart_qs = Cart.objects.filter(user=request.user, product=product, is_ordered=False)
-
-    #     if cart_qs.exists():
-    #         cart_item = cart_qs.first()
-    #         cart_item.quantity += 1
-    #         cart_item.save()
-    #         messages.success(request, f"Updated {product.title} quantity in cart")
-    #     else:
-    #         cart_item = Cart.objects.create(
-    #             user=request.user,
-    #             product=product,
-    #             quantity=1,
-    #             is_ordered=False
-    #         )
-    #         messages.success(request, f"{product.title} is added to cart")
-
-    #     # Create or update the order
-    #     order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-    #     if order_qs.exists():
-    #         order = order_qs.first()
-    #     else:
-    #         order = Order.objects.create(
-    #             user=request.user,
-    #             reference=f'order-{secrets.token_hex(8)}',
-    #             date=timezone.now(),
-    #             is_ordered=False
-    #         )
-
-    #     order.product.add(cart_item)
-    #     order.save()
-
-    # else:
-    #     # Handle cart for anonymous users
-    #     cart = request.session.get('cart', {})
-
-    #     if str(product.id) in cart:
-    #         cart[str(product.id)]['quantity'] += 1
-    #         messages.success(request, f"Updated {product.title} quantity in cart")
-    #     else:
-    #         cart[str(product.id)] = {
-    #             'product_id': product.id,
-    #             'title': product.title,
-    #             'quantity': 1
-    #         }
-    #         messages.success(request, f"{product.title} is added to cart")
-
-    #     request.session['cart'] = cart
-
-    # next_url = request.GET.get('next')
-    # if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-    #     return redirect(next_url)
-
-    # return redirect("store:index")
+    return redirect("store:index")
 
 
 
@@ -600,18 +600,22 @@ def search_view(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
-    # cart =Cart.objects.get(product=product)
+    try:
+        is_in_cart = Cart.objects.filter(product=product, is_ordered=False, user=request.user)
+    except Cart.DoesNotExist:
+        is_in_cart = None
+
     ratings = product.ratings.all()
     average_rating = product.average_rating()
-    user_rating = product.average_rating()
+    user_rating = product.average_rating()  # It seems you may want to fetch the user's specific rating, adjust as needed.
     now = timezone.now()
-    all_user_rating = product.ratings.filter(product=product) 
+    all_user_rating = product.ratings.filter(product=product)
+
     if request.method == 'POST':
         if user_rating:
             rating_form = CustomerRatingForm(request.POST, instance=user_rating)
         else:
             rating_form = CustomerRatingForm(request.POST)
-
         if rating_form.is_valid():
             rating = rating_form.save(commit=False)
             rating.user = request.user
@@ -632,56 +636,47 @@ def product_detail(request, slug):
         'count': product.ratings.count(),
         'rating_form': rating_form,
         'now': now,  # Current time
-        'all_user_rating':all_user_rating
-
+        'all_user_rating': all_user_rating,
+        'is_in_cart': is_in_cart,
     }
     return render(request, 'store/product_detail.html', context)
-
 
 
 
 logger = logging.getLogger('django')
 
 
-class UpdateCartQuantity(View):
-    def post(self, request, *args, **kwargs):
-        next_url = request.GET.get('next')  # Define next_url early in the code
 
-        id = int(request.POST.get('id'))
-        size = request.POST.get('size')
-        quantity = request.POST.get('quantity')
-        
-        if id is None or quantity is None or size is None:
-            print(f"id:{id} size{size} qty:{quantity}")
-            messages.error(request, 'missing some input fields')
-            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-                return redirect(next_url)
-        
-        product = get_object_or_404(Product, pk=id)    
-        cart = get_object_or_404(Cart, product=product, user=request.user, is_ordered=False)
-        
-        if cart:
-            cart.quantity = int(quantity)
-            cart.size =size
+
+class UpdateCartQuantity(View):
+    def post(self, *args, **kwargs):
+        if self.request.method == "POST" and self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            id = int(self.request.POST.get('id'))
+            quantity = int(self.request.POST.get('quantity'))
+            size = self.request.POST.get('size')
+            product = get_object_or_404(Product, pk=id)
+            cart = Cart.objects.get(product=product, is_ordered=False,user=self.request.user)
+            
+            cart.quantity = quantity
+            cart.size = size
             cart.save()
-            messages.success(request, 'Updated successfully')
-            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-                return redirect(next_url)
-            return redirect('store:index')
-        else:
-            messages.error(request, 'Cart item not found or cannot be updated')
-            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-                return redirect(next_url)
-            return redirect('store:index')
-            
+     
+            return JsonResponse({'product': product.title, 'id': id, 'qty': quantity, 'size': size})
         
-        # if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-        #     return redirect(next_url)
-        # return redirect('store:index')       
-            
-        
-        
-        
+        return JsonResponse({'message': 'error'})
+def mark_order_as_received(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    next_url = request.GET.get('next')  # Define next_url early in the code
+    if request.method == 'POST':
+        order.is_received = True
+        order.is_delivered =True
+        order.save()
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+            return redirect(next_url)
+        return redirect('store:index')       
+            # Redirect to the user dashboard or another appropriate page
+
+    return redirect('user-dashboard')
   
                                            
                                             

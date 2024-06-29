@@ -110,41 +110,58 @@
 
                             <div class="product-countdown" data-until="2019, 10, 29"></div><!-- End .product-countdown -->
 
-                             <div class="details-filter-row details-row-size">
-                                <label for="size">Size:</label>
-                                <div class="select-custom">
-                                    <select name="size" id="size" class="form-control" >
 
-                                        <option value="">Select size</option>
-                                        
-                                            <option value="biggg">biggg</option>
-                                     
-                                    </select>
-                                </div><!-- End .select-custom 
+                            {% if is_in_cart %}
 
-                                <a href="#" class="size-guide"><i class="icon-th-list"></i>size guide</a>
-                            </div> -->
-                            <form action="{% url 'store:update_cart_quantity'%}?next={{request.path}}" method="post">
-                            <div class="details-filter-row details-row-size">
-                                <label for="qty">Qty:</label>
-                                <div class="product-details-quantity">
-                                        {% csrf_token %}
-                                        <input type="number" id="qty-input"  class="form-control" data-item-id="{{ cart.id }}" value="1" name="quantity" min="1" max="10" step="1" data-decimals="0" required>
-                                        <input type="hidden" id="id" value="{{product.id}}" name="id">
-                            
-                                </div><!-- End .product-details-quantity -->
-                            </div><!-- End .details-filter-row -->
-                            
-                            
                             <div class="product-details-action">
-                                <button class="btn-product btn-cart" type="submit"><span>add to cart</span></button>
+                                <a class="btn-product btn-cart" type="submit" id="cart-btn" href="{{product.delete_cart}}?next={{ request.path }}"><span>delete from cart</span></a>
                                 
                                 <div class="details-action-wrapper">
                                     <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
                                     <a href="#" class="btn-product btn-compare" title="Compare"><span>Add to Compare</span></a>
                                 </div><!-- End .details-action-wrapper -->
                             </div><!-- End .product-details-action -->
-                        </form>
+                            
+                            
+
+                             <div class="details-filter-row details-row-size">
+                                <label for="size">Size:</label>
+                                <div class="select-custom">
+                                    <select  id="size" class="form-control" name="size">
+                                        <option value="4 liters"{% if cart_item.size == "4 liters" %}selected{% endif %}>4 litres</option>
+                                           
+                                     
+                                    </select>
+                                </div>
+
+                         
+
+                            <div class="details-filter-row details-row-size">
+                                <label for="qty">Qty:</label>                         
+                                <div class="product-details-quantity">
+                                    {% csrf_token %}
+                                    <input type="number" id="cart-quantity-input"  class="form-control" data-item-id="{{ product.id }}" value="1" name="quantity" min="1" max="10" step="1" data-decimals="0" required>
+                                    <input type="hidden" id="product-id" value="{{product.id}}" name="id">
+                                    
+                                </div><!-- End .product-details-quantity -->
+                            </div><!-- End .details-filter-row -->
+
+
+                            {%else%}
+                            <div class="product-details-action">
+                                <a class="btn-product btn-cart" type="submit" id="cart-btn" href="{% url 'store:add-to-cart' product.slug %}?next={{ request.path }}"><span>add to cart</span></a>
+                                
+                                <div class="details-action-wrapper">
+                                    <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
+                                    <a href="#" class="btn-product btn-compare" title="Compare"><span>Add to Compare</span></a>
+                                </div><!-- End .details-action-wrapper -->
+                            </div><!-- End .product-details-action -->
+                            
+                            {% endif %}
+                            
+                            
+                         
+                        <!-- </form> -->
 
                             <div class="product-details-footer">
                                 <div class="product-cat">
@@ -538,38 +555,53 @@
         </div><!-- End .container -->
     </div><!-- End .page-content -->
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
    
  
-    <script>
-
-        $(document).ready(function(){
-            $('qty-input').on('change', function(){
-                const cartId = $(this).data('cart-id');
-                const quantity = $(this).val();
-                
-                $.ajax({
-                    url: "/update-cart-quantity?next={{request.path}}",  // Update this to your actual URL
-                    method: 'POST',
-                    data: {
-                        id: cartId,
-                        quantity: quantity,
-                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                    },
-                    success: function(response){
-                        // Handle success, maybe update the cart UI
-                        console.log(response)
-                    },
-                    error: function(response){
-                        // Handle error, show error message
-                        console.log('error')
-                    }
-                });
+<script>
+    $(document).ready(function(){
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func.apply(this, args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    
+        const updateCart = debounce(function(){
+            let cartId = $('#product-id').val();
+            let quantity = $('#cart-quantity-input').val();
+            let size = $('#size').val();
+    
+            console.log('Cart update triggered', {'id': cartId, 'qty': quantity, 'size': size});
+            
+            $.ajax({
+                url: "{% url 'store:update_cart_quantity' %}",  // Update this to your actual URL
+                method: 'POST',
+                data: {
+                    id: cartId,
+                    quantity: quantity,
+                    size: size,
+                    csrfmiddlewaretoken: "{{ csrf_token }}"
+                },
+                success: function(response){
+                    // Handle success, maybe update the cart UI
+                    console.log('Success response:', response);
+                    alert('Cart updated successfully.');
+                },
+                error: function(response){
+                    console.log('Error response:', response);
+                    alert('There was an error updating the cart.');
+                }
             });
-        });
-        
-    </script>
+        }, 300);  // Adjust debounce time as necessary
+    
+        $('#cart-quantity-input').off('change').on('change', updateCart);
+    });
+</script>
 </main><!-- End .main -->
 
 {% endblock %}
