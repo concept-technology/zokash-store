@@ -1,5 +1,6 @@
 {% load cart_template_tag%}
 {% load static %}
+{% load humanize %}
 <header class="header header-2 header-intro-clearance">
     <div class="header-middle">
         <div class="container">
@@ -77,15 +78,12 @@
                                     {% if cart.product.discount_price %}
                                     <span class="cart-product-info">
                                         <span class="cart-product-qty">price: </span>
-                                       N {{cart.product.discount_price}}
+                                        &#8358;{{cart.product.discount_price|floatformat:2|intcomma}}
                                     </span>
                                     {% else%}
-                                   <span>{{cart.product.price}}</span> 
+                                   <span>{{cart.product.price|floatformat:2|intcomma}}</span> 
                                     {% endif%}
-                                    <span class="cart-product-info">
-                                        <span class="cart-product-qty">quantity: </span>
-                                        {{cart.quantity}}
-                                    </span>
+                                   
                                 </div><!-- End .product-cart-details -->
                                 <figure class="product-image-container">
                                     <a href="{{cart.product.get_absolute_url}}" class="product-image">

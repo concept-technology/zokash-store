@@ -656,12 +656,20 @@ class UpdateCartQuantity(View):
             size = self.request.POST.get('size')
             product = get_object_or_404(Product, pk=id)
             cart = Cart.objects.get(product=product, is_ordered=False,user=self.request.user)
-            
+            order =Order.objects.get(product=cart,)
             cart.quantity = quantity
-            cart.size = size
+            if cart.size:
+                cart.size = size
+            cart.size =  None
             cart.save()
+            
+            if product.discount_price:
+                total_price = product.discount_price * quantity
+            else:
+                total_price = product.price * quantity
+
      
-            return JsonResponse({'product': product.title, 'id': id, 'qty': quantity, 'size': size})
+            return JsonResponse({'product': product.title, 'id': id, 'qty': quantity, 'size': size, 'total_price':total_price})
         
         return JsonResponse({'message': 'error'})
 def mark_order_as_received(request, order_id):

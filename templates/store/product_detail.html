@@ -95,7 +95,7 @@
 
                                 {% if product.discount_price|floatformat:2|intcomma%}
                                     
-                                <span class="new-price">&#8358;{{product.discount_price|floatformat:2|intcomma}}</span>
+                                <span class="new-price" id="new-price">&#8358;{{product.discount_price|floatformat:2|intcomma}}</span>
                                 <span class="old-price">&#8358;{{product.price|floatformat:2|intcomma}}</span>
                                 {% else %}
                                 <span class="new-price">&#8358;{{product.price|floatformat:2|intcomma}}</span>
@@ -129,6 +129,7 @@
                                 <div class="select-custom">
                                     <select  id="size" class="form-control" name="size">
                                         <option value="4 liters"{% if cart_item.size == "4 liters" %}selected{% endif %}>4 litres</option>
+                                        <option value="10 liters"{% if cart_item.size == "10 liters" %}selected{% endif %}>10 litres</option>
                                            
                                      
                                     </select>
@@ -140,7 +141,7 @@
                                 <label for="qty">Qty:</label>                         
                                 <div class="product-details-quantity">
                                     {% csrf_token %}
-                                    <input type="number" id="cart-quantity-input"  class="form-control" data-item-id="{{ product.id }}" value="1" name="quantity" min="1" max="10" step="1" data-decimals="0" required>
+                                    <input type="number" id="cart-quantity-input"  class="form-control" data-item-id="{{ product.id }}" value="{{product.quantity}}" name="quantity" min="1"  step="1" data-decimals="0" required>
                                     <input type="hidden" id="product-id" value="{{product.id}}" name="id">
                                     
                                 </div><!-- End .product-details-quantity -->
@@ -557,51 +558,7 @@
 
    
  
-<script>
-    $(document).ready(function(){
-        function debounce(func, wait) {
-            let timeout;
-            return function(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func.apply(this, args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-    
-        const updateCart = debounce(function(){
-            let cartId = $('#product-id').val();
-            let quantity = $('#cart-quantity-input').val();
-            let size = $('#size').val();
-    
-            console.log('Cart update triggered', {'id': cartId, 'qty': quantity, 'size': size});
-            
-            $.ajax({
-                url: "{% url 'store:update_cart_quantity' %}",  // Update this to your actual URL
-                method: 'POST',
-                data: {
-                    id: cartId,
-                    quantity: quantity,
-                    size: size,
-                    csrfmiddlewaretoken: "{{ csrf_token }}"
-                },
-                success: function(response){
-                    // Handle success, maybe update the cart UI
-                    console.log('Success response:', response);
-                    alert('Cart updated successfully.');
-                },
-                error: function(response){
-                    console.log('Error response:', response);
-                    alert('There was an error updating the cart.');
-                }
-            });
-        }, 300);  // Adjust debounce time as necessary
-    
-        $('#cart-quantity-input').off('change').on('change', updateCart);
-    });
-</script>
+
 </main><!-- End .main -->
 
 {% endblock %}
