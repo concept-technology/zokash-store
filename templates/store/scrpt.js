@@ -43,3 +43,42 @@
         $('#cart-quantity-input').off('change').on('change', updateCart);
     });
 </script>
+
+
+
+$(document).ready(function(){
+    $('#next-button').click(function(){
+        var currentProductSlug = $(this).data('slug');
+        $.ajax({
+            url: '{% url "store:next_product" slug=product.slug %}',
+            method: 'GET',
+            success: function(data) {
+                if (data.slug) {
+                    $('#product-title').text(data.title);
+                    $('#product-description').text(data.description);
+                    $('#product-price').html('&#8358;' + data.price);
+                    $('#average-rating').text('Average Rating: ' + data.average_rating);
+                    $('#rating-count').text('Rating Count: ' + data.rating_count);
+                    $('#next-button').data('slug', data.slug);
+                    window.history.pushState({}, '', '/product/' + data.slug + '/');
+
+                    $('#product-images').empty();
+                    if (data.img_1) {
+                        $('#product-images').append('<img src="' + data.img_1 + '" alt="' + data.title + ' Image 1">');
+                    }
+                    if (data.img_2) {
+                        $('#product-images').append('<img src="' + data.img_2 + '" alt="' + data.title + ' Image 2">');
+                    }
+                    if (data.img_3) {
+                        $('#product-images').append('<img src="' + data.img_3 + '" alt="' + data.title + ' Image 3">');
+                    }
+                    if (data.img_4) {
+                        $('#product-images').append('<img src="' + data.img_4 + '" alt="' + data.title + ' Image 4">');
+                    }
+                } else {
+                    alert('No more products.');
+                }
+            }
+        });
+    });
+});

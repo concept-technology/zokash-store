@@ -1,0 +1,7 @@
+<ul>
+    {% for item in products_with_ratings %}
+        <li>
+            {{ item.product.name }} - {{ item.product.price }} - Average Rating: {{ item.average_rating }}
+        </li>
+    {% endfor %}
+</ul>

@@ -49,9 +49,9 @@
                                                             </td>
                                                             <td>{{ item.product.title }}</td>
                                                             {% endfor %}                                                       
-                                                            <td>{{ orders.quantity }}</td>
+                                                            <td >  * {{ orders.quantity }}</td>
                                                             
-                                                            <td>N{{ orders.get_total|floatformat:2|intcomma}}</td>
+                                                            <td>&#8358;{{ orders.get_total|floatformat:2|intcomma}}</td>
                                                     </tr>
                                                     <td>Shipping:</td>
                                                         <tr class="summary-total">

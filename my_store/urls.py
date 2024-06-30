@@ -20,7 +20,6 @@ urlpatterns = [
     
     path('login', views.login, name='login'),
     
-    path('catalogue/<slug>', views.ProductDetailView.as_view(),name='store_item'),
 
      path('add-to-cart/<slug>',views.add_to_cart, name='add-to-cart'),
      
@@ -60,9 +59,11 @@ urlpatterns = [
      
      path('update-cart/', views.UpdateCartQuantity.as_view(), name='update_cart_quantity'),
      
-     path('order/<int:order_id>/received/', views.mark_order_as_received, name='mark-order-received')
+     path('order/<int:order_id>/received/', views.mark_order_as_received, name='mark-order-received'),
      
- 
+    path('reorder/<int:product_id>/', views.reorder_product, name='reorder_product'),
+    
+    path('view/next_product/<slug>', views.next_product, name='next_product'),
 ]
 
 

@@ -1,47 +1,46 @@
 {% extends "store/base.html" %}
 {%load static %}
 {% block content %}
-{%include 'store/partials/_header.html'%}
-   
-    <div class="page-wrapper">
+{% load humanize %}
+{% load star_rating %}   
 
         <main class="main">
+        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+        		<div class="container">
+        			<h1 class="page-title"> <small>search 
+                        {% block title %}
+                        {{category.title}}
+                        {% endblock title %}
+                    </small><span> {{category_count}} result</span></h1>
+        		</div><!-- End .container -->
+        	</div><!-- End .page-header -->
             <nav aria-label="breadcrumb" class="breadcrumb-nav mb-2">
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'store:index' %}">Home</a></li>
-                        <li class="breadcrumb-item"><a href="{% url 'store:categories-list'%}">catalogue</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">products</li>
+                        <li class="breadcrumb-item"><a href="{% url 'store:index'%}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="">Shop</a></li>
+                        <li class="breadcrumb-item " aria-current="page"><a href="{% url 'store:categories-list'%}">categories</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{category.title}}</li>
                     </ol>
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
+            <div id="product-list">
+            </div>
+            
             <div class="page-content">
                 <div class="container">
-                    {% if results %}
                 	<div class="row">
                 		<div class="col-lg-9">
-                			<!-- <div class="toolbox">
-                				<div class="toolbox-left">
-                					<div class="toolbox-info">
-                						Showing <span>9 of 56</span> Products
-                					</div><!-- End .toolbox-info -->
-                				<!-- </div>End .toolbox-left -->
-                			<!-- </div>End .toolbox --> 
-                           
-                              
-
-
+                		
                             <div class="products mb-3">
                                 <div class="row justify-content-center">
-                                    {%for items in results %}
+                                    {% for item in results %}                                     
                                     <div class="col-6 col-md-4 col-lg-4">
                                         <div class="product product-7 text-center">
                                             <figure class="product-media">
-                                                <span class="product-label label-new">{{items.label}}</span>
-                                                <a href="{{items.get_absolute_url}}">
-                                                    <img src="{{items.img_1.url}}" alt="Product image" class="product-image" style=" float: left;
-                                                    height: 350px;
-                                                    object-fit: cover;;">
+                                                <span class="product-label label-new">{{item.product.label}}</span>
+                                                <a href="{{item.get_absolute_url}}">
+                                                    <img src="{{item.img_1.url}}" alt="Product image" class="product-image">
                                                 </a>
 
                                                 <div class="product-action-vertical">
@@ -51,107 +50,163 @@
                                                 </div><!-- End .product-action-vertical -->
 
                                                 <div class="product-action">
-                                                    <a href="{{items.get_add_to_cart_url}}" class="btn-product btn-cart"><span>add to cart</span></a>
+                                                    <a href="{% url 'store:add-to-cart' item.category.slug %}?next={{ request.path }}" class="btn-product btn-cart"><span>add to cart</span></a>
                                                 </div><!-- End .product-action -->
                                             </figure><!-- End .product-media -->
 
                                             <div class="product-body">
                                                 <div class="product-cat">
-                                                    <a href="#">{{items.category.title}}</a>
+                                                    <a href="#">{{item.title}}</a>
                                                 </div><!-- End .product-cat -->
-                                                <h3 class="product-title"><a href="product.html">{{items.title}}</a></h3><!-- End .product-title -->
-												{% if items.discount_price%}
-												<div class="product-price">
-                                                    N {{items.discount_price}}
-                                                </div>
-												{% else%}
+                                                <h3 class="product-title"><a href="{{item.get_absolute_url}}">{{item.product.title}}</a></h3><!-- End .product-title -->
                                                 <div class="product-price">
-                                                   <p style="font-size: 20px;"> N {{items.price}}</p> 
+                                                    {% if item.discount_price|floatformat:2|intcomma%}            
+                                                    <span class="new-price">&#8358;{{item.discount_price|floatformat:2|intcomma}}</span>
+                                                    <span class="old-price">&#8358;{{item..price|floatformat:2|intcomma}}</span>
+                                                    {% else %}
+                                                    <span class="new-price">&#8358;{{item.price|floatformat:2|intcomma}}</span>
+                                                    <span class="old-price">&#8358;{{item.discount_price|floatformat:2|intcomma}}</span>
+                                                    {% endif %}
                                                 </div><!-- End .product-price -->
-												{% endif%}
-                                                <!-- <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
-                                                    <!-- </div> -->
-                                                    <!-- <span class="ratings-text">( 2 Reviews )</span> -->
-                                                <!-- </div> --> 
-
+                                                <div class="ratings-container">
+                                                    <style>
+                                                        #star-ratings {
+                                                            font-size: 20px;
+                                                            color: gold;
+                                                        }
+                                                    </style>
+                                                    <div id="star-ratings">
+                                                        {{ item.average_rating|floatformat:1 }}
+                                                        {% star_rating item.average_rating %}
+                                                    </div>
+                                                    <span class="ratings-text">( {{item.count}} reviews)</span>
+                                                </div><!-- End .rating-container -->                                      
                                             </div><!-- End .product-body -->
                                         </div><!-- End .product -->
                                     </div><!-- End .col-sm-6 col-lg-4 -->
-                                    {%endfor%}
-                                  </div><!-- End .row -->
+
+                                    {% endfor %}
+
+                             
+                                  
+                                </div><!-- End .row -->
                             </div><!-- End .products -->
-{% include "store/paginator.html" %}
+
+                			<!-- <nav aria-label="Page navigation">
+							    <ul class="pagination justify-content-center">
+							        <li class="page-item disabled">
+							            <a class="page-link page-link-prev" href="#" aria-label="Previous" tabindex="-1" aria-disabled="true">
+							                <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
+							            </a>
+							        </li>
+							        <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
+							        <li class="page-item"><a class="page-link" href="#">2</a></li>
+							        <li class="page-item"><a class="page-link" href="#">3</a></li>
+							        <li class="page-item-total">of 6</li>
+							        <li class="page-item">
+							            <a class="page-link page-link-next" href="#" aria-label="Next">
+							                Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
+							            </a>
+							        </li>
+							    </ul>
+							</nav> -->
                 		</div><!-- End .col-lg-9 -->
-                        
-
-
-                        
 
                 		<aside class="col-lg-3 order-lg-first">
-              
-                				<div class="widgett">
-                                  
-                                                        <div class="col-md-4 mb-5">
-                                                            <h5  style="color: blue;">Category</h5>
-                                                            {% for items in category %}
-                                                                <a href="{% url 'store:categories-filter' items.title %}">
-                                                            <div class="d-flex justify-content-center">        
-                                                                <button  class="btn  m-2" style="color:rgb(243, 243, 247); background-color:blue; font-size:medium"><i class="fa fa-angle-right mr-2"></i>{{items.title}}</button>
-                                                            </a>
-                                                            </div>
-                                                        {% endfor %}
-                                                        <!-- </div> -->
+                    <form method="GET" >
 
+                			<div class="sidebar sidebar-shop">
+                				<div class="widget widget-clean">
+                					<label>Filters:</label>
+                					<a href="{% url 'store:categories-list'%}" class="sidebar-filter-clear">Clean All</a>
+                				</div><!-- End .widget widget-clean -->
 
+        						<div class="widget widget-collapsible">
+    								<h3 class="widget-title">
+									    <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="true" aria-controls="widget-2">
+									        Size
+									    </a>
+									</h3><!-- End .widget-title -->
 
+									<div class="collapse show" id="widget-2">
+										<div class="widget-body">
+											<div class="filter-items">
+			
+												<div class="filter-item">
+                                                    <div class="w-50">
 
-<!-- 
--->
+                                                        <select id="size" name="size" class="form-control">
+                                                        
+                                                            <option value="">All</option>
+                                                         {% for size in sizes %}
+                                                                <option value="{{ size.id }}" {% if size_id == size.id|stringformat:"s" %}selected{% endif %}>{{ size.size }}</option>
+                                                         {% endfor %}
+                                                        </select>												
+                                                    </div>			
+												</div><!-- End .filter-item -->
 
-    
-</div><!-- End .widget -->
-<!-- <!-- <div class="widget widget-collapsible"> -->
-    <h3 class="widget-title">
-        <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
-            search
-        </a>
-    </h3> 
-    <!-- End .widget-title -->
-    
-        <div class="collapse show" id="widget-5">
+											</div><!-- End .filter-items -->
+										</div><!-- End .widget-body -->
+									</div><!-- End .collapse -->
+        						</div><!-- End .widget -->
+
+        			
+        						<div class="widget widget-collapsible">
+    								<h3 class="widget-title">
+									    <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
+									        Price
+									    </a>
+									</h3><!-- End .widget-title -->
+
+									<div class="collapse show" id="widget-5">
 										<div class="widget-body">
                                             <div class="filter-price">
                                                 <div class="filter-price-text">
-                                                    <h2>Price Range:</h2>
+                                                    <div class="w-50">
 
-                                                    {% if min_price %}<h5>Min price: {{ min_price }}</h5>{% endif %}
-                                                    {% if max_price %} <h5>Max price: {{ max_price }}</h5>{% endif %}
-                                                
-                                                    <span id="filter-price-range"></span>
+                                                        <label for="max_price">Min Price:</label>
+                                                        <input type="number" id="min_price" name="min_price" value="{{ min_price|default:'' }}">
+                                                        <label for="max_price">Max Price:</label>
+                                                        <input type="number" id="max_price" name="max_price" value="{{ max_price|default:'' }}">
+                                                    </div>
                                                 </div><!-- End .filter-price-text -->
 
-                                                <!-- <div id="price-slider"></div><!-- End #price-slider -->
+                                                <div id="price-slider"></div><!-- End #price-slider -->
                                             </div><!-- End .filter-price -->
 										</div><!-- End .widget-body -->
-									</div> 
-                                    {% else %}
-                                    <h4>No results found.</h4>
-                                    {%endif%}
+									</div><!-- End .collapse -->
+                                    <button class="btn btn-secondary" type="submit">filter</button>
         						</div><!-- End .widget -->
                 			</div><!-- End .sidebar sidebar-shop -->
+                        </form>
                 		</aside><!-- End .col-lg-3 -->
-
                         
                 	</div><!-- End .row -->
                 </div><!-- End .container -->
             </div><!-- End .page-content -->
+
+
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+                $(document).ready(function() {
+                    $('#filter-form').on('submit', function(e) {
+                        e.preventDefault();
+                        var form = $(this);
+                        $.ajax({
+                            url: form.attr('action'),
+                            data: form.serialize(),
+                            success: function(data) {
+                                $('#product-list').html(data.html);
+                            }
+                        });
+                    });
+                });
+            </script>  
         </main><!-- End .main -->
 
-    </div><!-- End .page-wrapper -->
+
     <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
-    <!-- Plugins JS File -->
+ 
 {% endblock content %}
  

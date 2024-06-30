@@ -65,22 +65,29 @@ class Features(models.Model):
     def __str__(self) -> str:
         return self.feature1
     
-size =(
-    ('500ml', '500ml'),
-    ('25ml', '25ml'),
-    ('1L', '1L'),
-    ('4L', '4L'),
-    ('10L', '10L'),
-    ('25L', '25L'),
+# size =(
+#     ('500ml', '500ml'),
+#     ('25ml', '25ml'),
+#     ('1L', '1L'),
+#     ('4L', '4L'),
+#     ('10L', '10L'),
+#     ('25L', '25L'),
     
     
     
-)  
+# ) 
+class Size(models.Model):
+    size = models.CharField(max_length=10)
+    
+    def __str__(self) -> str:
+        return self.size
+    
+    
 class Product(models.Model):
     title = models.CharField(max_length=255)
     description= models.TextField(max_length=1000)
     additional_information= models.TextField(max_length=1000, default='')
-    size =models.CharField(max_length=255,choices=size, default='1L')
+    size = models.ManyToManyField(Size, related_name='products')
     price = models.IntegerField(default=0)
     discount_price = models.IntegerField(default=0)
     img_1  = models.ImageField(upload_to='static/media/img', default='img')
@@ -97,6 +104,10 @@ class Product(models.Model):
     slug = models.SlugField(unique=True, default='eg-product-title')
     ratings = Rating()
     
+  
+    def get_related_products(self):
+        return Product.objects.filter(category=self.category).exclude(id=self.id)[:4]  # Change the number of products to display as needed
+
     
    
     def get_absolute_url(self):
@@ -124,7 +135,12 @@ class Product(models.Model):
             return sum(rating.rating for rating in ratings) / ratings.count()
         return 0
     
-   
+      # get the next product by clicking the next button
+    def get_next_product(self):
+        next_product = Product.objects.filter(id__gt=self.id).order_by('id').first()
+        if not next_product:
+            next_product = Product.objects.order_by('id').first()
+        return next_product
    
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='')
@@ -315,6 +331,8 @@ class Order(models.Model):
         # get the price in the order
     def total_price(self):
         return self.get_total()
+    
+ 
 
 
 class Refunds(models.Model):

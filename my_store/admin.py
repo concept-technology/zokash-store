@@ -75,5 +75,5 @@ admin.site.register(Features)
 admin.site.register(ShippingMethod)
 admin.site.register(Inventory, InventAdmin)
 
-
+admin.site.register(Size)
 actions = [make_accept_refund]

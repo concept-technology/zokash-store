@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Product,Cart, Order, CustomersAddress, Coupon, Category
+from .models import *
 from django.views.generic import DetailView, ListView,View
 from django.db.models import Q
 from  django.shortcuts import get_object_or_404
@@ -14,7 +14,7 @@ from django.contrib.auth import logout
 from allauth.account.forms import LoginForm, SignupForm
 from django.core.exceptions import ObjectDoesNotExist
 from .form import *
-from .models import Payment, Refunds
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 import random
 import string
@@ -22,6 +22,8 @@ from django.contrib.sessions.models import Session
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 import logging
+from django.template.loader import render_to_string
+
 def create_ref_code():#generate order reference code
     return ''.join(random.choices(string.ascii_lowercase + string.digits,k=15))
 
@@ -29,53 +31,128 @@ def create_ref_code():#generate order reference code
 class StoreView(ListView):
     model = Product
     template_name = 'index.html'
-    paginate_by= 5
-    
+    paginate_by = 5
 
+    def get_queryset(self):
+        return Product.objects.filter(is_best_selling=True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['best_selling_products'] = self.get_queryset()
+        return context   
+
+
+
+from django.core.paginator import Paginator
+from django.shortcuts import render
+from .models import Product, Category
 
 def ProductCategories_view(request):
     if request.method == 'GET':
-        product = Product.objects.select_related('category').all()
-        category = Category.objects.all()
+        # Get filter parameters from the request
+        category_filter = request.GET.get('category')
+        min_price = request.GET.get('min_price')
+        max_price = request.GET.get('max_price')
+        size_filter = request.GET.get('size')
+        description_filter = request.GET.get('description')
+
+        # Get all products and apply filters
+        products = Product.objects.select_related('category').all()
+
+        if category_filter:
+            products = products.filter(category__id=category_filter)
+
+        if min_price:
+            products = products.filter(price__gte=min_price)
+
+        if max_price:
+            products = products.filter(price__lte=max_price)
+
+        if size_filter:
+            products = products.filter(size=size_filter)
+
+        if description_filter:
+            products = products.filter(description__icontains=description_filter)
+
+        # Get all categories for the filter menu
+        categories = Category.objects.all()
+
+        # Implement pagination
+        paginator = Paginator(products, 10)  # Show 2 products per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
         products_with_ratings = []
-        for product in product:
+        for product in page_obj:
             avg_rating = product.average_rating()
             count = product.ratings.count()
-            products_with_ratings.append({'product': product, 'average_rating': avg_rating, 'count':count})
+            products_with_ratings.append({'product': product, 'average_rating': avg_rating, 'count': count})
 
-        context= {
-            'product':product,
-            'category': category,
+        context = {
+            'category': categories,
             'products_with_ratings': products_with_ratings,
-            }
-        print(product)
+            'page_obj': page_obj,
+            'selected_category': category_filter,
+            'min_price': min_price,
+            'max_price': max_price,
+            'selected_size': size_filter,
+            'description_filter': description_filter,
+        }
         return render(request, 'store/category.html', context)
-    
 
 
-def product_list_by_category(request,slug):
+
+def product_list_by_category(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = Product.objects.filter(category=category)
-    category_count = Product.objects.filter(category=category).count()
-    
-    category_count = products.count()
-    products_with_ratings = []
+    sizes = Size.objects.all().distinct()  # Get unique sizes
 
-    for product in products:
-        products_with_ratings.append({
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    size_id = request.GET.get('size')
+
+    if min_price and max_price:
+        products = products.filter(price__gte=min_price, price__lte=max_price)
+    
+    if size_id:
+        products = products.filter(size__id=size_id)
+
+    products_with_ratings = [
+        {
             'product': product,
             'average_rating': product.average_rating()
-        })
+        }
+        for product in products
+    ]
+
+    # Pagination
+    page = request.GET.get('page', 1)
+    paginator = Paginator(products_with_ratings, 10)  # Show 10 products per page
+
+    try:
+        paginated_products = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_products = paginator.page(1)
+    except EmptyPage:
+        paginated_products = paginator.page(paginator.num_pages)
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        html = render_to_string('store/product_list.html', {'products_with_ratings': paginated_products})
+        return JsonResponse({'html': html})
+
     context = {
         'category': category,
         'products': products,
-        'category_count': category_count,
-        'products_with_ratings': products_with_ratings,
+        'products_with_ratings': paginated_products,
+        'min_price': min_price,
+        'max_price': max_price,
+        'size_id': size_id,
+        'sizes': sizes,
+        'product_count': products.count(),
     }
     return render(request, 'store/product_list_by_category.html', context)
 
-   
- 
+
 @login_required
 def dash_board(request):   
   
@@ -106,14 +183,6 @@ class HomeView(ListView):
     paginate_by= 6
 
  
-class ProductDetailView(DetailView):
-    model = Product
-    template_name = 'store/product.html'
-
-# class ProductCategoriesView(ListView):
-#     model = Product
-#     paginate_by = 6
-#     template_name = 'store/category.html'
     
 
 class CartView(LoginRequiredMixin, View):
@@ -138,48 +207,6 @@ class CartView(LoginRequiredMixin, View):
             return redirect('store:categories')
 
  
-
-# @login_required
-# def add_to_cart(request, slug):
-#     product = get_object_or_404(Product, slug=slug)
-#     cart_qs = Cart.objects.filter(user=request.user, product=product, is_ordered=False)
-
-#     if cart_qs.exists():
-#         cart_item = cart_qs.first()
-#         cart_item.quantity += 1
-#         cart_item.save()
-#         messages.error(request, f"{product.title} is already in cart")
-#     else:
-#         cart_item = Cart.objects.create(
-#             user=request.user,
-#             product=product,
-#             quantity=1,
-#             is_ordered=False
-#         )
-#         messages.success(request, f"{product.title} is added to cart")
- 
-#     # Create or update the order
-#     order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-#     if order_qs.exists():
-#         order = order_qs.first()
-#     else:
-#         order = Order.objects.create(
-#             user=request.user,
-#             reference=f'order-{secrets.token_hex(8)}',
-#             date=timezone.now(),
-#             is_ordered=False
-#         )
-
-#     order.product.add(cart_item)
-#     order.save()
-
-#     next_url = request.GET.get('next')
-#     if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-#         return redirect(next_url)
-    
-#     return redirect("store:index")  
-    
-
 
 def add_to_cart(request, slug):
     product = get_object_or_404(Product, slug=slug)
@@ -563,7 +590,6 @@ def order_summary(request):
 
 
 
-
 def search_view(request):
     query = request.GET.get('q')
     min_price = request.GET.get('min_price')
@@ -579,10 +605,18 @@ def search_view(request):
         )
     
     if min_price:
-        results = results.filter(price__gte=min_price)
-        
+        try:
+            min_price = float(min_price)
+            results = results.filter(price__gte=min_price)
+        except ValueError:
+            pass  # Handle the case where min_price is not a valid number
+    
     if max_price:
-        results = results.filter(price__lte=max_price)
+        try:
+            max_price = float(max_price)
+            results = results.filter(price__lte=max_price)
+        except ValueError:
+            pass  # Handle the case where max_price is not a valid number
     
     context = {
         'query': query,
@@ -594,10 +628,6 @@ def search_view(request):
     return render(request, 'store/search_results.html', context)
 
 
-
-
-
-
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
     try:
@@ -607,9 +637,11 @@ def product_detail(request, slug):
 
     ratings = product.ratings.all()
     average_rating = product.average_rating()
-    user_rating = product.average_rating()  # It seems you may want to fetch the user's specific rating, adjust as needed.
+    user_rating = CustomerRating.objects.filter(user=request.user, product=product).first()
     now = timezone.now()
     all_user_rating = product.ratings.filter(product=product)
+    next_product = product.get_next_product()
+    related_products = product.get_related_products()  # Fetch related products
 
     if request.method == 'POST':
         if user_rating:
@@ -621,7 +653,7 @@ def product_detail(request, slug):
             rating.user = request.user
             rating.product = product
             rating.save()
-            return redirect('store:product-detail', slug=product.slug)
+            return redirect('store:product_detail', slug=product.slug)
     else:
         if user_rating:
             rating_form = None
@@ -635,43 +667,53 @@ def product_detail(request, slug):
         'average_rating': average_rating,
         'count': product.ratings.count(),
         'rating_form': rating_form,
-        'now': now,  # Current time
+        'now': now,
         'all_user_rating': all_user_rating,
         'is_in_cart': is_in_cart,
+        'next_product': next_product,
+        'related_products': related_products,  # Add related products to context
     }
     return render(request, 'store/product_detail.html', context)
-
-
 
 logger = logging.getLogger('django')
 
 
 
 
+
 class UpdateCartQuantity(View):
-    def post(self, *args, **kwargs):
-        if self.request.method == "POST" and self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            id = int(self.request.POST.get('id'))
-            quantity = int(self.request.POST.get('quantity'))
-            size = self.request.POST.get('size')
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            id = int(request.POST.get('id'))
+            quantity = int(request.POST.get('quantity'))
+            size = request.POST.get('size')
+            
             product = get_object_or_404(Product, pk=id)
-            cart = Cart.objects.get(product=product, is_ordered=False,user=self.request.user)
-            order =Order.objects.get(product=cart,)
+            cart = get_object_or_404(Cart, product=product, is_ordered=False, user=request.user)
+            
             cart.quantity = quantity
-            if cart.size:
+            if size:
                 cart.size = size
-            cart.size =  None
+            else:
+                cart.size = None  # Handle the case where size is not provided
+            
             cart.save()
             
             if product.discount_price:
                 total_price = product.discount_price * quantity
             else:
                 total_price = product.price * quantity
-
-     
-            return JsonResponse({'product': product.title, 'id': id, 'qty': quantity, 'size': size, 'total_price':total_price})
+            
+            return JsonResponse({
+                'product': product.title,
+                'id': id,
+                'qty': quantity,
+                'size': size,  # Ensure to return size even if it's None
+                'total_price': total_price
+            })
         
-        return JsonResponse({'message': 'error'})
+        return JsonResponse({'message': 'error'}, status=400)
+
 def mark_order_as_received(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     next_url = request.GET.get('next')  # Define next_url early in the code
@@ -686,7 +728,30 @@ def mark_order_as_received(request, order_id):
 
     return redirect('user-dashboard')
   
-                                           
+def reorder_product(request, product_id):
+    pass
+#     product = get_object_or_404(Product, id=product_id)
+#     cart_item, created = Cart.objects.get_or_create(user=request.user, product=product, is_ordered=False)
+#     if not created:
+#         cart_item.quantity += 1
+#         cart_item.save()
+#     return redirect('store:index')                                          
                                             
                                             
-                                            
+def next_product(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+    next_product = product.get_next_product()
+
+    if next_product:
+        data = {
+            'title': next_product.title,
+            'description': next_product.description,
+            'price': next_product.price,
+            'average_rating': next_product.average_rating(),
+            'rating_count': next_product.ratings.count(),
+            'slug': next_product.slug,
+        }
+    else:
+        data = {}
+
+    return JsonResponse(data)                                
