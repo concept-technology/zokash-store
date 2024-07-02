@@ -1,10 +1,11 @@
 from django.urls import path
 from . import views
-
+from .import cart_function
 
 app_name ='store'
 
 urlpatterns = [
+
      path('submit_rating/', views.product_detail, name='submit_rating'),
      
      
@@ -19,7 +20,7 @@ urlpatterns = [
     path('signup/',views.register, name='signup'),
     
     path('login', views.login, name='login'),
-    
+
 
      path('add-to-cart/<slug>',views.add_to_cart, name='add-to-cart'),
      
@@ -31,12 +32,9 @@ urlpatterns = [
      
      path('cart/<slug>', views.CartView.as_view(), name='cart_item'),
      
-     path('account/dash-board',views.dash_board, name='dash-board' ),
+     path('account/profile/dash-board', views.DashBoardView.as_view(), name='dash-board' ),
      
-     path('reduce-item-from-cart/<slug>', views.reduce_cart_quantity, name='remove_cart'),
-     
-     path('increase-cart-quantity/<slug>', views.increase_cart_quantity, name='increase_cart'),
-     
+   
      path('order/payment/', views.initiate_payment, name='initiate_payment'),
      
      path('verify-payment/<str:ref>/', views.verify_payment, name='verify_payment'),
@@ -50,8 +48,6 @@ urlpatterns = [
      
      path('apply-coupon/', views.apply_coupon, name='apply-coupon'),
      
-     path('select-address/', views.select_shipping_method, name='select_address'),
-
 
      path('search/', views.search_view, name='search'),
      
@@ -64,6 +60,17 @@ urlpatterns = [
     path('reorder/<int:product_id>/', views.reorder_product, name='reorder_product'),
     
     path('view/next_product/<slug>', views.next_product, name='next_product'),
+    
+    path('contact/', views.contact_view, name='contact'),
+    
+    path('payment/success', views.success_page, name='success-page'),
+    
+    
+    
+    
+  # Other URL patterns...
 ]
+
+
 
 

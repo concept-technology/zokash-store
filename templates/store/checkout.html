@@ -13,9 +13,9 @@
 	<nav aria-label="breadcrumb" class="breadcrumb-nav">
 		<div class="container">
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="{% url 'store:index'">Home</a></li>
-				<li class="breadcrumb-item"><a href="{% url 'store:categories-list'%}">Shop</a></li>
-				<li class="breadcrumb-item"><a href="{% url 'store:cart'%}">cart</a></li>
+				<li class="breadcrumb-item"><a href="{% url 'store:index' %}">Home</a></li>
+				<li class="breadcrumb-item"><a href="{% url 'store:categories-list' %}">Shop</a></li>
+				<li class="breadcrumb-item"><a href="{% url 'store:cart' %}">Cart</a></li>
 				<li class="breadcrumb-item active" aria-current="page">Checkout</li>
 			</ol>
 		</div><!-- End .container -->
@@ -24,66 +24,60 @@
 	<div class="page-content">
 		<div class="checkout">
 			<div class="container">
-				<div class="checkout-discount">							
-					{% if coupon %}		
+				<div class="checkout-discount">
+					{% if coupon %}
 					{% for code in coupon %}
-					<p style="color: rgb(110, 194, 2);"> use {{code.code}}</p>
-					{%endfor%}
+					<p style="color: rgb(110, 194, 2);">Use {{ code.code }}</p>
+					{% endfor %}
 					{% endif %}
 					<form method="post" action="{% url 'store:apply-coupon' %}?next={{ request.path }}">
 						{% csrf_token %}
-						{{order.coupon.code}}
-						<button class="btn btn-primary" type="submit">apply</button>
+						{{ order.coupon_form.code }}
+						<button class="btn btn-primary" type="submit">Apply</button>
 					</form>
 				</div><!-- End .checkout-discount -->
 				
-				<form  action="{% url 'store:check-out'%}" method="post">
+				<form action="{% url 'store:check-out' %}" method="post">
 					{% csrf_token %}
 					<div class="row">
 						<div class="col-lg-9">
 							<h2 class="checkout-title">Billing Details</h2><!-- End .checkout-title -->
 							
-						
-								<label>Country *</label>
-								{{order.form.country}}
+							<label>Country *</label>
+							{{ order.form.country }}
 
-								<label>Street address *</label>
-								{{order.form.street_address}}
-								<!-- <input type="text" class="form-control" placeholder="House number and Street name" required> -->
-								<!-- <input type="text" class="form-control" placeholder="Appartments, suite, unit etc ..." required> -->
-								{{order.form.apartment}}
-								<div class="row">
-									<div class="col-sm-6">
-										<label>Town / City *</label>
-										<!-- <input type="text" class="form-control" required> -->
-										 {{order.form.town}} 
-									</div><!-- End .col-sm-6 -->
+							<label>Street address *</label>
+							{{ order.form.street_address }}
+							{{ order.form.apartment }}
 
-									 <div class="col-sm-6">
-										<label>State / County *</label>
-										{{order.form.state}}
-										<!-- <input type="text" class="form-control" required>  -->
-									</div> 
-								</div>End .row 
+							<div class="row">
+								<div class="col-sm-6">
+									<label>Town / City *</label>
+									{{ order.form.town }}
+								</div><!-- End .col-sm-6 -->
 
-								<div class="row">
-									<div class="col-sm-6">
-										<label>Postcode / ZIP *</label>
-										{{order.form.zip_code}}
-										<!-- <input type="text" class="form-control" required> -->
-									</div><!-- End .col-sm-6 -->
+								<div class="col-sm-6">
+									<label>State / County *</label>
+									{{ order.form.state }}
+								</div><!-- End .col-sm-6 -->
+							</div><!-- End .row -->
 
-									<div class="col-sm-6">
-										<label>Phone *</label>
-										{{order.form.telephone}}
-										<!-- <input type="tel" class="form-control" required> -->
-									</div><!-- End .col-sm-6 -->
-								</div><!-- End .row -->
+							<div class="row">
+								<div class="col-sm-6">
+									<label>Postcode / ZIP *</label>
+									{{ order.form.zip_code }}
+								</div><!-- End .col-sm-6 -->
 
-								<label>Order notes (optional)</label>
-								{{order.form.message}}
-								<!-- <textarea class="form-control" cols="30" rows="4" placeholder=></textarea> -->
+								<div class="col-sm-6">
+									<label>Phone *</label>
+									{{ order.form.telephone }}
+								</div><!-- End .col-sm-6 -->
+							</div><!-- End .row -->
+
+							<label>Order notes (optional)</label>
+							{{ order.form.message }}
 						</div><!-- End .col-lg-9 -->
+
 						<aside class="col-lg-3">
 							<div class="summary">
 								<h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
@@ -97,29 +91,32 @@
 									</thead>
 
 									<tbody>
-										{% for items in order.cart %}
-                            
+										{% for item in order.cart %}
 										<tr>
-											<td><a href="#">{{items.product.title}} * {{items.quantity}}</a></td>
-											<td>&#8358;{{items.get_price_tag|floatformat:2|intcomma}}</td>
+											<td><a href="#">{{ item.product.title }} * {{ item.quantity }}</a></td>
+											<td>&#8358;{{ item.get_price_tag|floatformat:2|intcomma }}</td>
 										</tr>
 										{% endfor %}
 										
 										<tr class="summary-subtotal">
 											<td>Subtotal:</td>
-											<td>$160.00</td>
+											<td>{{ order.order.get_total|floatformat:2|intcomma }}</td>
 										</tr><!-- End .summary-subtotal -->
+										
 										<tr>
-											<td>Shipping:</td>
-											<td>Free shipping</td>
+											<td>delivery:</td>
+											<td>&#8358;{{ order.order.get_delivery_cost|floatformat:2|intcomma }}</td>
 										</tr>
+										
 										<tr class="summary-total">
 											<td>Total:</td>
-											<td>$160.00</td>
+											<td>&#8358;{{ order.order.get_total_with_delivery|floatformat:2|intcomma }}</td>
+											
 										</tr><!-- End .summary-total -->
 									</tbody>
+								
 								</table><!-- End .table table-summary -->
-
+<!-- 
 								<div class="accordion-summary" id="accordion-payment">
 									<div class="card">
 										<div class="card-header" id="heading-1">
@@ -129,77 +126,21 @@
 												</a>
 											</h2>
 										</div><!-- End .card-header -->
-										<div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
+									</div>
+										<!-- <div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
 											<div class="card-body">
 												Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
-											</div><!-- End .card-body -->
-										</div><!-- End .collapse -->
-									</div><!-- End .card -->
-
-									<div class="card">
-										<div class="card-header" id="heading-2">
-											<h2 class="card-title">
-												<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
-													Check payments
-												</a>
-											</h2>
-										</div><!-- End .card-header -->
-										<div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
-											<div class="card-body">
-												Ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. 
-											</div><!-- End .card-body -->
-										</div><!-- End .collapse -->
-									</div><!-- End .card -->
-
-									<div class="card">
-										<div class="card-header" id="heading-3">
-											<h2 class="card-title">
-												<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
-													Cash on delivery
-												</a>
-											</h2>
-										</div><!-- End .card-header -->
-										<div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
-											<div class="card-body">Quisque volutpat mattis eros. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. 
-											</div><!-- End .card-body -->
-										</div><!-- End .collapse -->
-									</div><!-- End .card -->
-<!-- 
-									<div class="card">
-										<div class="card-header" id="heading-4">
-											<h2 class="card-title">
-												<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
-													PayPal <small class="float-right paypal-link">What is PayPal?</small>
-												</a>
-											</h2>
-										</div>
-										<div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
-											<div class="card-body">
-												Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum.
 											</div>
-										</div>
-									</div>-->
+										</div> -->
 
-									<div class="card">
-										<div class="card-header" id="heading-5">
-											<h2 class="card-title">
-												<a class="collapsed" role="button" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
-													Credit Card (Stripe)
-													<img src="assets/images/payments-summary.png" alt="payments cards">
-												</a>
-											</h2>
-										</div><!-- End .card-header -->
-										<div id="collapse-5" class="collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
-											<div class="card-body"> Donec nec justo eget felis facilisis fermentum.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Lorem ipsum dolor sit ame.
-											</div><!-- End .card-body -->
-										</div><!-- End .collapse -->
-									</div><!-- End .card -->
+										<button type="submit" class="btn btn-primary">
+											<span class="btn-text">Place Order</span>
+											<span class="btn-hover-text">Proceed to Checkout</span>
+										</button>
+								
+							
 								</div><!-- End .accordion -->
-
-								<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
-									<span class="btn-text">Place Order</span>
-									<span class="btn-hover-text">Proceed to Checkout</span>
-								</button>
+								
 							</div><!-- End .summary -->
 						</aside><!-- End .col-lg-3 -->
 					</div><!-- End .row -->
@@ -209,7 +150,5 @@
 	</div><!-- End .page-content -->
 </main><!-- End .main -->
 
-
-
-    <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
-    {% endblock content %}
+<button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+{% endblock content %}

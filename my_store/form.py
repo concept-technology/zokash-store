@@ -1,22 +1,36 @@
 from django import forms
 from django_countries.fields import CountryField
 from  django_countries.widgets import CountrySelectWidget
-
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserChangeForm
 from my_store.widget import StarRatingWidget
-from .models import CustomersAddress,ShippingMethod
-from .models import CustomerRating
-class ShippingMethodForm(forms.Form):
-    address = forms.ModelChoiceField(queryset=ShippingMethod.objects.all(), empty_label="Select address")
+from .models import *
 
 
+class AbujaLocationForm(forms.ModelForm):
+    class Meta:
+        model = AbujaLocation
+        fields = ['location']
+
+    def __init__(self, *args, **kwargs):
+        super(AbujaLocationForm, self).__init__(*args, **kwargs)
+        locations = AbujaLocation.objects.all()
+        location_choices = [(location.id, location.location) for location in locations]
+        self.fields['location'].widget = forms.Select(choices=location_choices, attrs={'class': 'form-control'})
+       
 payment_choices= (
     ('paypal', 'paypal'),
     ('paystack', 'paystack'),
 
 )
 
-from django import forms
-from .models import CustomerRating
+class UserProfileForm(UserChangeForm):
+    password = None  # Exclude the password field
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']
+
 
 
 class CustomerRatingForm(forms.ModelForm):
@@ -82,7 +96,8 @@ class AddressForm(forms.ModelForm):
             'telephone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '08099999999'}),
             'apartment': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'nearby land mark'}),
             'street_address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'no. 1234, street name'}),
-            'message': forms.Textarea(attrs={'class': 'form-control','placeholder':'do you have any message about your delivery'})
+            'message': forms.Textarea(attrs={'class': 'form-control','placeholder':'do you have any message about your delivery, (optional)'}),
+            'country': forms.TextInput(attrs={'class': 'form-control',}),
         }
 class CartUpdateForm(forms.Form):
     pk  = forms.IntegerField()

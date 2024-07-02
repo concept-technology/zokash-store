@@ -72,8 +72,10 @@ admin.site.register(Coupon, CouponAdmin)
 admin.site.register(Refunds)
 admin.site.register(Features)
 # admin.site.register(CustomerRating)
-admin.site.register(ShippingMethod)
+
 admin.site.register(Inventory, InventAdmin)
 
 admin.site.register(Size)
+admin.site.register(Invoice)
+admin.site.register(AbujaLocation)
 actions = [make_accept_refund]

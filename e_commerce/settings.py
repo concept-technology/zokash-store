@@ -70,7 +70,8 @@ INSTALLED_APPS = [
     'paystackapi',
     'my_store',
     'star_ratings',
-    'django.contrib.humanize'
+    'django.contrib.humanize',
+    'requests',
 ]
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 INTERNAL_IPS = [
@@ -79,25 +80,6 @@ INTERNAL_IPS = [
 
 ]
 
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': os.path.join(BASE_DIR, 'debug.log'),
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
 
 
 
@@ -126,6 +108,12 @@ MIDDLEWARE = [
 ]
 
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_AGE = 1209600 
+
 DAJAXICE_MEDIA_PREFIX = 'dajaxice'
 
 CORS_ALLOW_ALL_ORIGINS: True
@@ -153,8 +141,11 @@ TEMPLATES = [
 SECRET_KEY = 'django-insecure--z_2ma50$%ab+h24ef#bu_f_zsf4(d=d32$91dt8m6uh(!@9$!'
 WSGI_APPLICATION = 'e_commerce.wsgi.application'
 
-PAYSTACK_SECRET_KEY = os.getenv('SECRET_KEY')
-PAYSTACK_PUBLIC_KEY = os.getenv('PUBLIC_KEY')
+# PAYSTACK_SECRET_KEY = os.getenv('SECRET_KEY')
+# PAYSTACK_PUBLIC_KEY = os.getenv('PUBLIC_KEY')
+
+PAYSTACK_SECRET_KEY = 'sk_test_eef07558184af9678a899195eb8c0e705f986ff9'
+PAYSTACK_PUBLIC_KEY = 'pk_test_ea75ece062f2a82f8f18506dbeff5f085a1ca58a'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 

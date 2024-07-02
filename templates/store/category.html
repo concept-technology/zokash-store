@@ -206,10 +206,10 @@
 													<div class="custom-control custom-checkbox">
 														<form class="w-50" method="get" action="{% url 'store:search' %}">
 															{% csrf_token %}
-															<input type="number" name="min_price" value="{{ min_price }}" placeholder="Min Price">
-															<input type="number" name="max_price" value="{{ max_price }}" placeholder="Max Price">
+															<input type="number" name="min_price" value="{{ min_price }}" placeholder="Min Price" min="1">
+															<input type="number" name="max_price" value="{{ max_price }}" placeholder="Max Price" min="1">
 															
-															<button class="btn btn-secondary">filter price</button>
+															<button class="btn">filter price</button>
 														</form>
 													</div><!-- End .custom-checkbox -->
 												</div><!-- End .filter-item -->

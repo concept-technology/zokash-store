@@ -1,128 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-    {%load static %}
-    {% load socialaccount %}
-    <!-- molla/login.html  22 Nov 2019 10:04:03 GMT -->
-    <head>
-        <style>
-            body {
-              font-family: Arial, sans-serif;
-            }
-            .container {
-              max-width: 400px;
-              margin: 0 auto;
-              padding: 20px;
-              background-color: #f2f2f2;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-            }
-            .container h2 {
-              text-align: center;
-            }
-            .container form {
-              margin-top: 20px;
-            }
-            .container form label {
-              display: block;
-              margin-bottom: 5px;
-            }
-            .container form input[type="text"],
-            .container form input[type="email"],
-            .container form input[type="password"] {
-              width: 100%;
-              padding: 10px;
-              margin-bottom: 10px;
-            }
-            .container form button {
-              width: 100%;
-              padding: 10px;
-              background-color: #4caf50;
-              color: white;
-              border: none;
-              cursor: pointer;
-            }
-            .container form button:hover {
-              background-color: #45a049;
-            }
-          </style>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Molla - Bootstrap eCommerce Template</title>
-    <meta name="keywords" content="HTML5 Template">
-    <meta name="description" content="Molla - Bootstrap eCommerce Template">
-    <meta name="author" content="p-themes">
-    <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/images/icons/apple-touch-icon.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/images/icons/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/images/icons/favicon-16x16.png' %}">
-    <link rel="manifest" href="{% static 'assets/images/icons/site.html' %}">
-    <link rel="mask-icon" href="{% static 'assets/images/icons/safari-pinned-tab.svg' %}" color="#666666">
-    <link rel="shortcut icon" href="{% static 'assets/images/icons/favicon.ico' %}">
-    <meta name="apple-mobile-web-app-title" content="Molla">
-    <meta name="application-name" content="Molla">
-    <meta name="msapplication-TileColor" content="#cc9966">
-    <meta name="msapplication-config" content="{% static 'assets/images/icons/browserconfig.xml' %}">
-    <meta name="theme-color" content="#ffffff">
-    <!-- Plugins CSS File -->
-    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
-    <!-- Main CSS File -->
-    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-</head>
+<script>
+  // Function to fetch CSRF token from cookies
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.startsWith(name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
+      }
+  }
+  return cookieValue;
+}
 
-<body>
-    <div class="page-wrapper">
+$(document).ready(function(){
+  function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+          const later = () => {
+              clearTimeout(timeout);
+              func.apply(this, args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+      };
+  }
 
-        <main class="main">
-            
-            <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url({% static 'assets/images/backgrounds/login-bg.jpg' %})">
-                <h6 class="text-center"><a href="{% url 'store:index' %}" style="color:blue;">back to site</a></h6>
-            	<div class="container">
-            		<div class="form-box">
-                            <h2>Are you sure you want to log out</h2>
-							       <p> <a class="nav-link" id="signin-tab-2" href="{% url 'store:login' %}" role="tab" aria-controls="signin-2" > Stay Sign In</a></p>
-							
+  const updateCart = debounce(function(){
+      let cartId = $('#product-id').val();
+      let quantity = $('#cart-quantity-input').val();
+      let size = $('#size').val();  // Adjust this selector based on your cart page UI
+      
+      console.log('Cart update triggered', {'id': cartId, 'qty': quantity, 'size': size});
+      
+      // Fetch CSRF token dynamically
+      const csrftoken = getCookie('csrftoken');
 
-							    <div class="tab-pane fade show active" id="register-2" role="tabpanel" aria-labelledby="register-tab-2">
-                      <form method="post" action="{% url 'account_logout' %}">
-                        {% if redirect_field_value %}
-                        <input type="hidden"
-                               name="{{ redirect_field_name }}"
-                               value="{{ redirect_field_value }}" />
-                    {% endif %}
-							    		<div class="form-footer">
-							    			<button type="submit" class="btn btn-outline-primary-2">
-			                					<span>LOG OUT</span>
-			            						<i class="icon-long-arrow-right"></i>
-			                				</button>
-							    		</div><!-- End .form-footer -->
-							    	</form>
-							 
-							    </div><!-- .End .tab-pane -->
-							</div><!-- End .tab-content -->
-						</div><!-- End .form-tab -->
-            		</div><!-- End .form-box -->
-            	</div><!-- End .container -->
-            </div><!-- End .login-page section-bg -->
-        </main><!-- End .main -->
-    </div><!-- End .page-wrapper -->
-    <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+      $.ajax({
+          url: "{% url 'store:update_cart_quantity' %}",
+          method: 'POST',
+          headers: { "X-CSRFToken": csrftoken },
+          data: {
+              id: cartId,
+              quantity: quantity,
+              size: size,  // Include size in the data sent to the backend
+              csrfmiddlewaretoken: csrftoken
+          },
+          success: function(response){
+              let formattedPrice = '₦' + response.total_price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              
+              // Update the product total price
+              $('#product-total-price').text(formattedPrice);
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
+              // Handle success, update other parts of the UI as needed
+              $('#cart-quantity-input').val(response.qty);  // Update cart quantity input
+              $('#size').val(response.size);  // Update size if provided in the response
+              $('#new-price').text(formattedPrice);  // Update new price display
 
- 
-    <!-- Plugins JS File -->
-    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
-    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'assets/js/jquery.hoverIntent.min.js' %}"></script>
-    <script src="{% static 'assets/js/jquery.waypoints.min.js' %}"></script>
-    <script src="{% static 'assets/js/superfish.min.js' %}"></script>
-    <script src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
-    <!-- Main JS File -->
-    <script src="{% static 'assets/js/main.js' %}"></script>
-</body>
+              console.log('Success response:', response);
+              alert('Cart updated successfully.');
+          },
+          error: function(response){
+              console.log('Error response:', response);
+              alert('Error updating cart. Please try again.');
+          }
+      });
+  }, 300);
 
+  $('#cart-quantity-input').off('change').on('change', updateCart);
+});
 
-<!-- molla/login.html  22 Nov 2019 10:04:03 GMT -->
-</html>
+// Function to fetch CSRF token from cookies
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.startsWith(name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
+      }
+  }
+  return cookieValue;
+}
+
+</script>

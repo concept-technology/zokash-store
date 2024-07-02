@@ -31,7 +31,7 @@
 									</thead>
 
 									<tbody>
-										{% for items in object.cart.all%}
+										{% for items in cart_items %}
 										<tr>
 											<!-- <td>{{forloop.counter}}</td> -->
 											<td class="product-col">
@@ -81,45 +81,42 @@
 
 	    
 	                		</div><!-- End .col-lg-9 -->
-							{% if object.cart %}
+							{% if cart_items %}
 	                		<aside class="col-lg-3">
 	                			<div class="summary summary-cart">
 	                				<h3 class="summary-title">Cart Order</h3><!-- End .summary-title -->
-
+									
 	                				<table class="table table-summary">
+										<form method="post">
+											{% csrf_token %}
+											{{ location_form.as_p }}
+											<button type="submit" class="btn-primary btn">Update Location</button>
+										</form>
+									
 	                					<tbody>
 	                						<tr class="summary-subtotal">
 	                							<td>Subtotal:</td>									
-	                						   {% for items in object.order.all %} 
-												<td>&#8358;{{items.get_total|floatformat:2|intcomma}}</td>					
-												{%endfor%}
-	                						</tr><!-- End .summary-subtotal -->
-	                						<tr class="summary-shipping">
-
+	                						  
+												<td>&#8358;{{order.get_total|floatformat:2|intcomma}}</td>					
 												
-
-	                							<td>Delivery:</td>
-	                							<td>&nbsp;</td>
-	                						</tr>
-
-	                						<tr class="summary-shipping-row"> 
+	                						</tr><!-- End .summary-subtotal -->
+	                					
+	                						 <!-- <tr class="summary-shipping-row"> 
 	                							<td>
 													<div class="custom-control custom-radio">
 														<input type="radio" id="free-shipping" name="shipping" class="custom-control-input">
 														<label class="custom-control-label" for="free-shipping">pay on delivery</label>
-													</div><!-- End .custom-control -->
+													</div>
 	                							</td>
 	                							<td>Not available</td>
-	                						</tr>
+	                						</tr> -->
 
 	                						 <tr class="summary-shipping-row">
-	                							<td>
-	                								<div class="custom-control custom-radio">
-														<input type="radio" id="standart-shipping" name="shipping" class="custom-control-input">
-														<label class="custom-control-label" for="standart-shipping">Standart:</label>
-													</div><!-- End .custom-control -->
-	                							</td>
-	                							<td>0.00</td>
+												
+	                							<td>Delivery:</td>
+	                				
+	                						
+	                							<td>&#8358;{{order.get_delivery_cost|floatformat:2|intcomma}}</td>
 	                						</tr>
 <!-- 
 	                						<tr class="summary-shipping-row">
@@ -133,17 +130,17 @@
 	                						</tr>End .summary-shipping-row --> 
 
 	                						<tr class="summary-shipping-estimate">
-	                							<td>Estimate for Your Country<br> <a href="">Change address</a></td>
+	                							<td>Estimate for Your location<br> <a href="">Change address</a></td>
 
 												
 	                							<td>&nbsp;</td>
 	                						</tr>
 											
-											{% if coupon %}
+											{% if coupon_form %}
 												
 												
 											<td>
-												{% for code in coupon %}													
+																								
 												<form method="post" action="{% url 'store:apply-coupon' %}">
 													{% csrf_token %}
 													<div>
@@ -155,18 +152,20 @@
 											
 													</div>
 												</form>
-												{% endfor %}
+											
 											</td>
 											{% endif %}
 
 	                						<tr class="summary-total">
 	                							<td>Total:</td>
-	                							{% for items in object.order.all %} 
-												<td>&#8358;{{items.get_total|floatformat:2|intcomma}}</td>
-
-
-												
-												{%endfor%}
+	                						
+												<td>			
+													{% if total_with_delivery %}
+													&#8358;{{ total_with_delivery|floatformat:2|intcomma }}
+													{% else %}
+													&#8358; {{ order.get_total|floatformat:2|intcomma }}
+													{% endif %}
+												</td>
 	                						</tr><!-- End .summary-total -->
 	                					</tbody>
 	                				</table><!-- End .table table-summary -->

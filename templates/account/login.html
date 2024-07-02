@@ -71,11 +71,13 @@
             		<div class="form-box">
             			<div class="form-tab">
 	            			<ul class="nav nav-pills nav-fill" role="tablist">
+                      {% if user.is_superuser %}
                       <li class="nav-item">
-                        <a class="nav-link" id="signin-tab-2" href="{% url 'admin:index' %}" role="tab" aria-controls="signin-2" target="_blank">Admin</a>
+                        <a class="nav-link" id="signin-tab-2" href="{% url 'admin:index' %}" role="tab" aria-controls="signin-2" target="_blank">Admin login</a>
                     </li>
+                    {%endif%}
 							    <li class="nav-item">
-							        <a class="nav-link active" id="signin-tab-2" href="{% url 'store:login' %}" role="tab" aria-controls="signin-2" >log in</a>
+							        <a class="nav-link active" id="signin-tab-2" href="{% url 'store:login' %}" role="tab" aria-controls="signin-2" >user login</a>
 							    </li>
 							    <li class="nav-item">
                                     <a class="nav-link " id="register-tab-2" href="{% url 'store:signup' %}" role="tab" aria-controls="register-2">sign up</a>

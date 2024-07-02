@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.contrib.sessions.models import Session
 from star_ratings.models import Rating
-
+import uuid
 # from django.utils import timezone
 
 from django.urls import reverse
@@ -65,17 +65,7 @@ class Features(models.Model):
     def __str__(self) -> str:
         return self.feature1
     
-# size =(
-#     ('500ml', '500ml'),
-#     ('25ml', '25ml'),
-#     ('1L', '1L'),
-#     ('4L', '4L'),
-#     ('10L', '10L'),
-#     ('25L', '25L'),
-    
-    
-    
-# ) 
+ 
 class Size(models.Model):
     size = models.CharField(max_length=10)
     
@@ -143,13 +133,14 @@ class Product(models.Model):
         return next_product
    
 class Cart(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='', null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE,)
     quantity = models.IntegerField(default =1) 
     is_ordered = models.BooleanField(default=False)
     size = models.CharField(max_length=10,blank=True,null=True)
     is_in_cart = models.BooleanField(default=False)
-    
+    cart_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
     
     def get_discount_price(self):
         return self.quantity * self.product.discount_price
@@ -210,8 +201,9 @@ class CustomersAddress(models.Model):
     state = models.CharField(max_length=255)
     telephone = models.CharField(validators=[phone_regex], max_length=17, blank=True)
     zip_code = models.CharField(max_length=20)
-    country = CountryField(multiple=False)
-    message = models.TextField(max_length=500)
+    # country = CountryField(multiple=False)
+    country = models.CharField(max_length=20, default='Nigeria')
+    message = models.TextField(max_length=500, null=True, blank=True)
     # payment_option = models.CharField(max_length=255, choices=payment_choices, blank=True,null=True)
    
     def __str__(self):
@@ -248,17 +240,9 @@ class Payment(models.Model):
     def amount_value(self):
         return int(self.amount) * 100
 
-class ShippingMethod(models.Model):
-    name = models.CharField(max_length=255)
-    cost = models.DecimalField(max_digits=10, decimal_places=2)
-    delivery_time = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f"{self.name} - N{self.cost} (Delivery in {self.delivery_time})"
-
     
    
-    
+   
 
 class Coupon(models.Model):
     code = models.CharField(max_length=50)
@@ -277,9 +261,16 @@ del_status = (
     ('in_progress', 'in_progress'),
     ('delivered', 'delivered'),
 )      
-     
+
+class AbujaLocation(models.Model):
+    location = models.CharField(max_length=255)
+    delivery_cost = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.location
+ 
 class Order(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='' ,null=True, blank=True)
     is_ordered = models.BooleanField(default=False)
     product = models.ManyToManyField(Cart,)
     reference = models.CharField(max_length=50, default='')
@@ -292,11 +283,13 @@ class Order(models.Model):
     refund_granted = models.BooleanField(default=False)
     date = models.DateTimeField(default=timezone.datetime.now())
     delivery_status = models.CharField(max_length=255, default='Processing',choices=del_status)
+    abuja_location = models.ForeignKey(AbujaLocation, on_delete=models.SET_NULL, blank=True, null=True)
+    cart_id = models.UUIDField(null=True, blank=True)
     
     def __str__(self):
         return f" {self.user.username}, address:  {self.Payment}"
     
-
+ 
     # display the quantity in table
     def quantity(self):
         for items in self.product.all():
@@ -333,6 +326,13 @@ class Order(models.Model):
         return self.get_total()
     
  
+    def get_delivery_cost(self):# calculates the delivery cost
+        if self.abuja_location:
+            return self.abuja_location.delivery_cost
+        return 0
+
+    def get_total_with_delivery(self):
+        return self.get_total() + self.get_delivery_cost()
 
 
 class Refunds(models.Model):
@@ -366,3 +366,13 @@ class CustomerRating(models.Model):
 
     def __str__(self):
         return f'{self.rating}'  
+
+class Invoice(models.Model):
+    invoice_number = models.CharField(max_length=50)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
+    issued_at = models.DateTimeField(auto_now_add=True)
+    # Add more fields as per your requirement (e.g., customer information, itemized details, etc.)
+
+    def __str__(self):
+        return self.invoice_number

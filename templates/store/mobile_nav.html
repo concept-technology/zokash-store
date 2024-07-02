@@ -33,8 +33,11 @@
                             <a href="#">Pages</a>
                             <ul>
                                 <li>
-                                    <a href="{% url 'store:refund-request'%}">Refunds</a>         
-                                    <a href="{% url 'admin:index'%}">admin</a>        
+                                    <a href="{% url 'store:refund-request'%}">Refunds</a>
+                                    {% if user.is_superuser %}        
+                                    <a href="{% url 'admin:index'%}">admin</a>
+                                    {%endif%}       
+                                    <a href="{% url 'store:contact'%}">contact</a>        
                                 </li>
                             </ul>
                         </li>

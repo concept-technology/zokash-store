@@ -40,25 +40,30 @@
         
                                                     <tbody>
                                                         
-                                                        {% for orders  in order %}
-                                                        {% for item in cart %}
+                                                       
+                                                        {% for item in order.product.all %}
                                                         <tr>
                                                         <td>{{forloop.counter}}</td>
 														<td>                                                            
                                                                 <img src="{{item.product.img_1.url}}" width="50" class="m-1">
                                                             </td>
                                                             <td>{{ item.product.title }}</td>
-                                                            {% endfor %}                                                       
-                                                            <td >  * {{ orders.quantity }}</td>
-                                                            
-                                                            <td>&#8358;{{ orders.get_total|floatformat:2|intcomma}}</td>
-                                                    </tr>
-                                                    <td>Shipping:</td>
-                                                        <tr class="summary-total">
-                                                            <td>Grand Total:</td>
-                                                            <td>N{{ orders.get_total|floatformat:2|intcomma }}</td>
-                                                            <input type="hidden" name="amount" value="{{orders.get_total}}"/>
+                                                                                                                  
+                                                            <td >  * {{ order.quantity }}</td>
+                                                            <td>&#8358;{{ item.get_price_tag|floatformat:2|intcomma}}</td>
                                                             {%endfor%}
+                                                          
+                                                        </tr>
+                                                        <tr>
+
+                                                            <td>delivery:</td>
+                                                            
+                                                            <td colspan="4">&#8358;{{order.get_delivery_cost|floatformat:2|intcomma}}</td>
+                                                        </tr>
+                                                        <tr class="summary-total">
+                                                            <td>Grand Total: &#8358; {{order.get_total_with_delivery|floatformat:2|intcomma}}</td>
+                                                            <td></td>
+                                                            <input type="hidden" name="amount" value="{{order.get_total_with_delivery}}"/>
                                                             <input type="hidden" value="{{user.email}}" name="email" />
              		
                                                         </tr><!-- End .summary-total -->

@@ -1,5 +1,7 @@
+import requests
 import secrets
-from django.http import JsonResponse
+import uuid
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.shortcuts import render
 from django.shortcuts import redirect, render
@@ -18,11 +20,118 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.conf import settings
 import random
 import string
-from django.contrib.sessions.models import Session
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 import logging
 from django.template.loader import render_to_string
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+import random
+# views.py
+from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
+# apps.py
+from django.apps import AppConfig
+
+
+class MyStoreConfig(AppConfig):
+    name = 'my_store'
+
+    def ready(self):
+        import my_store.signals
+
+# next_url = request.GET.get('next')  # Define next_url early in the code
+#     messages.success(request, 'Coupon is applied')
+#                 if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+#                     return redirect(next_url)
+
+
+class DashBoardView(View):
+    def get(self, request, *args, **kwargs):
+        profile_form = UserProfileForm(instance=self.request.user)
+        password_form = PasswordChangeForm(self.request.user)
+        cart = Cart.objects.filter(user=self.request.user, is_ordered=True)
+        order = Order.objects.filter(user=self.request.user, is_ordered=True).order_by('id')
+        
+        # Handle case where address might not exist
+        address = CustomersAddress.objects.filter(user=self.request.user).first()
+        address_form = AddressForm(instance=address) if address else AddressForm()
+        
+        context = {
+            'profile_form': profile_form,
+            'password_form': password_form,
+            'orders': order,
+            'cart': cart,
+            'address': address,
+            'address_form': address_form,
+        }
+        return render(self.request, 'store/dashboard.html', context)
+    
+    def post(self, request, *args, **kwargs):
+        profile_form = UserProfileForm(self.request.POST, instance=self.request.user)
+        password_form = PasswordChangeForm(self.request.user, self.request.POST)
+        
+        # Handle case where address might not exist
+        address = CustomersAddress.objects.filter(user=self.request.user).first()
+        address_form = AddressForm(self.request.POST, instance=address) if address else AddressForm(self.request.POST)
+        
+        if 'update_profile' in self.request.POST and profile_form.is_valid():
+            profile_form.save()
+            messages.success(self.request, 'Your profile has been updated successfully!')
+            return redirect('store:dash-board')
+        
+        elif 'change_password' in self.request.POST and password_form.is_valid():
+            user = password_form.save()
+            update_session_auth_hash(self.request, user)  # Important!
+            messages.success(self.request, 'Your password has been changed successfully!')
+            return redirect('store:dash-board')
+        
+        elif 'update_address' in self.request.POST and address_form.is_valid():
+            address_form.save(commit=False)
+            address_form.instance.user = self.request.user  # Ensure the address is linked to the current user
+            address_form.save()
+            messages.success(self.request, 'Your address has been updated successfully!')
+            return redirect('store:dash-board')
+        
+        # Handle invalid forms
+        if not profile_form.is_valid():
+            messages.error(self.request, 'There was an error updating your profile.')
+        if not password_form.is_valid():
+            messages.error(self.request, 'There was an error changing your password.')
+        if not address_form.is_valid():
+            messages.error(self.request, 'There was an error updating your address.')
+
+        # Re-render the page with the forms and error messages
+        context = {
+            'profile_form': profile_form,
+            'password_form': password_form,
+            'orders': Order.objects.filter(user=self.request.user, is_ordered=True).order_by('id'),
+            'cart': Cart.objects.filter(user=self.request.user, is_ordered=True),
+            'address': address,
+            'address_form': address_form,
+        }
+        return render(self.request, 'store/dashboard.html', context)
+   
+    
+
+
+
+
+
+def generate_random_number(digits=10):
+    if digits > 10:
+        raise ValueError("The number of digits should not exceed 10")
+    if digits < 1:
+        raise ValueError("The number of digits should be at least 1")
+        
+    lower_bound = 10**(digits - 1)
+    upper_bound = 10**digits - 1
+    
+    return random.randint(lower_bound, upper_bound)
 
 def create_ref_code():#generate order reference code
     return ''.join(random.choices(string.ascii_lowercase + string.digits,k=15))
@@ -42,10 +151,8 @@ class StoreView(ListView):
         return context   
 
 
-
-from django.core.paginator import Paginator
-from django.shortcuts import render
-from .models import Product, Category
+def contact_view(request):
+    return render(request, 'store/contact.html')
 
 def ProductCategories_view(request):
     if request.method == 'GET':
@@ -153,15 +260,7 @@ def product_list_by_category(request, slug):
     return render(request, 'store/product_list_by_category.html', context)
 
 
-@login_required
-def dash_board(request):   
-  
-    cart = Cart.objects.filter(user=request.user, is_ordered=True)
-    order = Order.objects.filter(user=request.user, is_ordered=True,).order_by('id')
-    
-    context = {'orders':order, 'cart':cart}
-    return render(request, 'store/dashboard.html', context)
-       
+     
 
 def logout_view(request):
     logout(request)
@@ -182,31 +281,78 @@ class HomeView(ListView):
     template_name = 'store/index.html'
     paginate_by= 6
 
- 
-    
+
 
 class CartView(LoginRequiredMixin, View):
-    def get(self, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         try:
-            form = CouponForm(self.request.POST)
-            delivery = ShippingMethodForm(self.request.POST)
-            order = Order.objects.filter(user=self.request.user, is_ordered=False)
-            cart = Cart.objects.filter(user=self.request.user, is_ordered=False) # filter cart by user
-            coupon = Coupon.objects.filter(active=True)
-            context = {
-                'coupon': coupon,
-                'delivery_form':delivery,
-                'coupon_form':form,
-                'object':{
-                    'cart':cart, 'order':order
-                }
-            }
-            return render(self.request, 'store/cart.html', context )
-        except ObjectDoesNotExist:
-            messages.error(self.request, 'you dont have an active order')
-            return redirect('store:categories')
+            coupon_form = CouponForm()
+            location_form = AbujaLocationForm()
 
- 
+            order = Order.objects.filter(user=request.user, is_ordered=False).first()
+            cart_items = Cart.objects.filter(user=request.user, is_ordered=False)
+            # cart_items = request.session.get('cart', {})
+            coupons = Coupon.objects.filter(active=True)
+            locations = AbujaLocation.objects.all()
+
+            context = {
+                'coupon_form': coupon_form,
+                'location_form': location_form,
+                'locations': locations,
+                'coupons': coupons,
+                'order': order,
+                'cart_items': cart_items,
+                'total_with_delivery': order.get_total_with_delivery() if order else 0,
+            }
+
+            return render(request, 'store/cart.html', context)
+        
+        except ObjectDoesNotExist:
+            messages.error(request, 'You do not have an active order.')
+            return redirect('store:categories')
+        
+    def post(self, request, *args, **kwargs):
+        try:
+            order = Order.objects.filter(user=request.user, is_ordered=False).first()
+            coupon_form = CouponForm(request.POST)
+            location_form = AbujaLocationForm(request.POST)
+            
+            if coupon_form.is_valid():
+                coupon_code = coupon_form.cleaned_data['code']
+                try:
+                    coupon = Coupon.objects.get(code=coupon_code, active=True)
+                    order.coupon = coupon
+                    order.save()
+                    messages.success(request, 'Coupon applied successfully.')
+                except Coupon.DoesNotExist:
+                    messages.error(request, 'Invalid coupon code.')
+
+            if location_form.is_valid():
+                location_id = location_form.cleaned_data['location']
+                abuja_location = AbujaLocation.objects.get(id=location_id)
+                order.abuja_location = abuja_location
+                order.save()
+                messages.success(request, 'Delivery location updated successfully.')
+
+            cart_items = Cart.objects.filter(user=request.user, is_ordered=False)
+            coupons = Coupon.objects.filter(active=True)
+            locations = AbujaLocation.objects.all()
+          
+            context = {
+                'coupon_form': coupon_form,
+                'location_form': location_form,
+                'locations': locations,
+                'coupons': coupons,
+                'order': order,
+                'cart_items': cart_items,
+                'total_with_delivery': order.get_total_with_delivery() if order else 0,
+            }
+
+            return render(request, 'store/cart.html', context)
+
+        except ObjectDoesNotExist:
+            messages.error(request, 'You do not have an active order.')
+            return redirect('store:categories')
 
 def add_to_cart(request, slug):
     product = get_object_or_404(Product, slug=slug)
@@ -216,9 +362,10 @@ def add_to_cart(request, slug):
 
         if cart_qs.exists():
             cart_item = cart_qs.first()
-            cart_item.is_in_cart =True
+            cart_item.is_in_cart = True
+              # Increment the quantity
             cart_item.save()
-            messages.success(request, f"Updated {product.title} quantity in cart")
+            messages.error(request, f"{product.title} is already in cart")
         else:
             cart_item = Cart.objects.create(
                 user=request.user,
@@ -259,13 +406,18 @@ def add_to_cart(request, slug):
             messages.success(request, f"{product.title} is added to cart")
 
         request.session['cart'] = cart
+        request.session.modified = True  # Ensure session is saved
+        print(f"Session ID: {request.session.session_key}")  # Debug statement
+        print(f"Session cart after modification: {request.session['cart']}")  # Debug statement
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'cart': request.session.get('cart', {})})
 
     next_url = request.GET.get('next')
     if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
         return redirect(next_url)
 
     return redirect("store:index")
-
 
 
 
@@ -295,86 +447,76 @@ def delete_cart(request, slug,):
         return redirect('store:index',)
     # return redirect('store:store_item', slug=slug)
 
- 
-#increase cart quantity 
-@login_required
-def increase_cart_quantity(request, slug):
-    product = get_object_or_404(Product, slug=slug,)
-    cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)[0]
-    order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-    if  order_qs.exists():
-        orders =    order_qs[0]
-        if orders.product.filter(product__slug=product.slug).exists():
-            cart.quantity +=1
-            cart.save()         
-            return redirect('store:cart', )       
-        else:
-            return redirect('store:cart',)
-    else:       
-        return redirect('store:cart',)
 
 
-#reduce cart quantity 
 @login_required
-def reduce_cart_quantity(request, slug):
-    product = get_object_or_404(Product, slug=slug,)
-    cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)[0]
-    order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-    if  order_qs.exists():
-        orders =    order_qs[0]
-        if orders.product.filter(product__slug=product.slug).exists():
-            cart.quantity -=1
-            if cart.quantity >=1:
-                cart.save()
-            elif cart.quantity ==0:
-                cart.delete()      
-            return redirect('store:cart')       
-        else:
-            return redirect('store:cart',)
-    else:       
-        return redirect('store:cart',)
-    # return redirect('store:store_item', slug=slug)
-  
 def verify_address(request):
-    user = CustomersAddress.objects.all().filter(user=request.user)
-    order = Order.objects.filter(user= request.user, is_ordered=False)
+    # Fetch user's addresses
+    user_addresses = CustomersAddress.objects.filter(user=request.user)
+    
+    # Fetch current order details
+    orders = Order.objects.filter(user=request.user, is_ordered=False)
+    
+    total_order_cost = 0
+    total_delivery_cost = 0
+    total_cost_with_delivery = 0
+    order = None
+    order_items = []
+    coupon = None
+
+    if orders.exists():
+        order = orders.first()
+        total_order_cost = order.get_total()  # Assuming get_total() method calculates total cost
+        total_delivery_cost = order.get_delivery_cost()  # Assuming get_delivery_cost() method calculates delivery cost
+        total_cost_with_delivery = total_order_cost + total_delivery_cost
+        order_items = order.product.all()  # Access the related products directly from the order
+        if order.coupon:
+            coupon = order.coupon
+
     context = {
-        'address': user,
-        'order': order
-     }   
-    return render(request, 'store/check-user-address.html', context)    
- 
+        'addresses': user_addresses,
+        'order': order,
+        'total_order_cost': total_order_cost,
+        'total_delivery_cost': total_delivery_cost,
+        'total_cost_with_delivery': total_cost_with_delivery,
+        'order_items': order_items,
+        'coupon': [coupon] if coupon else None,
+    }
+    
+    return render(request, 'store/check-user-address.html', context)
 
-
-# check out view
+# checkout view
 class CheckoutView(View):
     def get(self, *args, **kwargs):
         form = AddressForm(self.request.POST or None)
         coupon = Coupon.objects.filter(active=True)
 
-        order = Order.objects.filter(user=self.request.user, is_ordered=False)
-        cart= Cart.objects.filter(user=self.request.user, is_ordered=False)
-        address =CustomersAddress.objects.filter(user=self.request.user)
+        order = Order.objects.filter(user=self.request.user, is_ordered=False).first()
+        cart = Cart.objects.filter(user=self.request.user, is_ordered=False)
+        address = CustomersAddress.objects.filter(user=self.request.user)
+        
         context = {
-            'coupon':coupon,
-            'order':{
+            'coupon': coupon,
+            'order': {
                 'form': form,
                 'order': order,
                 'cart': cart,
-                'coupon':CouponForm
+                'coupon': CouponForm()
             }
         }
+
         if address.exists():
             return redirect('store:verify-address')
         return render(self.request, 'store/checkout.html', context)
+ 
     
     def post(self, *args, **kwargs):
         form = AddressForm(self.request.POST or None)
         
         try:
             order = Order.objects.get(user=self.request.user, is_ordered=False)
+            
 
-                     
             if form.is_valid():
                 street_address = form.cleaned_data.get('street_address')
                 apartment = form.cleaned_data.get('apartment')
@@ -382,88 +524,147 @@ class CheckoutView(View):
                 state = form.cleaned_data.get('state')
                 country = form.cleaned_data.get('country')
                 zip_code = form.cleaned_data.get('zip_code')
-                payment_option = form.cleaned_data.get('payment_option')
-                billing_address = CustomersAddress.objects.create(user=self.request.user,
-                            order=order,                                     
-                            street_address=street_address,
-                            apartment=apartment, town=town,
-                            state=state, country=country,
-                            zip_code=zip_code,)
-                            # payment_option=payment_option)              
-                order.shipping_address= billing_address
+                # payment_option = form.cleaned_data.get('payment_option')
+                billing_address = CustomersAddress.objects.create(
+                    user=self.request.user,
+                    order=order,
+                    street_address=street_address,
+                    apartment=apartment,
+                    town=town,
+                    state=state,
+                    country=country,
+                    zip_code=zip_code,
+                )
+                
+                order.shipping_address = billing_address
                 order.save()
                 return redirect('store:initiate_payment')
-            messages.warning(self.request, 'order failed')
-            return(redirect('store:cart', ))
+            print(order)
+            messages.warning(self.request, 'Order failed')
+            return redirect('store:cart')
                   
         except ObjectDoesNotExist:
-            messages.error(self.request, 'you dont have an active order')
+            messages.error(self.request, 'You do not have an active order')
             return redirect('store:categories')
 
-def Update_addressView(request,pk):
+# next_url = request.GET.get('next')  # Define next_url early in the code
+ 
+
+def Update_addressView(request):
+    next_url = request.GET.get('next')  # Define next_url early in the code
+    template_name = request.GET.get('template', 'store/update_address.html')  # Default template
+    
     address = CustomersAddress.objects.get(user=request.user)
     if request.method == 'POST':
         form = AddressForm(request.POST, instance=address)
         if form.is_valid():
             form.save()
-            messages.success(request, 'your address is updated')
-            return redirect('store:verify-address')
-    else:
-        form = AddressForm(instance=address)
+            messages.success(request, 'Your address has been updated.')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
+            messages.error(request, 'error updating your address')
+            return redirect('store:index')
+    # else:
+    #     form = AddressForm(instance=address)
     
-    context = {
-        'form': form,
-        'address': address
-    }
-    return render(request, 'store/update_address.html', context)
-
+    # context = {
+    #     'form': form,
+    #     'address': address
+    # }
+    return redirect('store:categories-list')
 
 def initiate_payment(request):
     order = Order.objects.get(is_ordered=False, user=request.user)
-    cart =Cart.objects.filter(user=request.user, is_ordered=False)
+    cart = Cart.objects.filter(user=request.user, is_ordered=False)
+
     if request.method == "POST":
         amount = request.POST['amount']
         email = request.POST['email']
         pk = settings.PAYSTACK_PUBLIC_KEY
 
-        payment = Payment.objects.create(amount=int(amount), email=email,order=order, user=request.user)
+        # Convert amount to float instead of int
+        payment = Payment.objects.create(amount=float(amount), email=email, order=order, user=request.user)
         payment.save()
+
         context = {
             'payment': payment,
             'field_values': request.POST,
             'paystack_pub_key': pk,
             'amount_value': payment.amount_value(),
-            'order':order         
+            'order': order         
         }
         
         return render(request, 'store/make-payment.html', context)
 
-    return render(request, 'store/payment.html',
-                  {'order':Order.objects.filter(is_ordered=False, 
-                    user=request.user).order_by('id'),'cart':cart})
+    return render(request, 'store/payment.html', {'order': order, 'cart': cart})
 
-def verify_payment(request, ref):   
-    order = Order.objects.filter(is_ordered= False, user=request.user)[0] 
-    payment = Payment.objects.get(ref=ref,)
 
-    if payment.amount == order.get_total():
-        payment.verified = True
-        payment.save()
-        
-        order_product = order.product.all()
-        order_product.update(is_ordered=True)
-        for items in order_product:
-            items.save()       
-        order.is_ordered = True
-        order.Payment = payment
-        order.reference = create_ref_code()
-        order.save()
-        
-        
-        return render(request, 'store/success.html',)  
-    return redirect('')  
-    
-                        
+def verify_payment(request, ref):
+    try:
+        order = Order.objects.get(is_ordered=False, user=request.user)
+        payment = Payment.objects.get(ref=ref)
+
+        paystack_secret_key = settings.PAYSTACK_SECRET_KEY
+        verify_url = f'https://api.paystack.co/transaction/verify/{ref}'
+        headers = {
+            'Authorization': f'Bearer {paystack_secret_key}',
+            'Content-Type': 'application/json',
+        }
+
+        response = requests.get(verify_url, headers=headers, timeout=30)
+
+        if response.status_code == 200:
+            data = response.json()
+            paystack_amount = data['data']['amount'] / 100  # Convert kobo to naira
+            expected_amount = order.get_total_with_delivery()
+
+            if paystack_amount == expected_amount and data['data']['status'] == 'success':
+                payment.verified = True
+                payment.save()
+
+                # Mark order products as ordered
+                order_products = order.product.all()
+                order_products.update(is_ordered=True)
+
+                # Update order status and create invoice
+                order.is_ordered = True
+                order.payment = payment
+                order.reference = create_ref_code()  # Assuming you have a function to create a reference code
+                order.save()
+
+                # Create invoice
+                invoice = Invoice.objects.create(
+                    invoice_number=generate_random_number(),  # Define/create your own function for generating invoice numbers
+                    order=order,
+                    payment=payment,
+                    issued_at=timezone.now()
+                    # Add more fields as needed
+                )
+                invoice.save()
+                # Optionally, you can save additional invoice details here
+                
+                return render(request,'store/success.html', {'invoice': invoice, 'order': order, 'payment': payment})
+            else:
+                return render(request, 'store/payment_not_successful.html')
+
+        else:
+            print(f"Failed to verify payment. Status code: {response.status_code}, Paystack response: {response.text}")
+            return JsonResponse({'status': 'error', 'message': 'Failed to verify payment.'})
+
+    except Order.DoesNotExist:
+        print("Order does not exist for the user.")
+        return JsonResponse({'status': 'error', 'message': 'Order does not exist for the user.'})
+    except Payment.DoesNotExist:
+        print("Payment does not exist for the reference.")
+        return JsonResponse({'status': 'error', 'message': 'Payment does not exist for the reference.'})
+    except requests.exceptions.RequestException as e:
+        print(f"Error verifying payment: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': f"Error verifying payment: {str(e)}"})
+
+
+
+def success_page(request):
+    return render(request, 'store/success.html')                      
 
 class RequestRefund(View):
     
@@ -495,7 +696,8 @@ class RequestRefund(View):
                 return redirect('store:index')
         messages.error(self.request, 'invalid order')
         return redirect('store:index')
- 
+
+
 
 def apply_coupon(request):
     next_url = request.GET.get('next')  # Define next_url early in the code
@@ -564,22 +766,6 @@ class DeliveryUpdate(View):
         
 
 
-
-def select_shipping_method(request):
-    if request.method == 'POST':
-        form = ShippingMethodForm(request.POST)
-        if form.is_valid():
-            shipping_method = form.cleaned_data.get('shipping_method')
-            order = get_object_or_404(Order, user=request.user, is_ordered=False)
-            order.shipping_method = shipping_method
-            order.shipping_cost = shipping_method.cost
-            order.save()
-            messages.success(request, 'Shipping method selected.')
-            return redirect('store:order_summary')
-    else:
-        form = ShippingMethodForm()
-    return render(request, 'store/select_shipping_method.html', {'form': form})
-
 def order_summary(request):
     order = get_object_or_404(Order, user=request.user, is_ordered=False)
     context = {
@@ -630,20 +816,26 @@ def search_view(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
-    try:
-        is_in_cart = Cart.objects.filter(product=product, is_ordered=False, user=request.user)
-    except Cart.DoesNotExist:
+
+    # Check if the user is authenticated
+    if request.user.is_authenticated:
+        try:
+            is_in_cart = Cart.objects.filter(product=product, is_ordered=False, user=request.user)
+        except Cart.DoesNotExist:
+            is_in_cart = None
+        user_rating = CustomerRating.objects.filter(user=request.user, product=product).first()
+    else:
         is_in_cart = None
+        user_rating = None
 
     ratings = product.ratings.all()
     average_rating = product.average_rating()
-    user_rating = CustomerRating.objects.filter(user=request.user, product=product).first()
     now = timezone.now()
     all_user_rating = product.ratings.filter(product=product)
     next_product = product.get_next_product()
     related_products = product.get_related_products()  # Fetch related products
 
-    if request.method == 'POST':
+    if request.method == 'POST' and request.user.is_authenticated:
         if user_rating:
             rating_form = CustomerRatingForm(request.POST, instance=user_rating)
         else:
@@ -658,7 +850,7 @@ def product_detail(request, slug):
         if user_rating:
             rating_form = None
         else:
-            rating_form = CustomerRatingForm()
+            rating_form = CustomerRatingForm() if request.user.is_authenticated else None
 
     context = {
         'user_rating': user_rating,
@@ -674,6 +866,7 @@ def product_detail(request, slug):
         'related_products': related_products,  # Add related products to context
     }
     return render(request, 'store/product_detail.html', context)
+
 
 logger = logging.getLogger('django')
 

@@ -27,21 +27,16 @@
                 </div><!-- End .header-search -->
             </div>
 
+            {%if user.is_authenticated %}
             <div class="header-right">
                 <div class="account">
                     <a href="{% url 'store:dash-board' %}" title="My account">
                         <div class="icon">
                             <i class="icon-user"></i>
                         </div>
-                        {%if user.is_authenticated %}
                         <p>hello! {{user}}</p>
-                        {%else%}
-                        <!-- <a href="{% url 'store:signup'%}"> -->
-                            <p>
-                                signup or login
-                            </p>
+                  
                         <!-- </a> -->
-                        {% endif%}
                     </a>
                 </div><!-- End .compare-dropdown -->
 
@@ -59,7 +54,7 @@
                     <a href="{% url 'store:cart' %}" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
                         <div class="icon">
                             <i class="icon-shopping-cart"></i>
-                            <span class="cart-count" style="background-color: blue ; color:aliceblue">{{request.user|cart_item_count}}</span>
+                            <span class="cart-count" style="background-color: rgb(166, 166, 226) ; color:aliceblue">{%cart_item_count%}</span>
                         </div>
                         <p>Cart</p>
                     </a>
@@ -110,6 +105,71 @@
                     </div><!-- End .cart-dropdown -->
             </div><!-- End .header-right -->
         </div><!-- End .container -->
+        {%else%}
+        <!-- <a href="{% url 'store:signup'%}"> -->
+          <div class="header-right">
+            <!-- <a href="{% url 'account_login'%}" class="btn btn-secondaty">Login</a> -->
+            <a href="{% url 'account_signup'%}" class="btn secondary">sign up</a>
+          
+            <div class="dropdown cart-dropdown">
+                <a href="{% url 'store:cart' %}" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
+                    <div class="icon">
+                        <i class="icon-shopping-cart"></i>
+                        <span class="cart-count" style="background-color: rgb(162, 162, 236) ; color:aliceblue">{%cart_item_count%}</span>
+                    </div>
+                    <p>Cart</p>
+                </a>
+
+                <div class="dropdown-menu dropdown-menu-right">
+                    <div class="dropdown-cart-products">
+                        {% for cart in user|cart_total%}
+                        
+                                                    
+                        
+                        <div class="product">
+                            <div class="product-cart-details">
+                                <h4 class="product-title">
+                                    <a href="{{cart.product.get_absolute_url}}">{{cart.product.title}}</a>
+                                </h4>
+                                {% if cart.product.discount_price %}
+                                <span class="cart-product-info">
+                                    <span class="cart-product-qty">price: </span>
+                                    &#8358;{{cart.product.discount_price|floatformat:2|intcomma}}
+                                </span>
+                                {% else%}
+                               <span>{{cart.product.price|floatformat:2|intcomma}}</span> 
+                                {% endif%}
+                               
+                            </div><!-- End .product-cart-details -->
+                            <figure class="product-image-container">
+                                <a href="{{cart.product.get_absolute_url}}" class="product-image">
+                                    <img src="{{cart.product.img_1.url}}" alt="{{cart.product.title}}">
+                                </a>
+                            </figure>
+                            <a href="{{cart.product.delete_cart}}" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
+                        </div><!-- End .product -->
+                        {%endfor%}
+                        {% if user|cart_total%}
+                        <div class="dropdown-cart-tot??al"> 
+                            <!-- <span>Total</span> -->
+                            <!-- <span class="cart-total-price">$</span> -->
+                        </div>
+                        <div class="dropdown-cart-action">
+                            <a href="{% url 'store:cart' %}" class="btn btn-primary">View Cart</a>
+                            <a href="{% url 'store:check-out'%}" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
+                        </div><!-- End .dropdown-cart-total -->
+                        {% else %}
+                        <p>you have no items in cart <a href="{%url 'store:categories-list'%}">start Shopping</a></p>
+                        {%endif%}
+
+                    </div><!-- End .dropdown-menu -->
+                </div><!-- End .cart-dropdown -->
+        </div><!-- End .header-right -->
+        </div>
+
+
+        {% endif%}
+
     </div><!-- End .header-middle -->
 
     <div class="header-bottom sticky-header">
@@ -152,7 +212,7 @@
 
                                 </li>
                                 <li>
-                                    <a href="" >Contact</a>
+                                    <a href="{% url 'store:contact'%}" >Contact</a>
 
                                    <a href="{% url 'admin:index' %}">admin</a>
                                 </li>

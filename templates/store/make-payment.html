@@ -13,8 +13,9 @@
 											<h6>welcome to paystack gateway,<br class="m-2">you are about to pay the sum of &#8358;{{ payment.amount|floatformat:2|intcomma }} for your order</h6>
 										</transaction>
 										<div>
+											
 											<button onclick="payWithPaystack()" class="btn btn-primary btn-primary mb-4">Pay</button>			
-											<a class="btn mb-4" href="{% url 'store:cart'%}">cancel</a>			
+													
 										</div>
 										
 							</div><!-- End .form-box -->
@@ -49,6 +50,7 @@
 			amount: "{{ amount_value }}",
 			ref: ref,
 			callback: function (response) {
+				showLoadingIndicator()
 				window.location.href = "{% url 'store:verify_payment' payment.ref %}";
 			},
 		};
@@ -62,8 +64,75 @@
 		var handler = PaystackPop.setup(obj);
 		handler.openIframe();
 	}
+
+
+
+	function showLoadingIndicator() {
+        // Disable all buttons to prevent further clicks
+        var buttons = document.querySelectorAll('button');
+        buttons.forEach(function(button) {
+            button.disabled = true;
+        });
+
+        // Show loading indicator (you can customize this based on your UI)
+        var loader = document.getElementById('loading-indicator');
+        if (loader) {
+            loader.style.display = 'block';
+        }
+    }
+
+    // Function to enable buttons and hide loading indicator
+    function hideLoadingIndicator() {
+        // Enable all buttons
+        var buttons = document.querySelectorAll('button');
+        buttons.forEach(function(button) {
+            button.disabled = false;
+        });
+
+        // Hide loading indicator
+        var loader = document.getElementById('loading-indicator');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    }
+
+	
+		function verifyPayment(ref) {
+			// Show loading indicator
+			document.getElementById('loading-indicator').style.display = 'block';
+	
+			fetch(`/verify-payment/${ref}/`, {
+				method: 'GET',
+				headers: {
+					'X-Requested-With': 'XMLHttpRequest'
+				}
+			})
+			.then(response => response.json())
+			.then(data => {
+				// Hide loading indicator
+				document.getElementById('loading-indicator').style.display = 'none';
+	
+				if (data.status === 'success') {
+					// Redirect to success page
+					window.location.href = data.redirect_url;
+				} else {
+					alert(data.message);
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				document.getElementById('loading-indicator').style.display = 'none';
+			});
+		}
+
+	
+
 </script>
+
+
+
 
 {% endblock content %}
 
 
+this is my html template
