@@ -6,7 +6,6 @@ from django.conf import settings
 from django.views.static import serve
 
 urlpatterns = [
-    path('jet_api/', include('jet_django.urls')),
     path('admin/', admin.site.urls, name='admin',),
     path('accounts/', include('allauth.urls')),
     path('', include('my_store.urls')),

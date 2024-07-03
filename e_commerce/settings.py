@@ -3,23 +3,15 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
-
-
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 load_dotenv()
 
-
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-# DEBUG = os.environ.get('DEBUG', 'True').lower() in ['true', '1', 't']
+DEBUG = True
 
-
-ALLOWED_HOSTS = ['*','127.0.0.1', 'localhost', '10.0']
-
-DEBUG =True
+ALLOWED_HOSTS = ['*', '127.0.0.1', 'localhost', '10.0']
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
@@ -32,7 +24,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'jazzmin',
     'django.contrib.admin',
     'gunicorn',
     'dj_database_url',
@@ -55,16 +46,10 @@ INSTALLED_APPS = [
     'star_ratings',
     'django.contrib.humanize',
     'requests',
-
-    
-
 ]
-JET_PROJECT = 'zokash_store'
-JET_TOKEN = '9f4215e4-7ae2-44b8-8f57-fb2b1944485a'
-
 
 MIDDLEWARE = [
-    'django.middlewa re.security.SecurityMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
@@ -75,12 +60,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
 ]
-
-if not DEBUG:
-    MIDDLEWARE += [
-        'django.middleware.security.SecurityMiddleware',
-    ]
-
 
 ROOT_URLCONF = 'e_commerce.urls'
 
@@ -101,23 +80,23 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'e_commerce.wsgi.application'
-database_url ='postgresql://zokash_household_db_user:uP97E5oviM7edStflqy0INmGj5PNFqgz@dpg-cq2acj3v2p9s73ep9stg-a.oregon-postgres.render.com/zokash_household_db'
+
+database_url = 'postgresql://zokash_household_db_user:uP97E5oviM7edStflqy0INmGj5PNFqgz@dpg-cq2acj3v2p9s73ep9stg-a.oregon-postgres.render.com/zokash_household_db'
 
 if DEBUG:
     DATABASES = {
-    'default': dj_database_url.config(
-        default=database_url,
-        conn_max_age=600,
-    )
+        'default': dj_database_url.config(
+            default=database_url,
+            conn_max_age=600,
+        )
     }
 else:
-      DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-    )
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+        )
     }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -143,21 +122,17 @@ USE_L10N = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-
-# DEFAULT_FILE_STORAGE = os.path.join(BASE_DIR, 'media')
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 STORAGES = {
-    # ...
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -193,7 +168,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 1
 }
 
-
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() in ['true', '1', 't']
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
@@ -204,9 +178,9 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 DEBUG_PROPAGATE_EXCEPTIONS = True
 
 # Custom settings
-STAR_RATINGS_STAR_HEIGHT = 20  # Height of each star in pixels
-STAR_RATINGS_STAR_WIDTH = 20   # Width of each star in pixels
-STAR_RATINGS_RERATE = False    # Users can only rate once
+STAR_RATINGS_STAR_HEIGHT = 20
+STAR_RATINGS_STAR_WIDTH = 20
+STAR_RATINGS_RERATE = False
 SITE_ID = 1
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -235,7 +209,3 @@ ACCOUNT_FORMS = {
     'signup': 'allauth.account.forms.SignupForm',
     'user_token': 'allauth.account.forms.UserTokenForm',
 }
-
-JET_PROJECT = 'zokash_store'
-JET_TOKEN = '9f4215e4-7ae2-44b8-8f57-fb2b1944485a'
-
