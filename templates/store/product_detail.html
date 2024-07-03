@@ -193,8 +193,11 @@
                                                     {% endif %}
                                                 </ul>
                                                 {% endif %}
-
-                                                <h3>Size: {{ product.size }}</h3>
+                                            </div><!-- End .product-desc-content -->
+                                        </div><!-- End .card-body -->
+                                        {%for siz in product.size.all %}
+                                                <h3>Size: {{ siz.size }}</h3>
+                                        {%endfor%}
                                             </div><!-- End .product-desc-content -->
                                         </div><!-- End .card-body -->
                                     </div><!-- End .collapse -->

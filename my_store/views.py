@@ -154,6 +154,7 @@ class StoreView(ListView):
 def contact_view(request):
     return render(request, 'store/contact.html')
 
+
 def ProductCategories_view(request):
     if request.method == 'GET':
         # Get filter parameters from the request
@@ -164,7 +165,7 @@ def ProductCategories_view(request):
         description_filter = request.GET.get('description')
 
         # Get all products and apply filters
-        products = Product.objects.select_related('category').all()
+        products = Product.objects.select_related('category').all().order_by('id')  # Order the QuerySet by 'id'
 
         if category_filter:
             products = products.filter(category__id=category_filter)
@@ -182,10 +183,10 @@ def ProductCategories_view(request):
             products = products.filter(description__icontains=description_filter)
 
         # Get all categories for the filter menu
-        categories = Category.objects.all()
+        categories = Category.objects.all().order_by('title')
 
         # Implement pagination
-        paginator = Paginator(products, 10)  # Show 2 products per page
+        paginator = Paginator(products, 10)  # Show 10 products per page
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
@@ -208,56 +209,63 @@ def ProductCategories_view(request):
         return render(request, 'store/category.html', context)
 
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 def product_list_by_category(request, slug):
-    category = get_object_or_404(Category, slug=slug)
-    products = Product.objects.filter(category=category)
-    sizes = Size.objects.all().distinct()  # Get unique sizes
-
-    min_price = request.GET.get('min_price')
-    max_price = request.GET.get('max_price')
-    size_id = request.GET.get('size')
-
-    if min_price and max_price:
-        products = products.filter(price__gte=min_price, price__lte=max_price)
-    
-    if size_id:
-        products = products.filter(size__id=size_id)
-
-    products_with_ratings = [
-        {
-            'product': product,
-            'average_rating': product.average_rating()
-        }
-        for product in products
-    ]
-
-    # Pagination
-    page = request.GET.get('page', 1)
-    paginator = Paginator(products_with_ratings, 10)  # Show 10 products per page
-
     try:
-        paginated_products = paginator.page(page)
-    except PageNotAnInteger:
-        paginated_products = paginator.page(1)
-    except EmptyPage:
-        paginated_products = paginator.page(paginator.num_pages)
+        category = get_object_or_404(Category, slug=slug)
+        products = Product.objects.filter(category=category).order_by('id')  # Order the QuerySet by 'id'
+        sizes = Size.objects.all().distinct()  # Get unique sizes
 
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        html = render_to_string('store/product_list.html', {'products_with_ratings': paginated_products})
-        return JsonResponse({'html': html})
+        min_price = request.GET.get('min_price')
+        max_price = request.GET.get('max_price')
+        size_id = request.GET.get('size')
 
-    context = {
-        'category': category,
-        'products': products,
-        'products_with_ratings': paginated_products,
-        'min_price': min_price,
-        'max_price': max_price,
-        'size_id': size_id,
-        'sizes': sizes,
-        'product_count': products.count(),
-    }
-    return render(request, 'store/product_list_by_category.html', context)
+        if min_price and max_price:
+            products = products.filter(price__gte=min_price, price__lte=max_price)
+
+        if size_id:
+            products = products.filter(size__id=size_id)
+
+        products_with_ratings = [
+            {
+                'product': product,
+                'average_rating': product.average_rating()
+            }
+            for product in products
+        ]
+
+        # Pagination
+        page = request.GET.get('page', 1)
+        paginator = Paginator(products_with_ratings, 10)  # Show 10 products per page
+
+        try:
+            paginated_products = paginator.page(page)
+        except PageNotAnInteger:
+            paginated_products = paginator.page(1)
+        except EmptyPage:
+            paginated_products = paginator.page(paginator.num_pages)
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            html = render_to_string('store/product_list.html', {'products_with_ratings': paginated_products})
+            return JsonResponse({'html': html})
+
+        context = {
+            'category': category,
+            'products': products,
+            'products_with_ratings': paginated_products,
+            'min_price': min_price,
+            'max_price': max_price,
+            'size_id': size_id,
+            'sizes': sizes,
+            'product_count': products.count(),
+        }
+        return render(request, 'store/product_list_by_category.html', context)
+    except Exception as e:
+        logger.error(f"Error in product_list_by_category: {e}")
+        return render(request, 'store/error.html', {'message': 'An error occurred.'})
 
 
      
@@ -867,7 +875,6 @@ def product_detail(request, slug):
     return render(request, 'store/product_detail.html', context)
 
 
-logger = logging.getLogger('django')
 
 
 
