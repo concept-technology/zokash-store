@@ -160,7 +160,7 @@ PAYSTACK_PUBLIC_KEY = 'pk_test_ea75ece062f2a82f8f18506dbeff5f085a1ca58a'
 DATABASES = {
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
-        default='postgresql://zokash_household_user:PQJ6jgHPGFjzS3zV3vmhGxRTevURRevd@dpg-cpojj7mehbks73ekcb7g-a.oregon-postgres.render.com/zokash_household',
+        default='postgresql://zokash_household_db_user:uP97E5oviM7edStflqy0INmGj5PNFqgz@dpg-cq2acj3v2p9s73ep9stg-a.oregon-postgres.render.com/zokash_household_db',
         conn_max_age=600,
     )
 }
@@ -195,9 +195,9 @@ USE_L10N =True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-# DEBUG = 'RENDER' not in os.environ.get('DEBUG')
+DEBUG = 'RENDER' not in os.environ.get('DEBUG')
 
-DEBUG = os.environ.get('DEBUG', default=True)
+# DEBUG = os.environ.get('DEBUG', default=True)
 
 
 STATIC_URL = 'static/'
