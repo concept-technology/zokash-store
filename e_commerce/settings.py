@@ -195,9 +195,9 @@ USE_L10N =True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-DEBUG = 'RENDER' not in os.environ.get('DEBUG')
+# DEBUG = 'RENDER' not in os.environ.get('DEBUG')
 
-# DEBUG = os.environ.get('DEBUG', default=True)
+DEBUG = os.environ.get('DEBUG', default=True)
 
 
 STATIC_URL = 'static/'
