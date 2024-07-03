@@ -197,8 +197,9 @@ USE_L10N =True
 
 # DEBUG = 'RENDER' not in os.environ.get('DEBUG')
 
-DEBUG = os.environ.get('DEBUG', default=True)
+# DEBUG = os.environ.get('DEBUG', default=True)
 
+DEBUG = False
 
 STATIC_URL = 'static/'
 # STATICFILES_DIRS = [
