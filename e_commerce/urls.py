@@ -6,6 +6,7 @@ from django.conf import settings
 from django.views.static import serve
 
 urlpatterns = [
+    path('jet_api/', include('jet_django.urls')),
     path('admin/', admin.site.urls, name='admin',),
     path('accounts/', include('allauth.urls')),
     path('', include('my_store.urls')),
@@ -16,4 +17,4 @@ urlpatterns = [
     # path('check-out/', include("payments.urls")),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-
+# http://localhost:8000/jet_api/register/

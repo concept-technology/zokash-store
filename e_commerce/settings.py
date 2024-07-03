@@ -3,14 +3,24 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
-load_dotenv()
+
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+load_dotenv()
+
+
 SECRET_KEY = os.environ.get("SECRET_KEY")
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ['true', '1', 't']
+
+# DEBUG = os.environ.get('DEBUG', 'True').lower() in ['true', '1', 't']
+
+
 ALLOWED_HOSTS = ['*','127.0.0.1', 'localhost', '10.0']
-# DEBUG =True
+
+DEBUG =True
+
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -22,7 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'jazzmin',
+    # 'jazzmin',
     'django.contrib.admin',
     'gunicorn',
     'dj_database_url',
@@ -45,10 +55,16 @@ INSTALLED_APPS = [
     'star_ratings',
     'django.contrib.humanize',
     'requests',
+
+    
+
 ]
+JET_PROJECT = 'zokash_store'
+JET_TOKEN = '9f4215e4-7ae2-44b8-8f57-fb2b1944485a'
+
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    'django.middlewa re.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
@@ -59,6 +75,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
 ]
+
+if not DEBUG:
+    MIDDLEWARE += [
+        'django.middleware.security.SecurityMiddleware',
+    ]
+
 
 ROOT_URLCONF = 'e_commerce.urls'
 
@@ -121,16 +143,21 @@ USE_L10N = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-else:
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-    STATICFILES_STORAGE = os.path.join(BASE_DIR, 'staticfiles')
+
+# DEFAULT_FILE_STORAGE = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+STORAGES = {
+    # ...
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -208,3 +235,7 @@ ACCOUNT_FORMS = {
     'signup': 'allauth.account.forms.SignupForm',
     'user_token': 'allauth.account.forms.UserTokenForm',
 }
+
+JET_PROJECT = 'zokash_store'
+JET_TOKEN = '9f4215e4-7ae2-44b8-8f57-fb2b1944485a'
+
