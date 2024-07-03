@@ -6,9 +6,11 @@
 <form action="" method="post" class="form">
     {% csrf_token %}
     <div class="col m-50">
-        <div>
+        <div class="row"> 
+            <div class="col-9 w-50 ">
 
-            {{form|crispy}}
+                {{form|crispy}}
+            </div>
         </div>
 
     </div>

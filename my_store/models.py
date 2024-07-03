@@ -264,8 +264,9 @@ del_status = (
 
 class AbujaLocation(models.Model):
     location = models.CharField(max_length=255)
-    delivery_cost = models.DecimalField(max_digits=10, decimal_places=2)
-
+    delivery_cost = models.DecimalField(max_digits=10, decimal_places=2, default=1000)
+    days = models.IntegerField(default=2)
+    
     def __str__(self):
         return self.location
  
@@ -353,8 +354,7 @@ class Inventory(models.Model):
         return f"{self.product} {self.quantity}"
     
 
-class CustomerRating(models.Model):
-    
+class CustomerRating(models.Model):   
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='ratings', on_delete=models.CASCADE)
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])

@@ -550,28 +550,27 @@ class CheckoutView(View):
 # next_url = request.GET.get('next')  # Define next_url early in the code
  
 
-def Update_addressView(request):
+def Update_addressView(request,pk):
     next_url = request.GET.get('next')  # Define next_url early in the code
-    template_name = request.GET.get('template', 'store/update_address.html')  # Default template
     
-    address = CustomersAddress.objects.get(user=request.user)
+    address = CustomersAddress.objects.get(user=request.user,pk=pk)
     if request.method == 'POST':
         form = AddressForm(request.POST, instance=address)
         if form.is_valid():
             form.save()
             messages.success(request, 'Your address has been updated.')
-            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-                return redirect(next_url)
-            messages.error(request, 'error updating your address')
-            return redirect('store:index')
-    # else:
-    #     form = AddressForm(instance=address)
+            # if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+            return redirect('store:verify-address')
+            # messages.error(request, 'error updating your address')
+            # return redirect('store:index')
+    else:
+        form = AddressForm(instance=address)
     
-    # context = {
-    #     'form': form,
-    #     'address': address
-    # }
-    return redirect('store:categories-list')
+    context = {
+        'form': form,
+        'address': address
+    }
+    return render(request, 'store/update_address.html', context)
 
 def initiate_payment(request):
     order = Order.objects.get(is_ordered=False, user=request.user)
