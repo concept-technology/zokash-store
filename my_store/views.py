@@ -362,70 +362,88 @@ class CartView(LoginRequiredMixin, View):
             messages.error(request, 'You do not have an active order.')
             return redirect('store:categories')
 
-def add_to_cart(request, slug):
-    product = get_object_or_404(Product, slug=slug)
 
+# count the number of items in a cart for the user
+def cart_count(request):
     if request.user.is_authenticated:
-        cart_qs = Cart.objects.filter(user=request.user, product=product, is_ordered=False)
-
-        if cart_qs.exists():
-            cart_item = cart_qs.first()
-            cart_item.is_in_cart = True
-              # Increment the quantity
-            cart_item.save()
-            messages.error(request, f"{product.title} is already in cart")
-        else:
-            cart_item = Cart.objects.create(
-                user=request.user,
-                product=product,
-                quantity=1,
-                is_ordered=False
-            )
-            messages.success(request, f"{product.title} is added to cart")
-
-        # Create or update the order
-        order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-        if order_qs.exists():
-            order = order_qs.first()
-        else:
-            order = Order.objects.create(
-                user=request.user,
-                reference=f'order-{secrets.token_hex(8)}',
-                date=timezone.now(),
-                is_ordered=False
-            )
-
-        order.product.add(cart_item)
-        order.save()
-
+        cart_count = Cart.objects.filter(user=request.user, is_ordered=False).count()
     else:
-        # Handle cart for anonymous users
         cart = request.session.get('cart', {})
+        cart_count = sum(item['quantity'] for item in cart.values())
+    
+    return JsonResponse({'cart_count': cart_count})
 
-        if str(product.id) in cart:
-            cart[str(product.id)]['quantity'] += 1
-            messages.success(request, f"Updated {product.title} quantity in cart")
-        else:
-            cart[str(product.id)] = {
-                'product_id': product.id,
-                'title': product.title,
-                'quantity': 1
-            }
-            messages.success(request, f"{product.title} is added to cart")
 
-        request.session['cart'] = cart
-        request.session.modified = True  # Ensure session is saved
-        print(f"Session ID: {request.session.session_key}")  # Debug statement
-        print(f"Session cart after modification: {request.session['cart']}")  # Debug statement
+from django.contrib.messages import get_messages
 
+@csrf_exempt
+@require_POST
+def add_to_cart(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({'success': True, 'cart': request.session.get('cart', {})})
+        slug = request.POST.get('slug')
+        product = get_object_or_404(Product, slug=slug)
+        quantity = int(request.POST.get('quantity', 1))  # Default quantity to 1 if not provided
 
-    next_url = request.GET.get('next')
-    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-        return redirect(next_url)
+        if request.user.is_authenticated:
+            cart_qs = Cart.objects.filter(user=request.user, product=product, is_ordered=False)
 
-    return redirect("store:index")
+            if cart_qs.exists():
+                cart_item = cart_qs.first()
+                cart_item.quantity += quantity  # Increment the quantity
+                cart_item.save()
+                messages.success(request, f"Updated {product.title} quantity in cart")
+            else:
+                cart_item = Cart.objects.create(
+                    user=request.user,
+                    product=product,
+                    quantity=quantity,
+                    is_ordered=False
+                )
+                messages.success(request, f"{product.title} is added to cart")
+
+            # Create or update the order
+            order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+            if order_qs.exists():
+                order = order_qs.first()
+            else:
+                order = Order.objects.create(
+                    user=request.user,
+                    reference=f'order-{secrets.token_hex(8)}',
+                    date=timezone.now(),
+                    is_ordered=False
+                )
+
+            order.product.add(cart_item)
+            order.save()
+
+            storage = get_messages(request)
+            response_messages = [{'message': message.message, 'tags': message.tags} for message in storage]
+
+            return JsonResponse({'success': True, 'cart_count': Cart.objects.filter(user=request.user, is_ordered=False).count(), 'messages': response_messages})
+        else:
+            # Handle cart for anonymous users
+            cart = request.session.get('cart', {})
+
+            if str(product.id) in cart:
+                cart[str(product.id)]['quantity'] += quantity
+                messages.success(request, f"Updated {product.title} quantity in cart")
+            else:
+                cart[str(product.id)] = {
+                    'product_id': product.id,
+                    'title': product.title,
+                    'quantity': quantity
+                }
+                messages.success(request, f"{product.title} is added to cart")
+
+            request.session['cart'] = cart
+            request.session.modified = True  # Ensure session is saved
+
+            storage = get_messages(request)
+            response_messages = [{'message': message.message, 'tags': message.tags} for message in storage]
+
+            return JsonResponse({'success': True, 'cart': request.session.get('cart', {}), 'messages': response_messages})
+
+    return JsonResponse({'message': 'error processing your request'}, status=400)
 
 
 
@@ -872,11 +890,32 @@ def product_detail(request, slug):
         'next_product': next_product,
         'related_products': related_products,  # Add related products to context
     }
-    return render(request, 'store/product_detail.html', context)
+    return render(request, 'store/product_detail.html', context) # Add related products to context
 
 
+# this function enables users to delete a product from the cart
+class DeleteCartItem(View):
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            slug = request.POST.get('slug') # Ensure to convert the slug to an integer before using it
+            product = get_object_or_404(Product, slug=slug) # Ensure to get the product using the primary key
+            
+            if request.user.is_authenticated: # Check if the user is authenticated
+                cart_item = get_object_or_404(Cart, product=product, is_ordered=False, user=request.user) # Ensure to get the cart item using the product and user
+                cart_item.delete() # Delete the cart item
+            else:
+                session_cart = request.session.get('cart', {}) # Get the cart from the session
+                if str(slug) in session_cart: # Check if the product is in the cart
+                    del session_cart[str(slug)] # Delete the product from the cart
+                    request.session['cart'] = session_cart # Update the session cart
 
-
+            return JsonResponse({ 
+                'product': product.title,
+                'slug': slug,
+                'button_text': 'Add to Cart'
+            })
+        
+        return JsonResponse({'message': 'error'}, status=400)
 
 
 
@@ -888,21 +927,39 @@ class UpdateCartQuantity(View):
             size = request.POST.get('size')
             
             product = get_object_or_404(Product, pk=id)
-            cart = get_object_or_404(Cart, product=product, is_ordered=False, user=request.user)
             
-            cart.quantity = quantity
-            if size:
-                cart.size = size
+            if request.user.is_authenticated:
+                cart = get_object_or_404(Cart, product=product, is_ordered=False, user=request.user)
+                
+                cart.quantity = quantity
+                if size:
+                    cart.size = size
+                else:
+                    cart.size = None  # Handle the case where size is not provided
+                
+                cart.save()
             else:
-                cart.size = None  # Handle the case where size is not provided
-            
-            cart.save()
-            
+                session_cart = request.session.get('cart', {})
+                
+                if str(id) in session_cart:
+                    session_cart[str(id)]['quantity'] = quantity
+                    if size:
+                        session_cart[str(id)]['size'] = size
+                    else:
+                        session_cart[str(id)]['size'] = None  # Handle the case where size is not provided
+                else:
+                    session_cart[str(id)] = {
+                        'quantity': quantity,
+                        'size': size if size else None
+                    }
+                
+                request.session['cart'] = session_cart
+
             if product.discount_price:
                 total_price = product.discount_price * quantity
             else:
                 total_price = product.price * quantity
-            
+
             return JsonResponse({
                 'product': product.title,
                 'id': id,
@@ -912,6 +969,7 @@ class UpdateCartQuantity(View):
             })
         
         return JsonResponse({'message': 'error'}, status=400)
+
 
 def mark_order_as_received(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)

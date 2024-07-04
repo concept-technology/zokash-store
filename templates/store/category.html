@@ -106,7 +106,12 @@
                                                 </div><!-- End .product-action-vertical -->
 
                                                 <div class="product-action">
+													
+													{% comment %}
+														
                                                     <a href="{% url 'store:add-to-cart' item.product.slug %}?next={{ request.path }}" class="btn-product btn-cart"><span>add to cart</span></a>
+													{% endcomment %}
+														
                                                 </div><!-- End .product-action -->
                                             </figure><!-- End .product-media -->
 
@@ -147,8 +152,12 @@
                                   
                                 </div><!-- End .row -->
                             </div><!-- End .products -->
-
+							
+					
+								
                 			{% include 'store/partials/class_paginator.html' %}   
+							
+								
                 		</div><!-- End .col-lg-9 -->
 
 

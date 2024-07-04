@@ -1,3 +1,6 @@
+href="{% url 'store:add-to-cart' product.slug %}?next={{ request.path }}"
+
+
 <script>
     $(document).ready(function(){
         function debounce(func, wait) {
@@ -93,3 +96,119 @@ $(document).ready(function(){
 
 
 
+
+
+$(document).ready(function(){
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func.apply(this, args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    const updateCart = debounce(function(){
+        let cartId = $('#product-id').val();
+        let quantity = $('#cart-quantity-input').val();
+        let size = $('#size').val();
+
+        console.log('Cart update triggered', {'id': cartId, 'qty': quantity, 'size': size});
+        
+        $.ajax({
+            url: "{% url 'store:update_cart_quantity' %}",
+            method: 'POST',
+            data: {
+                id: cartId,
+                quantity: quantity,
+                size: size,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            success: function(response){
+                // Handle success, update the cart UI
+                console.log('Success response:', response);
+                
+                // Update the price and quantity in the UI
+                $('#new-price').text(`₦${response.total_price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`);
+                $('#cart-quantity-input').val(response.qty);
+            },
+            error: function(response){
+                console.log('Error response:', response);
+            }
+        });
+    }, 300);  // Adjust debounce time as necessary
+
+    $('#cart-quantity-input').off('change').on('change', updateCart);
+
+
+
+   
+    $('#cart-btn').off('click').on('click', addToCart);
+
+});
+
+
+
+
+const addToCart = function() {
+    let productSlug = "{{product.slug}}"  // Assume you have an input field with id 'product-slug'
+    let quantity = $('#cart-quantity-input').val();
+    let size = $('#size').val();
+
+    console.log('Add to cart triggered', {'slug': productSlug, 'qty': quantity, 'size': size});
+    
+    $.ajax({
+        url: "{% url 'store:add-to-cart' %}",  // Make sure this URL pattern is correctly defined in your Django urls.py
+        method: 'POST',
+        data: {
+            slug: productSlug,
+            quantity: quantity,
+            size: size,
+            csrfmiddlewaretoken: "{{ csrf_token }}"
+        },
+        success: function(response){
+            // Handle success, update the cart UI
+            console.log('Success response:', response);
+            
+            // Update the cart icon or count, etc.
+            $('#cart-count').text(response.cart_count);  // Example: updating cart count
+        },
+        error: function(response){
+            console.log('Error response:', response);
+        }
+    });
+};
+
+$('#cart-btn').off('click').on('click', addToCart);
+
+
+
+
+
+# add to cart using slug
+const addToCart = function() {
+    let productSlug = "{{product.slug}}"  // Assume you have an input field with id 'product-slug'
+    console.log('Add to cart triggered', {'slug': productSlug,});      
+    $.ajax({
+        url: "{% url 'store:add-to-cart' %}",  // Make sure this URL pattern is correctly defined in your Django urls.py
+        method: 'POST',
+        data: {
+            slug: productSlug,
+            csrfmiddlewaretoken: "{{ csrf_token }}"
+        },
+        success: function(response){
+            // Handle success, update the cart UI
+            console.log('Success response:', response);
+            $('#cart-count').text(response.cart_count);
+            
+            // Update the cart icon or count, etc.
+            $('#cart-count').text(response.cart_count);  // Example: updating cart count
+        },
+        error: function(response){
+            console.log('Error response:', response);
+        }
+    });
+};

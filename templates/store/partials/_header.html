@@ -1,9 +1,9 @@
 {% load cart_template_tag%}
 {% load static %}
 {% load humanize %}
-<header class="header header-2 header-intro-clearance">
+<header class="header header-2 header-intro-clearance .bg-dark-subtle">
     <div class="header-middle">
-        <div class="container">
+        <div class="container ">
             <div class="header-left">
                 <button class="mobile-menu-toggler">
                     <span class="sr-only">Toggle mobile menu</span>
@@ -54,7 +54,7 @@
                     <a href="{% url 'store:cart' %}" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
                         <div class="icon">
                             <i class="icon-shopping-cart"></i>
-                            <span class="cart-count" style="background-color: rgb(166, 166, 226) ; color:aliceblue">{%cart_item_count%}</span>
+                            <span class="cart-count" id="cart-count" style="background-color: rgb(166, 166, 226) ; color:aliceblue">0</span>
                         </div>
                         <p>Cart</p>
                     </a>
@@ -283,5 +283,27 @@
 
 
 
+    <script>
 
+
+        $(document).ready(function(){
+        function updateCartCount() {
+          $.ajax({
+              url: "{% url 'store:cart_count' %}",
+              method: 'GET',
+              success: function(response) {
+                  $('#cart-count').html(response.cart_count);
+                  console.log('Cart count:', response.cart_count);
+              },
+              error: function(response) {
+                  console.log('Error fetching cart count:', response);
+              }
+          });
+      }
+        })  
+      //updateCartCount();
+     setInterval(updateCartCount, 1000);
+
+      </script>  
+        
 </header><!-- End .header -->

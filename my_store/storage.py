@@ -1,12 +1,16 @@
-# yourapp/storage.py
-from whitenoise.storage import CompressedManifestStaticFilesStorage
+# my_store/storage.py
 
-class CustomStaticFilesStorage(CompressedManifestStaticFilesStorage):
-    def post_process(self, *args, **kwargs):
-        try:
-            return super().post_process(*args, **kwargs)
-        except ValueError as e:
-            if 'The file' in str(e) and 'could not be found' in str(e):
-                self.stderr.write("Ignoring missing file error: {}".format(e))
-                return []
-            raise
+from django.contrib.staticfiles.storage import StaticFilesStorage
+from django.conf import settings
+from django.utils._os import safe_join
+import os
+
+class CustomStaticFilesStorage(StaticFilesStorage):
+    def get_files(self, ignore_patterns=None, location='', ignore=None):
+        if ignore_patterns is None:
+            ignore_patterns = []
+        # Add custom ignore patterns here
+        ignore_patterns += [
+            'www.portotheme.com/html/molla/assets/css/plugins/owl-carousel/owl.video.play.html'
+        ]
+        return super().get_files(ignore_patterns, location, ignore)
