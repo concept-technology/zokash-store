@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'star_ratings',
     'django.contrib.humanize',
     'requests',
-    'django_extensions',
+    
     # 'jet_django',
 ]
 
