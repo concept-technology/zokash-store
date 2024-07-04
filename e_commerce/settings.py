@@ -9,7 +9,7 @@ load_dotenv()
 
 SECRET_KEY = os.environ.get("SECRET_KEY", 'your_default_secret_key')
 
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", 'True').lower() in ['true', '1', 't']
 
 ALLOWED_HOSTS = ['*', '127.0.0.1', 'localhost']
 
