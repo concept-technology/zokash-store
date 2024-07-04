@@ -26,6 +26,7 @@ urlpatterns = [
      path('cart-count/', views.cart_count, name='cart_count'),    
      path('add-to-cart/',views.add_to_cart, name='add-to-cart'),
      path('delete-from-cart/',views.DeleteCartItem.as_view(), name='delete-from-cart'),
+     path('update-cart/', views.UpdateCartQuantity.as_view(), name='update_cart_quantity'),
     #  path('delete-cart/<slug>',views.delete_cart, name='delete_cart'),
      
      path('cart/check-out',views.CheckoutView.as_view(), name='check-out'),
@@ -55,7 +56,6 @@ urlpatterns = [
      
      path('product/<slug>', views.product_detail, name='product-detail'),
      
-     path('update-cart/', views.UpdateCartQuantity.as_view(), name='update_cart_quantity'),
      
      path('order/<int:order_id>/received/', views.mark_order_as_received, name='mark-order-received'),
      

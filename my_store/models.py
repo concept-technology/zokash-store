@@ -93,6 +93,7 @@ class Product(models.Model):
     is_best_selling = models.BooleanField(default=False)
     slug = models.SlugField(unique=True, default='eg-product-title')
     ratings = Rating()
+    # qty = models.IntegerField(default=1)
     
   
     def get_related_products(self):
@@ -106,8 +107,8 @@ class Product(models.Model):
     def get_add_to_cart_url(self):
         return reverse("store:add-to-cart", kwargs={"slug": self.slug})
     
-    def delete_cart(self):
-        return reverse("store:delete_cart", kwargs={"slug": self.slug,})
+    # def delete_cart(self):
+    #     return reverse("store:delete-from-cart", kwargs={"slug": self.slug,})
     
     def get_cart_increment(self):
         return reverse("store:reduce_cart", kwargs={"slug": self.slug,})

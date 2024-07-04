@@ -841,7 +841,6 @@ def search_view(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
-
     # Check if the user is authenticated
     if request.user.is_authenticated:
         try:
@@ -859,7 +858,7 @@ def product_detail(request, slug):
     all_user_rating = product.ratings.filter(product=product)
     next_product = product.get_next_product()
     related_products = product.get_related_products()  # Fetch related products
-
+    
     if request.method == 'POST' and request.user.is_authenticated:
         if user_rating:
             rating_form = CustomerRatingForm(request.POST, instance=user_rating)
@@ -888,7 +887,9 @@ def product_detail(request, slug):
         'all_user_rating': all_user_rating,
         'is_in_cart': is_in_cart,
         'next_product': next_product,
-        'related_products': related_products,  # Add related products to context
+        'csrf_token': request.META.get('CSRF_COOKIE'),
+        'related_products': related_products, 
+        
     }
     return render(request, 'store/product_detail.html', context) # Add related products to context
 
@@ -912,7 +913,8 @@ class DeleteCartItem(View):
             return JsonResponse({ 
                 'product': product.title,
                 'slug': slug,
-                'button_text': 'Add to Cart'
+                'button_text': 'Add to Cart',
+                'csrf_token': request.META.get('CSRF_COOKIE'),
             })
         
         return JsonResponse({'message': 'error'}, status=400)
@@ -922,8 +924,17 @@ class DeleteCartItem(View):
 class UpdateCartQuantity(View):
     def post(self, request, *args, **kwargs):
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            id = int(request.POST.get('id'))
-            quantity = int(request.POST.get('quantity'))
+            id = int(self.request.POST.get('id'))
+            quantity1 = request.POST.get('quantity1')
+            quantity2 = request.POST.get('quantity2')
+            quantity3 = request.POST.get('quantity3')
+            
+            # Determine the quantity to use
+            try:
+                quantity = int(quantity1) if quantity1 else (int(quantity2) if quantity2 else int(quantity3))
+            except (ValueError, TypeError):
+                return JsonResponse({'message': 'Invalid quantity'}, status=400)
+            
             size = request.POST.get('size')
             
             product = get_object_or_404(Product, pk=id)

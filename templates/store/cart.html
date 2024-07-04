@@ -58,16 +58,16 @@
 											<td class="price-col"><span>&#8358;{{items.get_price_tag|floatformat:2|intcomma}}</span></td>										
 											<td class="quantity-col">
                                                 <div class="cart-product-quantity"><b class="ml-5 p-2">
-													<input type="number" id="cart-quantity-input"  class="form-control" data-item-id="{{ items.id }}" value="{{items.quantity}}" name="quantity" min="{{items.quantity}}"  max="{{items.quantity}}" step="1" data-decimals="0" required>
+													<input type="number" id="cart-quantity-input1"  class="form-control" data-item-id="{{ items.id }}" value="{{items.quantity}}" name="quantity" min="1" step="1" data-decimals="0" required>
 
-													<input type="hidden" value="{{items.id}}" id="qty-id">
+													<input type="hidden" value="{{items.id}}" id="product-id">
                                						 </div>													
 													</b>
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
 											
-										
-											<td class="total-col">&#8358;{{items.get_total_price|floatformat:2|intcomma}}</td>
+										<input type="hidden" id="size" value="{{items.size}}">
+											<td class="total-col">&#8358;{{items.get_total_price|floatformat:2|intcomma}}</td>{{item.product.slug}}
 												<td class="remove-col">
 													<a href="{{items.product.delete_cart}}">
 													<button class="btn-remove"><i class="icon-close"></i></button>
@@ -188,98 +188,161 @@
 	                </div><!-- End .container -->
                 </div><!-- End .cart -->
             </div><!-- End .page-content -->
-<script>
-	// Function to fetch CSRF token from cookies
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+			<script>       
+				$(document).ready(function(){
+					function debounce(func, wait) {
+						let timeout;
+						return function(...args) {
+							const later = () => {
+								clearTimeout(timeout);
+								func.apply(this, args);
+							};
+							clearTimeout(timeout);
+							timeout = setTimeout(later, wait);
+						};
+					}
+		
+// Define the function to update the cart
+const updateCart = debounce(function(){
+    let cartId = $('#product-id').val();
+    let quantity = $('#cart-quantity-input1').val();
+    let size = $('#size').val();
+
+    console.log('Cart update triggered', {'id': cartId, 'qty': quantity, 'size': size});
+
+    $.ajax({
+        url: "{% url 'store:update_cart_quantity' %}",
+        method: 'POST',
+        data: {
+            id: cartId,
+            quantity: quantity,
+            size: size,
+            csrfmiddlewaretoken: "{{ csrf_token }}"
+        },
+        success: function(response){
+            // Handle success, update the cart UI
+            console.log('Success response:', response);
+            
+            // Update the price and quantity in the UI
+            $('#new-price').text(`₦${response.total_price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`);
+            $('#cart-quantity-input1').val(response.qty);
+        },
+        error: function(response){
+            console.log('Error response:', response);
         }
-    }
-    return cookieValue;
-}
+    });
+}, 300);  // Adjust debounce time as necessary
 
-$(document).ready(function(){
-    function debounce(func, wait) {
-        let timeout;
-        return function(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func.apply(this, args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    const updateCart = debounce(function(){
-        let cartId = $('#qty-id').val();
-        let quantity = $('#cart-quantity-input').val();
-        let size = $('#size').val();  // Adjust this selector based on your cart page UI
-        
-        console.log('Cart update triggered', {'id': cartId, 'qty': quantity, 'size': size});
-        
-        // Fetch CSRF token dynamically
-        const csrftoken = getCookie('csrftoken');
-
-        $.ajax({
-            url: "{% url 'store:update_cart_quantity' %}",
-            method: 'POST',
-            headers: { "X-CSRFToken": csrftoken },
-            data: {
-                id: cartId,
-                quantity: quantity,
-                size: size,  // Include size in the data sent to the backend
-                csrfmiddlewaretoken: csrftoken
-            },
-            success: function(response){
-                let formattedPrice = '₦' + response.total_price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                
-                // Update the product total price
-                $('#product-total-price').text(formattedPrice);
-
-                // Handle success, update other parts of the UI as needed
-                $('#cart-quantity-input').val(response.qty);  // Update cart quantity input
-                $('#size').val(response.size);  // Update size if provided in the response
-                $('#new-price').text(formattedPrice);  // Update new price display
-
-                console.log('Success response:', response);
-                alert('Cart updated successfully.');
-            },
-            error: function(response){
-                console.log('Error response:', response);
-                alert('Error updating cart. Please try again.');
-            }
-        });
-    }, 300);
-
-    $('#cart-quantity-input').off('change').on('change', updateCart);
-});
-
-// Function to fetch CSRF token from cookies
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-</script>
-
+// Attach the event handler to the input field
+$('#cart-quantity-input1').off('change').on('change', updateCart);
+	
+			
+			// Add to cart
+			function addToCart() {
+				let productSlug = $('#slug').val(); // Assume you have an input field with id 'product-slug'
+				console.log('Add to cart triggered', { 'slug': productSlug });
+			
+				$.ajax({
+					url: "{% url 'store:add-to-cart' %}",
+					method: 'POST',
+					data: {
+						slug: productSlug,
+						csrfmiddlewaretoken: "{{ csrf_token }}"
+					},
+					success: function(response) {
+						// Handle success, update the cart UI
+						console.log('Success response:', response);
+						$('#cart-count').html(response.cart_count);
+						
+						// Change button ID and text
+						$('#cart-btn').attr('id', 'delete-btn').text('Delete from Cart');
+						
+						// Display messages using SweetAlert
+						response.messages.forEach(function(message) {
+							Swal.fire({
+								text: message.message,
+								icon: message.tags.includes('success') ? 'success' : 'error',
+								timer: 3000,
+								showConfirmButton: false
+							});
+						});
+			
+						// Attach delete event
+						$('#cart-btn1').off('click').on('click', deleteFromCart);
+					},
+					error: function(response) {
+						console.log('Error response:', response);
+					}
+				});
+			}
+			
+			// Delete from cart
+			function deleteFromCart() {
+				let productSlug = "{{ product.slug }}"; // Assume you have an input field with id 'product-slug'
+				console.log('Delete from cart triggered', { 'slug': productSlug });
+			
+				$.ajax({
+					url: "{% url 'store:delete-from-cart' %}",
+					method: 'POST',
+					data: {
+						slug: productSlug,
+						csrfmiddlewaretoken: "{{ csrf_token }}"
+					},
+					success: function(response) {
+						// Handle success, update the cart UI
+						console.log('Success response:', response);
+						$('#cart-count').html(response.cart_count);
+						
+						// Change button ID and text back to add to cart
+						$('#delete-btn').attr('id', 'cart-btn').text('Add to Cart');
+			
+						// Display messages using SweetAlert
+						response.messages.forEach(function(message) {
+							Swal.fire({
+								text: message.message,
+								icon: message.tags.includes('success') ? 'success' : 'error',
+								timer: 3000,
+								showConfirmButton: false
+							});
+						});
+			
+						// Attach add event
+						$('#cart-btn1').off('click').on('click', addToCart);
+					},
+					error: function(response) {
+						console.log('Error response:', response);
+					}
+				});
+			}
+			
+			// Attach initial add to cart event
+			$(document).ready(function() {
+				$('#cart-btn1').off('click').on('click', addToCart);
+			});
+			
+			// Attach initial add to cart event
+			$('#cart-btn1').off('click').on('click', addToCart);
+			
+				});
+			   
+				function getCookie(name) {
+					let cookieValue = null;
+					if (document.cookie && document.cookie !== '') {
+						const cookies = document.cookie.split(';');
+						for (let i = 0; i < cookies.length; i++) {
+							const cookie = cookies[i].trim();
+							if (cookie.substring(0, name.length + 1) === (name + '=')) {
+								cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+								break;
+							}
+						}
+					}
+					return cookieValue;
+				}
+				  
+				
+			</script>
+	
         </main><!-- End .main -->
 
 

@@ -4,7 +4,7 @@
 {% load star_rating %}   
 {% load custom_filters %}
 {% load humanize %}
-
+{{block.super}}
 <main>
     <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
         <div class="container d-flex align-items-center">
@@ -92,20 +92,12 @@
                                 <p id="product-description">{{ product.description }}</p>
                             </div><!-- End .product-content -->
 
-                            <div class="product-details-action">
-                                {% if is_in_cart %}
-                                <a class="btn-product btn-cart" type="submit" id="cart-btn" href="{{ product.delete_cart }}?next={{ request.path }}"><span>Delete from Cart</span></a>
+                            <div class="product-details-action">           
+                                <button class="btn-product btn-cart" type="submit" id="cart-btn"><span>Add to Cart</span></button>
                                 <div class="details-action-wrapper">
                                     <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
                                     <a href="#" class="btn-product btn-compare" title="Compare"><span>Add to Compare</span></a>
                                 </div><!-- End .details-action-wrapper -->
-                                {% else %}
-                                <button class="btn-product btn-cart" type="submit" id="cart-btn" ><span>Add to Cart</span></button>
-                                <div class="details-action-wrapper">
-                                    <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
-                                    <a href="#" class="btn-product btn-compare" title="Compare"><span>Add to Compare</span></a>
-                                </div><!-- End .details-action-wrapper -->
-                                {% endif %}
                             </div><!-- End .product-details-action -->
 
                             <div class="details-filter-row details-row-size">
@@ -128,7 +120,7 @@
                                 <div class="product-details-quantity">
                                     {% csrf_token %}
                                     <input type="number" id="cart-quantity-input" class="form-control" data-item-id="{{ product.id }}" value="{{ product.quantity }}" name="quantity" min="1" step="1" data-decimals="0" required>
-                                    <input type="hidden" id="product-id" value="{{ product.id }}" name="id">
+                                    <input type="hidden" id="product-id" value="{{ qty }}" name="id">
                                 </div><!-- End .product-details-quantity -->
                             </div><!-- End .details-filter-row -->
 
@@ -209,7 +201,42 @@
                                     </div><!-- End .collapse -->
                                 </div><!-- End .card -->
                             </div><!-- End .accordion -->
+                            <div class="sticky-bar">
+                                <div class="containerr">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <figure class="product-media">
+                                                <a href="product.html">
+                                                    <img src="{{product.img_1.url}}" alt="Product image">
+                                                </a>
+                                            </figure><!-- End .product-media -->
+                                            <h4 class="product-title"><a href="product.html">{{product.description}}</a></h4><!-- End .product-title -->
+                                        </div><!-- End .col-6 -->
+                        
+                                        <div class="col-6 justify-content-end">
+                                                
+                                                <div class="product-price">
+                                                    {% if product.discount_price %}
+                                                    <span class="new-price" id="new-price2">&#8358;{{ product.discount_price|floatformat:2|intcomma }}</span>
+                                                    <span class="old-price">&#8358;{{ product.price|floatformat:2|intcomma }}</span>
+                                                    {% else %}
+                                                    <span class="new-price" id="new-price2">&#8358;{{ product.price|floatformat:2|intcomma }}</span>
+                                                    {% endif %}
+                                                </div><!-- End .product-price -->
 
+                                            <div class="product-details-quantity">
+                                                <input type="number" id="cart-quantity-input2" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required="" style="display: none;">
+                                                <!-- <div class="input-group  input-spinner"><div class="input-group-prepend"><button style="min-width: 26px" class="btn btn-decrement btn-spinner" type="button"><i class="icon-minus"></i></button></div><input type="text" style="text-align: center" class="form-control " required="" placeholder=""><div class="input-group-append"><button style="min-width: 26px" class="btn btn-increment btn-spinner" type="button"><i class="icon-plus"></i></button></div></div> -->
+                                            </div><!-- End .product-details-quantity -->
+                        
+                                            <div class="product-details-action">
+                                            <button class="btn-product btn-cart" type="submit" id="cart-btn2" ><span>Add to Cart</span></button>
+                                                <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
+                                            </div><!-- End .product-details-action -->
+                                        </div><!-- End .col-6 -->
+                                    </div><!-- End .row -->
+                                </div><!-- End .container -->
+                            </div>
                    
                         </div><!-- End .product-details -->
                     </div><!-- End .col-md-6 -->
@@ -219,8 +246,8 @@
     </div><!-- End .page-content -->
 </main><!-- End .main -->
 
-<script>
-
+    <script>
+        
     $(document).ready(function(){
         function debounce(func, wait) {
             let timeout;
@@ -235,8 +262,9 @@
         }
     
         const updateCart = debounce(function(){
-            let cartId = $('#product-id').val();
+            let cartId = "{{ product.id }}"; // Assume you have an input field with id "product-id
             let quantity = $('#cart-quantity-input').val();
+            let quantity2 = $('#cart-quantity-input2').val();
             let size = $('#size').val();
     
             console.log('Cart update triggered', {'id': cartId, 'qty': quantity, 'size': size});
@@ -247,8 +275,10 @@
                 data: {
                     id: cartId,
                     quantity: quantity,
+                    quantity2: quantity2,
                     size: size,
-                    csrfmiddlewaretoken: "{{ csrf_token }}"
+                    csrfmiddlewaretoken: "{{csrf_token}}"
+                    
                 },
                 success: function(response){
                     // Handle success, update the cart UI
@@ -256,6 +286,7 @@
                     
                     // Update the price and quantity in the UI
                     $('#new-price').text(`₦${response.total_price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`);
+                    $('#new-price2').text(`₦${response.total_price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`);
                     $('#cart-quantity-input').val(response.qty);
                 },
                 error: function(response){
@@ -265,6 +296,7 @@
         }, 300);  // Adjust debounce time as necessary
     
         $('#cart-quantity-input').off('change').on('change', updateCart);
+        $('#cart-quantity-input2').off('change').on('change', updateCart);
 
 
 
@@ -287,6 +319,7 @@ function addToCart() {
             
             // Change button ID and text
             $('#cart-btn').attr('id', 'delete-btn').text('Delete from Cart');
+            $('#cart-btn2').attr('id', 'delete-btn').text('Delete from Cart');
             
             // Display messages using SweetAlert
             response.messages.forEach(function(message) {
@@ -349,10 +382,9 @@ function deleteFromCart() {
 // Attach initial add to cart event
 $(document).ready(function() {
     $('#cart-btn').off('click').on('click', addToCart);
+    $('#cart-btn2').off('click').on('click', addToCart);
 });
 
-// Attach initial add to cart event
-$('#cart-btn').off('click').on('click', addToCart);
 
     });
    
@@ -373,4 +405,6 @@ $('#cart-btn').off('click').on('click', addToCart);
       
     
 </script>
+    
+
 {% endblock %}
