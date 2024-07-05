@@ -37,7 +37,7 @@ urlpatterns = [
      
      
      
-     path('account/profile/dash-board', views.DashBoardView, name='dash-board' ),
+     path('account/profile/dash-board', views.DashBoardView.as_view(), name='dash-board' ),
      
    
      path('order/payment/', views.initiate_payment, name='initiate_payment'),

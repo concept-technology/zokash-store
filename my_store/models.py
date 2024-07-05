@@ -355,7 +355,8 @@ class Inventory(models.Model):
         return f"{self.product} {self.quantity}"
     
 
-class CustomerRating(models.Model):   
+class CustomerRating(models.Model):
+    headline = models.CharField(max_length=255, blank=True, null=True)  
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='ratings', on_delete=models.CASCADE)
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])

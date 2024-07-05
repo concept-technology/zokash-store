@@ -49,8 +49,7 @@ class MyStoreConfig(AppConfig):
 #                 if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
 #                     return redirect(next_url)
 
-@login_required
-class DashBoardView(View):
+class DashBoardView(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         
         profile_form = UserProfileForm(instance=self.request.user)
@@ -855,18 +854,18 @@ def product_detail(request, slug):
     all_user_rating = product.ratings.filter(user=request.user) if request.user.is_authenticated else None
     next_product = product.get_next_product()
     related_products = product.get_related_products()
-    
+    order = Order.objects.filter(user=request.user, is_ordered=True, is_received=False)
     if request.method == 'POST' and request.user.is_authenticated:
         if user_rating:
             rating_form = CustomerRatingForm(request.POST, instance=user_rating)
         else:
-            rating_form = CustomerRatingForm(request.POST)
+            rating_form = CustomerRatingForm(request.POST, instance=user_rating)
         if rating_form.is_valid():
             rating = rating_form.save(commit=False)
             rating.user = request.user
             rating.product = product
             rating.save()
-            return redirect('store:product_detail', slug=product.slug)
+            return redirect('store:product-detail', slug=product.slug)
     else:
         rating_form = CustomerRatingForm() if request.user.is_authenticated else None
 

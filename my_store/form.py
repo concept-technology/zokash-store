@@ -36,7 +36,7 @@ class UserProfileForm(UserChangeForm):
 class CustomerRatingForm(forms.ModelForm):
     class Meta:
         model = CustomerRating
-        fields = ['rating', 'review']
+        fields = ['rating','headline', 'review']
         widgets = {
             'rating': forms.Select(choices=[
                 (1, '★☆☆☆☆'),

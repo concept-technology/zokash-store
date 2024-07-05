@@ -200,6 +200,68 @@
                                        
                                             </div><!-- End .product-desc-content -->
                                         </div><!-- End .card-body -->
+
+                                        
+                                        {% if ratings %}
+                                            
+                                            
+                                            {% for rating in ratings %}
+                                                
+                                                
+                                        <div class="card card-box card-sm">
+                                            <div class="card-header" id="product-review-heading">
+                                                <h2 class="card-title">
+                                                    <a class="collapsed" role="button" data-toggle="collapse" href="#product-accordion-review" aria-expanded="false" aria-controls="product-accordion-review">
+                                                        Reviews ({{count}})
+                                                    </a>
+                                                </h2>
+                                            </div><!-- End .card-header -->
+                                            <div id="product-accordion-review" class="collapse" aria-labelledby="product-review-heading" data-parent="#product-accordion">
+                                                <div class="card-body">
+                                                    <div class="reviews">
+                                                        <div class="review">
+                                                      
+                                                        <div class="review">
+                                                            <div class="row no-gutters">
+                                                                <div class="col-auto">
+                                                                    <h4><a href="#">{{rating.user.username}}</a></h4>
+                                                                    <div class="ratings-container">
+                                                                        <div id="star-ratings"  style="width: 100%;">
+                                                                            {% load star_rating %}
+                                                                            {% star_rating rating.rating %}
+                                                                        </div><!-- End .ratings -->
+                                                                    </div><!-- End .rating-container -->
+                                                                    <span class="review-date">{{rating.date}}</span>
+                                                                </div><!-- End .col -->
+                                                                <div class="col">
+                                                                    <h4>{{rating.headline}}</h4>
+
+                                                                    <div class="review-content">
+                                                                        <p>{{rating.review}}</p>
+                                                                    </div><!-- End .review-content -->
+
+                                                                    <div class="review-action">
+                                                                        <a href="#"><i class="icon-thumbs-up"></i>Helpful (0)</a>
+                                                                        <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
+                                                                    </div><!-- End .review-action -->
+                                                                </div><!-- End .col-auto -->
+                                                            </div><!-- End .row -->
+                                                        </div><!-- End .review -->
+                                                        {% if user.is_authenticated and not user_rating %}
+                                                            <form method="post">
+                                                                {% csrf_token %}
+                                                                {{ rating_form.as_p }}
+                                                                <button type="submit" class="btn btn-primary">Submit Rating</button>
+                                                            </form>
+                                                        {% endif %}
+                                                    </div><!-- End .reviews -->
+                                                </div><!-- End .card-body -->
+                                            </div><!-- End .collapse -->
+                                        </div><!-- End .card -->
+                                        {% endfor %}
+
+                                        {% endif %}
+
                                     </div><!-- End .collapse -->
                                 </div><!-- End .card -->
                             </div><!-- End .accordion -->
@@ -209,10 +271,10 @@
                                         <div class="col-6">
                                             <figure class="product-media">
                                                 <a href="product.html">
-                                                    <img src="assets/images/products/sticky/product-1.jpg" alt="Product image">
+                                                    <img src="{{items.img_1.url}}" alt="Product image">
                                                 </a>
                                             </figure><!-- End .product-media -->
-                                            <h4 class="product-title"><a href="product.html">Dark yellow lace cut out swing dress</a></h4><!-- End .product-title -->
+                                            <h4 class="product-title"><a href="product.html">{{items.description}}</a></h4><!-- End .product-title -->
                                         </div><!-- End .col-6 -->
                         
                                         <div class="col-6 justify-content-end">
@@ -225,7 +287,7 @@
                                             </div><!-- End .product-details-quantity -->
                         
                                             <div class="product-details-action">
-                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                                <button class="btn-product btn-cart" id="cart-btn1"><span>add to cart</span></button>
                                                 <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
                                             </div><!-- End .product-details-action -->
                                         </div><!-- End .col-6 -->
@@ -316,9 +378,11 @@
 
                     // Change button ID and text
                     $('#cart-btn').attr('id', 'delete-btn').text('Delete from Cart');
+                    $('#cart-btn1').attr('id', 'delete-btn1').text('Delete from Cart');
 
                     // Attach delete event
                     $('#delete-btn').off('click').on('click', deleteFromCart);
+                    $('#delete-btn1').off('click').on('click', deleteFromCart);
                 },
                 error: function(response) {
                     console.log('Error response:', response);
@@ -343,6 +407,7 @@
 
                     // Change button ID and text back to add to cart
                     $('#delete-btn').attr('id', 'cart-btn').text('Add to Cart');
+                    $('#delete-btn1').attr('id', 'cart-btn1').text('Add to Cart');
 
                     // Display messages using SweetAlert
                     // Display messages using SweetAlert
@@ -361,6 +426,7 @@
 
                     // Attach add event
                     $('#cart-btn').off('click').on('click', addToCart);
+                    $('#cart-btn1').off('click').on('click', addToCart);
                 },
                 error: function(response) {
                     console.log('Error response:', response);
@@ -370,6 +436,7 @@
 
         // Attach initial add to cart event
         $('#cart-btn').off('click').on('click', addToCart);
+        $('#cart-btn1').off('click').on('click', addToCart);
     });
 
     function getCookie(name) {
