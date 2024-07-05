@@ -11,8 +11,10 @@ urlpatterns = [
      
     path('category/', views.ProductCategories_view, name='categories-list'),
     
-    path('category/<slug>/', views.product_list_by_category, name='product_list_by_category'),
-    
+    # path('category/<slug>', views.product_list_by_category, name='product_list_by_category'),
+
+    # Other URL patterns...
+    path('products/category/<slug:slug>/', views.product_list_by_category, name='product_list_by_category'),
 #     path('categories/<str:title>', views.category_filter, name='categories-filter'),
 
     path('', views.HomeView.as_view(),name='index'),
@@ -27,15 +29,15 @@ urlpatterns = [
      path('add-to-cart/',views.add_to_cart, name='add-to-cart'),
      path('delete-from-cart/',views.DeleteCartItem.as_view(), name='delete-from-cart'),
      path('update-cart/', views.UpdateCartQuantity.as_view(), name='update_cart_quantity'),
-    #  path('delete-cart/<slug>',views.delete_cart, name='delete_cart'),
-     
-     path('cart/check-out',views.CheckoutView.as_view(), name='check-out'),
-     
      path('cart/', views.CartView.as_view(), name='cart'),
-     
      path('cart/<slug>', views.CartView.as_view(), name='cart_item'),
      
-     path('account/profile/dash-board', views.DashBoardView.as_view(), name='dash-board' ),
+    # checkout' s
+     path('cart/check-out',views.CheckoutView.as_view(), name='check-out'),
+     
+     
+     
+     path('account/profile/dash-board', views.DashBoardView, name='dash-board' ),
      
    
      path('order/payment/', views.initiate_payment, name='initiate_payment'),

@@ -11,18 +11,22 @@ def cart_item_count(context):
         # Count cart items for authenticated users
         cart_items = Cart.objects.filter(user=request.user, is_ordered=False)
         return cart_items.count()
-    else:
-        # Count cart items for anonymous users
-        cart = request.session.get('cart', {})
-        return sum(item['quantity'] for item in cart.values())
+   
 
     
         
-@register.filter
-def cart_total(user):
-    if user.is_authenticated:
-        queryset = Cart.objects.all().filter(user=user, is_ordered=False)
-        return queryset
+# @register.filter
+# def cart_total(request):
+#     if request.user.is_authenticated:
+#         queryset = Cart.objects.filter(user=request.user, is_ordered=False)
+#     else:
+#         cart_uuid = request.session.get('cart_uuid')
+#         if cart_uuid:
+#             queryset = Cart.objects.filter(cart_uuid=cart_uuid, is_ordered=False)
+#         else:
+#             queryset = Cart.objects.none()
+#     return queryset   
+    
     
 @register.filter
 def get_total(user):

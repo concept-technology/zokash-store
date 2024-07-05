@@ -49,9 +49,10 @@ class MyStoreConfig(AppConfig):
 #                 if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
 #                     return redirect(next_url)
 
-
+@login_required
 class DashBoardView(View):
     def get(self, request, *args, **kwargs):
+        
         profile_form = UserProfileForm(instance=self.request.user)
         password_form = PasswordChangeForm(self.request.user)
         cart = Cart.objects.filter(user=self.request.user, is_ordered=True)
@@ -209,9 +210,6 @@ def ProductCategories_view(request):
         return render(request, 'store/category.html', context)
 
 
-import logging
-
-logger = logging.getLogger(__name__)
 
 def product_list_by_category(request, slug):
     try:
@@ -248,9 +246,9 @@ def product_list_by_category(request, slug):
         except EmptyPage:
             paginated_products = paginator.page(paginator.num_pages)
 
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            html = render_to_string('store/product_list.html', {'products_with_ratings': paginated_products})
-            return JsonResponse({'html': html})
+        # if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        #     html = render_to_string('store/product_list.html', {'products_with_ratings': paginated_products})
+        #     return JsonResponse({'html': html})
 
         context = {
             'category': category,
@@ -264,9 +262,7 @@ def product_list_by_category(request, slug):
         }
         return render(request, 'store/product_list_by_category.html', context)
     except Exception as e:
-        logger.error(f"Error in product_list_by_category: {e}")
-        return render(request, 'store/error.html', {'message': 'An error occurred.'})
-
+        return JsonResponse({'message': 'An error occurred.', 'error': str(e)})
 
      
 
@@ -413,7 +409,8 @@ def add_to_cart(request):
                     is_ordered=False
                 )
 
-            order.product.add(cart_item)
+            if not order.product.filter(id=cart_item.id).exists():
+                order.product.add(cart_item)
             order.save()
 
             storage = get_messages(request)
@@ -841,23 +838,23 @@ def search_view(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
+    
     # Check if the user is authenticated
     if request.user.is_authenticated:
         try:
-            is_in_cart = Cart.objects.filter(product=product, is_ordered=False, user=request.user)
+            is_in_cart = Cart.objects.filter(product=product, is_ordered=False, user=request.user).exists()
         except Cart.DoesNotExist:
-            is_in_cart = None
+            is_in_cart = False
         user_rating = CustomerRating.objects.filter(user=request.user, product=product).first()
     else:
-        is_in_cart = None
+        is_in_cart = False
         user_rating = None
-
+    
     ratings = product.ratings.all()
     average_rating = product.average_rating()
-    now = timezone.now()
-    all_user_rating = product.ratings.filter(product=product)
+    all_user_rating = product.ratings.filter(user=request.user) if request.user.is_authenticated else None
     next_product = product.get_next_product()
-    related_products = product.get_related_products()  # Fetch related products
+    related_products = product.get_related_products()
     
     if request.method == 'POST' and request.user.is_authenticated:
         if user_rating:
@@ -871,27 +868,22 @@ def product_detail(request, slug):
             rating.save()
             return redirect('store:product_detail', slug=product.slug)
     else:
-        if user_rating:
-            rating_form = None
-        else:
-            rating_form = CustomerRatingForm() if request.user.is_authenticated else None
+        rating_form = CustomerRatingForm() if request.user.is_authenticated else None
 
     context = {
-        'user_rating': user_rating,
         'product': product,
         'ratings': ratings,
         'average_rating': average_rating,
         'count': product.ratings.count(),
         'rating_form': rating_form,
-        'now': now,
+        'now': timezone.now(),
         'all_user_rating': all_user_rating,
         'is_in_cart': is_in_cart,
         'next_product': next_product,
         'csrf_token': request.META.get('CSRF_COOKIE'),
-        'related_products': related_products, 
-        
+        'related_products': related_products,
     }
-    return render(request, 'store/product_detail.html', context) # Add related products to context
+    return render(request, 'store/product_detail.html', context)
 
 
 # this function enables users to delete a product from the cart
@@ -921,17 +913,20 @@ class DeleteCartItem(View):
 
 
 
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.views import View
+from .models import Product, Cart
+
 class UpdateCartQuantity(View):
     def post(self, request, *args, **kwargs):
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             id = int(self.request.POST.get('id'))
-            quantity1 = request.POST.get('quantity1')
-            quantity2 = request.POST.get('quantity2')
-            quantity3 = request.POST.get('quantity3')
+            quantity = request.POST.get('quantity')
             
-            # Determine the quantity to use
+            # Validate the quantity
             try:
-                quantity = int(quantity1) if quantity1 else (int(quantity2) if quantity2 else int(quantity3))
+                quantity = int(quantity)
             except (ValueError, TypeError):
                 return JsonResponse({'message': 'Invalid quantity'}, status=400)
             
@@ -943,10 +938,7 @@ class UpdateCartQuantity(View):
                 cart = get_object_or_404(Cart, product=product, is_ordered=False, user=request.user)
                 
                 cart.quantity = quantity
-                if size:
-                    cart.size = size
-                else:
-                    cart.size = None  # Handle the case where size is not provided
+                cart.size = size if size else None  # Handle the case where size is not provided
                 
                 cart.save()
             else:
@@ -954,10 +946,7 @@ class UpdateCartQuantity(View):
                 
                 if str(id) in session_cart:
                     session_cart[str(id)]['quantity'] = quantity
-                    if size:
-                        session_cart[str(id)]['size'] = size
-                    else:
-                        session_cart[str(id)]['size'] = None  # Handle the case where size is not provided
+                    session_cart[str(id)]['size'] = size if size else None  # Handle the case where size is not provided
                 else:
                     session_cart[str(id)] = {
                         'quantity': quantity,
@@ -971,12 +960,15 @@ class UpdateCartQuantity(View):
             else:
                 total_price = product.price * quantity
 
+            messages = [{'message': 'Cart updated successfully', 'tags': 'success'}]
+
             return JsonResponse({
                 'product': product.title,
                 'id': id,
                 'qty': quantity,
                 'size': size,  # Ensure to return size even if it's None
-                'total_price': total_price
+                'total_price': total_price,
+                'messages': messages
             })
         
         return JsonResponse({'message': 'error'}, status=400)

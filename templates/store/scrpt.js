@@ -212,3 +212,163 @@ const addToCart = function() {
         }
     });
 };
+
+
+
+
+<script>
+        
+    $(document).ready(function(){
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func.apply(this, args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    
+        const updateCart = debounce(function(){
+            let cartId = $('#product-id').val();
+            let quantity = $('#cart-quantity-input').val();
+            let size = $('#size').val();
+    
+            console.log('Cart update triggered', {'id': cartId, 'qty': quantity, 'size': size});
+            
+            $.ajax({
+                url: "{% url 'store:update_cart_quantity' %}",
+                method: 'POST',
+                data: {
+                    id: cartId,
+                    quantity: quantity,
+                    size: size,
+                    csrfmiddlewaretoken: "{{csrf_token}}"
+                    
+                },
+                success: function(response){
+                    // Handle success, update the cart UI
+                    console.log('Success response:', response);
+                    
+                    // Update the price and quantity in the UI
+                    $('#new-price').text(`₦${response.total_price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`);
+                    $('#cart-quantity-input').val(response.qty);
+                },
+                error: function(response){
+                    console.log('Error response:', response);
+                }
+            });
+        }, 300);  // Adjust debounce time as necessary
+    
+        $('#cart-quantity-input').off('change').on('change', updateCart);
+
+
+
+// Add to cart
+function addToCart() {
+    let productSlug = "{{ product.slug }}"; // Assume you have an input field with id 'product-slug'
+    console.log('Add to cart triggered', { 'slug': productSlug });
+
+    $.ajax({
+        url: "{% url 'store:add-to-cart' %}",
+        method: 'POST',
+        data: {
+            slug: productSlug,
+            csrfmiddlewaretoken: "{{ csrf_token }}"
+        },
+        success: function(response) {
+            // Handle success, update the cart UI
+            console.log('Success response:', response);
+            $('#cart-count').html(response.cart_count);
+            
+            // Change button ID and text
+            $('#cart-btn').attr('id', 'delete-btn').text('Delete from Cart');
+            
+            // Display messages using SweetAlert
+            response.messages.forEach(function(message) {
+                Swal.fire({
+                    text: message.message,
+                    icon: message.tags.includes('success') ? 'success' : 'error',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            });
+
+            // Attach delete event
+            $('#delete-btn').off('click').on('click', deleteFromCart);
+        },
+        error: function(response) {
+            console.log('Error response:', response);
+        }
+    });
+}
+
+// Delete from cart
+function deleteFromCart() {
+    let productSlug = "{{ product.slug }}"; // Assume you have an input field with id 'product-slug'
+    console.log('Delete from cart triggered', { 'slug': productSlug });
+
+    $.ajax({
+        url: "{% url 'store:delete-from-cart' %}",
+        method: 'POST',
+        data: {
+            slug: productSlug,
+            csrfmiddlewaretoken: "{{ csrf_token }}"
+        },
+        success: function(response) {
+            // Handle success, update the cart UI
+            console.log('Success response:', response);
+            $('#cart-count').html(response.cart_count);
+            
+            // Change button ID and text back to add to cart
+            $('#delete-btn').attr('id', 'cart-btn').text('Add to Cart');
+
+            // Display messages using SweetAlert
+            response.messages.forEach(function(message) {
+                Swal.fire({
+                    text: message.message,
+                    icon: message.tags.includes('success') ? 'success' : 'error',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            });
+
+            // Attach add event
+            $('#cart-btn').off('click').on('click', addToCart);
+        },
+        error: function(response) {
+            console.log('Error response:', response);
+        }
+    });
+}
+
+// Attach initial add to cart event
+$(document).ready(function() {
+    $('#cart-btn').off('click').on('click', addToCart);
+});
+
+// Attach initial add to cart event
+$('#cart-btn').off('click').on('click', addToCart);
+
+    });
+   
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+      
+    
+</script>
+ 
