@@ -14,7 +14,7 @@ urlpatterns = [
     # path('category/<slug>', views.product_list_by_category, name='product_list_by_category'),
 
     # Other URL patterns...
-    path('products/category/<slug:slug>/', views.product_list_by_category, name='product_list_by_category'),
+    path('category/<slug>', views.product_list_by_category, name='product_list_by_category'),
 #     path('categories/<str:title>', views.category_filter, name='categories-filter'),
 
     path('', views.HomeView.as_view(),name='index'),

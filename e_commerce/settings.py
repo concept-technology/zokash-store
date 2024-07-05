@@ -9,8 +9,8 @@ load_dotenv()
 
 SECRET_KEY = os.environ.get("SECRET_KEY", 'your_default_secret_key')
 
-#DEBUG = os.environ.get("DEBUG", 'True').lower() in ['true', '1', 't']
-DEBUG=False
+DEBUG = os.environ.get("DEBUG", 'True').lower() in ['true', '1', 't']
+# DEBUG=False
 ALLOWED_HOSTS = ['*', '127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
@@ -83,23 +83,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'e_commerce.wsgi.application'
 
-if not DEBUG:
+# if not DEBUG:
 
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-    DATABASES = {
-        'default': dj_database_url.config(
-            default='postgresql://zokash_household_db_user:uP97E5oviM7edStflqy0INmGj5PNFqgz@dpg-cq2acj3v2p9s73ep9stg-a.oregon-postgres.render.com/zokash_household_db',
-            conn_max_age=600,
-        )
-    }
+DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASES = {
+    'default': dj_database_url.config(
+        default='postgresql://zokash_household_db_user:uP97E5oviM7edStflqy0INmGj5PNFqgz@dpg-cq2acj3v2p9s73ep9stg-a.oregon-postgres.render.com/zokash_household_db',
+        conn_max_age=600,
+    )
+}
 
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }    
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }    
 
 
 

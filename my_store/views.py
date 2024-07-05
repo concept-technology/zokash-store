@@ -244,11 +244,6 @@ def product_list_by_category(request, slug):
             paginated_products = paginator.page(1)
         except EmptyPage:
             paginated_products = paginator.page(paginator.num_pages)
-
-        # if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        #     html = render_to_string('store/product_list.html', {'products_with_ratings': paginated_products})
-        #     return JsonResponse({'html': html})
-
         context = {
             'category': category,
             'products': products,
@@ -260,9 +255,9 @@ def product_list_by_category(request, slug):
             'product_count': products.count(),
         }
         return render(request, 'store/product_list_by_category.html', context)
-    except Exception as e:
-        return JsonResponse({'message': 'An error occurred.', 'error': str(e)})
-
+    except ObjectDoesNotExist:
+        messages.error(request, 'not found on the server')
+        return redirect('store:index')
      
 
 def logout_view(request):
@@ -854,7 +849,6 @@ def product_detail(request, slug):
     all_user_rating = product.ratings.filter(user=request.user) if request.user.is_authenticated else None
     next_product = product.get_next_product()
     related_products = product.get_related_products()
-    order = Order.objects.filter(user=request.user, is_ordered=True, is_received=False)
     if request.method == 'POST' and request.user.is_authenticated:
         if user_rating:
             rating_form = CustomerRatingForm(request.POST, instance=user_rating)

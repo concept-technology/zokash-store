@@ -180,14 +180,16 @@
 									<div class="collapse show" id="widget-1">
 										<div class="widget-body">
 											<div class="filter-items filter-items-count">
-								{% for categories in category %}
+											{% for categories in category %}
 
 												<div class="filter-item">
 													
 													<div class="custom-control custom-checkbox">
+														<a href="{% url 'store:product_list_by_category' categories.slug %}">
 														<button type="submit" class="custom-control-inputx" id="category-btn">
 														<input type="hidden" value="{{categories.slug}}" id="category-input">
 														<label class="custom-control-label" for="cat-1" >{{categories.title}}</label>
+														</a>
 													</div><!-- End .custom-checkbox -->
 													<span class="item-count">{{category_count}}</span>
 												
