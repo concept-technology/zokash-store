@@ -836,6 +836,7 @@ def product_detail(request, slug):
     # Check if the user is authenticated
     if request.user.is_authenticated:
         try:
+            in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
             is_in_cart = Cart.objects.filter(product=product, is_ordered=False, user=request.user).exists()
         except Cart.DoesNotExist:
             is_in_cart = False
@@ -843,6 +844,9 @@ def product_detail(request, slug):
     else:
         is_in_cart = False
         user_rating = None
+        session_key = get_session_key(request)
+        in_wishlist = Wishlist.objects.filter(session_key=session_key, product=product).exists()
+
     
     ratings = product.ratings.all()
     average_rating = product.average_rating()
@@ -875,6 +879,7 @@ def product_detail(request, slug):
         'next_product': next_product,
         'csrf_token': request.META.get('CSRF_COOKIE'),
         'related_products': related_products,
+        'in_wishlist': in_wishlist
     }
     return render(request, 'store/product_detail.html', context)
 
@@ -905,21 +910,16 @@ class DeleteCartItem(View):
         return JsonResponse({'message': 'error'}, status=400)
 
 
-
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from django.views import View
-from .models import Product, Cart
-
 class UpdateCartQuantity(View):
     def post(self, request, *args, **kwargs):
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             id = int(self.request.POST.get('id'))
             quantity = request.POST.get('quantity')
+            quantity1 = request.POST.get('quantity1')
             
             # Validate the quantity
             try:
-                quantity = int(quantity)
+                quantity = int(quantity) or int(quantity1)
             except (ValueError, TypeError):
                 return JsonResponse({'message': 'Invalid quantity'}, status=400)
             
@@ -1007,4 +1007,85 @@ def next_product(request, slug):
     else:
         data = {}
 
-    return JsonResponse(data)                                
+    return JsonResponse(data) 
+
+
+#  wish list sess
+def get_session_key(request):
+    if not request.session.session_key:
+        request.session.create()
+    return request.session.session_key
+
+
+
+# def add_to_wishlist(request, product_id):
+#     product = get_object_or_404(Product, id=product_id)
+
+#     if request.user.is_authenticated:
+#         wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+#     else:
+#         session_key = get_session_key(request)
+#         wishlist_item, created = Wishlist.objects.get_or_create(session_key=session_key, product=product)
+
+#     if created:
+#         message = "Added to wishlist"
+#     else:
+#         message = "Already in wishlist"
+
+#     return JsonResponse({'message': message})
+
+
+def toggle_wishlist(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    session_key = get_session_key(request) if not request.user.is_authenticated else None
+
+    if request.user.is_authenticated:
+        wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+    else:
+        wishlist_item, created = Wishlist.objects.get_or_create(session_key=session_key, product=product)
+
+    if created:
+        message = "Added to wishlist"
+        in_wishlist = True
+    else:
+        wishlist_item.delete()
+        message = "Removed from wishlist"
+        in_wishlist = False
+
+    return JsonResponse({'message': message, 'in_wishlist': in_wishlist})
+
+
+
+def remove_from_wishlist(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.user.is_authenticated:
+        Wishlist.objects.filter(user=request.user, product=product).delete()
+    else:
+        session_key = get_session_key(request)
+        Wishlist.objects.filter(session_key=session_key, product=product).delete()
+
+    return JsonResponse({'message': "Removed from wishlist"})
+
+
+# display the wih list
+def wishlist(request):
+    if request.user.is_authenticated:
+        wishlist_items = Wishlist.objects.filter(user=request.user)
+    else:
+        session_key = get_session_key(request)
+        wishlist_items = Wishlist.objects.filter(session_key=session_key)
+
+    context = {
+        'wishlist_items': wishlist_items
+    }
+    return render(request, 'store/wishlist.html', context)
+
+def wishlist_count(request):
+    if request.user.is_authenticated:
+        count = Wishlist.objects.filter(user=request.user).count()
+    else:
+        session_key = get_session_key(request)
+        count = Wishlist.objects.filter(session_key=session_key).count()
+
+    return JsonResponse({'count': count})                             

@@ -93,12 +93,24 @@
                             </div><!-- End .product-content -->
 
                             <div class="product-details-action">           
-                                <button class="btn-product btn-cart" type="submit" id="cart-btn">
-                                
+                                <button class="btn-product btn-cart btn" type="submit" id="cart-btn">
+                                <!--class=" btn btn-product btn-wishlist"  -->
                                 <span>Add to Cart</span></button>
                                 <div class="details-action-wrapper">
-                                    <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
-                                    <a href="#" class="btn-product btn-compare" title="Compare"><span>Add to Compare</span></a>
+                                    <!-- <button id="remove-from-wishlist" class="btn-product btn-wishlist  btn-link" data-url="{{ product.get_remove_from_wishlist_url }}" class="btn btn-danger">Remove from Wishlist</button> -->
+                                    <button class="toggle-wishlist btn-product btn-wishlist btn" 
+                                    data-add-url="{{ product.get_add_to_wishlist_url }}" 
+                                    data-remove-url="{{ product.get_remove_from_wishlist_url }}" 
+                                    data-product-id="{{ product.id }}" 
+                                    class="btn">
+                                {% if in_wishlist %}
+                                    Remove from Wishlist
+                                {% else %}
+                                    Add to Wishlist
+                                {% endif %}
+                            </button>
+                            
+                                    <!-- <a href="#" class="btn-product btn-compare" title="Compare"><span>Add to Compare</span></a> -->
                                 </div><!-- End .details-action-wrapper -->
                             </div><!-- End .product-details-action -->
 
@@ -265,36 +277,58 @@
                                     </div><!-- End .collapse -->
                                 </div><!-- End .card -->
                             </div><!-- End .accordion -->
+                            
                             <div class="sticky-bar">
                                 <div class="container">
                                     <div class="row">
                                         <div class="col-6">
                                             <figure class="product-media">
                                                 <a href="product.html">
-                                                    <img src="{{items.img_1.url}}" alt="Product image">
+                                                    <img src="{{product.img_1.url}}" alt="Product image">
                                                 </a>
                                             </figure><!-- End .product-media -->
-                                            <h4 class="product-title"><a href="product.html">{{items.description}}</a></h4><!-- End .product-title -->
+                                            <h4 class="product-title"><a href="product.html">{{product.description}}</a></h4><!-- End .product-title -->
                                         </div><!-- End .col-6 -->
                         
                                         <div class="col-6 justify-content-end">
                                             <div class="product-price">
-                                                
-                                                $84.00
+                                                {% if product.discount_price|floatformat:2|intcomma%}            
+                                                <span class="new-price" id="new-price1">&#8358;{{product.discount_price|floatformat:2|intcomma}}</span>
+                                                <span class="old-price">&#8358;{{product.price|floatformat:2|intcomma}}</span>
+                                                {% else %}
+                                                <span class="new-price" id="new-price1">&#8358;{{product.price|floatformat:2|intcomma}}</span>
+                                                <span class="old-price">&#8358;{{product.discount_price|floatformat:2|intcomma}}</span>
+                                                {% endif %}
                                             </div><!-- End .product-price -->
                                             <div class="product-details-quantity">
-                                                <input type="number" id="sticky-cart-qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required="" style="display: none;"><div class="input-group  input-spinner"><div class="input-group-prepend"><button style="min-width: 26px" class="btn btn-decrement btn-spinner" type="button"><i class="icon-minus"></i></button></div><input type="text" style="text-align: center" class="form-control " required="" placeholder=""><div class="input-group-append"><button style="min-width: 26px" class="btn btn-increment btn-spinner" type="button"><i class="icon-plus"></i></button></div></div>
+                                                <input type="number"  id="cart-quantity-input1" class="form-control" data-item-id="{{ product.id }}" value="{{ product.quantity }}" min="1" max="10" step="1" data-decimals="0" required="" name="quantity" value="{{ product.quantity }}" style="display: none;"><div class="input-group  input-spinner"><div class="input-group-prepend"><button style="min-width: 26px" class="btn btn-decrement btn-spinner" type="button"><i class="icon-minus"></i></button></div><input type="text" style="text-align: center" class="form-control " required="" placeholder=""><div class="input-group-append"><button style="min-width: 26px" class="btn btn-increment btn-spinner" type="button"><i class="icon-plus"></i></button></div></div>
+                                                <!-- <input type="number" id="cart-quantity-input1" class="form-control" data-item-id="{{ product.id }}" value="{{ product.quantity }}" name="quantity" min="1" step="1" data-decimals="0" required> -->
                                             </div><!-- End .product-details-quantity -->
                         
                                             <div class="product-details-action">
-                                                <button class="btn-product btn-cart" id="cart-btn1"><span>add to cart</span></button>
-                                                <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
+
+                                                
+                                        <button class="btn-product btn-cart" id="cart-btn1"><span>add to cart</span></button>
+                                            <button class="toggle-wishlist btn-product btn-wishlist btn" 
+                                                data-add-url="{{ product.get_add_to_wishlist_url }}" 
+                                                data-remove-url="{{ product.get_remove_from_wishlist_url }}" 
+                                                data-product-id="{{ product.id }}" 
+                                                >
+                                            {% if in_wishlist %}
+                                                Remove from Wishlist
+                                            {% else %}
+                                                Add to Wishlist
+                                            {% endif %}
+                                        </button>
+                                        
+                                                <!-- <button id="add-to-wishlist" class="btn-product btn-wishlist"data-url="{{ product.get_add_to_wishlist_url }}" class="btn btn-primary">Add to Wishlist</button> -->
+                                                
+                                                <!-- <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a> -->
                                             </div><!-- End .product-details-action -->
                                         </div><!-- End .col-6 -->
                                     </div><!-- End .row -->
                                 </div><!-- End .container -->
                             </div>
-                   
                         </div><!-- End .product-details -->
                     </div><!-- End .col-md-6 -->
                 </div><!-- End .row -->
@@ -320,10 +354,15 @@
         const updateCart = debounce(function() {
             let cartId = $('#product-id').val();
             let quantity = $('#cart-quantity-input').val();
+            let quantity1 = $('#cart-quantity-input1').val();
             let size = $('#size').val();
-
+        
+            // Synchronize the values of the input fields
+            $('#cart-quantity-input').val(quantity);
+            $('#cart-quantity-input1').val(quantity);
+        
             console.log('Cart update triggered', { 'id': cartId, 'qty': quantity, 'size': size });
-
+        
             $.ajax({
                 url: "{% url 'store:update_cart_quantity' %}",
                 method: 'POST',
@@ -336,16 +375,26 @@
                 success: function(response) {
                     console.log('Success response:', response);
                     $('#new-price').text(`₦${response.total_price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`);
+                    $('#new-price1').text(`₦${response.total_price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`);
                     $('#cart-quantity-input').val(response.qty);
+                    $('#cart-quantity-input1').val(response.qty);
                 },
                 error: function(response) {
                     console.log('Error response:', response);
                 }
             });
         }, 300); // Adjust debounce time as necessary
-
-        $('#cart-quantity-input').off('change').on('change', updateCart);
-
+        
+        $('#cart-quantity-input').off('change').on('change', function() {
+            $('#cart-quantity-input1').val($(this).val());
+            updateCart();
+        });
+        
+        $('#cart-quantity-input1').off('change').on('change', function() {
+            $('#cart-quantity-input').val($(this).val());
+            updateCart();
+        });
+        
         function addToCart() {
             let productSlug = "{{ product.slug }}";
             console.log('Add to cart triggered', { 'slug': productSlug });
@@ -436,9 +485,10 @@
 
         // Attach initial add to cart event
         $('#cart-btn').off('click').on('click', addToCart);
-        $('#cart-btn1').off('click').on('click', addToCart);
+        $('#cart-btn1').off('click').on('click', addToCart);   
     });
 
+    
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -453,6 +503,31 @@
         }
         return cookieValue;
     }
+
+
+    $(document).ready(function() {
+        $('.toggle-wishlist').click(function() {
+            var button = $(this);
+            var add_url = button.data('add-url');
+            var remove_url = button.data('remove-url');
+            var in_wishlist = button.text().trim() === 'Remove from Wishlist';
+
+            var url = in_wishlist ? remove_url : add_url;
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function(response) {
+                    alert(response.message);
+                    if (response.in_wishlist) {
+                        $('.toggle-wishlist[data-product-id="' + button.data('product-id') + '"]').text('Remove from Wishlist');
+                    } else {
+                        $('.toggle-wishlist[data-product-id="' + button.data('product-id') + '"]').text('Add to Wishlist');
+                    }
+                }
+            });
+        });
+    });
+
 </script>
    
 

@@ -78,4 +78,5 @@ admin.site.register(Inventory, InventAdmin)
 admin.site.register(Size)
 admin.site.register(Invoice)
 admin.site.register(AbujaLocation)
+admin.site.register(Wishlist)
 actions = [make_accept_refund]

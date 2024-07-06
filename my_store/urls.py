@@ -70,6 +70,11 @@ urlpatterns = [
     path('payment/success', views.success_page, name='success-page'),
     
     
+    path('add-to-wishlist/<int:product_id>/', views.toggle_wishlist, name='add-to-wishlist'),
+    path('remove-from-wishlist/<int:product_id>/', views.remove_from_wishlist, name='remove-from-wishlist'),
+    path('wishlist-count/', views.wishlist_count, name='wishlist-count'),
+    path('wishlist/', views.wishlist, name='wishlist'),
+    
     
     
   # Other URL patterns...

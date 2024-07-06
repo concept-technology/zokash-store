@@ -94,7 +94,12 @@ class Product(models.Model):
     slug = models.SlugField(unique=True, default='eg-product-title')
     ratings = Rating()
     # qty = models.IntegerField(default=1)
-    
+    def get_add_to_wishlist_url(self):
+        return reverse("store:add-to-wishlist", kwargs={"product_id": self.id})
+
+    def get_remove_from_wishlist_url(self):
+        return reverse("store:remove-from-wishlist", kwargs={"product_id": self.id})
+
   
     def get_related_products(self):
         return Product.objects.filter(category=self.category).exclude(id=self.id)[:4]  # Change the number of products to display as needed
@@ -192,8 +197,7 @@ phone_regex = RegexValidator(
     regex=r'^\+?1?\d{9,15}$',
     message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
 )
-
-
+  
 class CustomersAddress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='', blank=True, null=True )
     street_address = models.CharField(max_length=300)
@@ -378,3 +382,22 @@ class Invoice(models.Model):
 
     def __str__(self):
         return self.invoice_number
+    
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+  
+  
+    
+  
+    class Meta:
+        unique_together = ('user', 'product', 'session_key')
+        
+        
+
+    def __str__(self):
+        return f"{self.user or self.session_key} - {self.product.title}"
+  

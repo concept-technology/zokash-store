@@ -47,21 +47,23 @@
                     </a>
                 </div><!-- End .compare-dropdown -->
 
-                <!-- <div class="wishlist">
-                    <a href="" title="Wishlist">
+                <div class="wishlist">
+                    <a href="{% url 'store:wishlist' %}" title="Wishlist">
                         <div class="icon">
-                            <i class="icon-heart-o"></i>
-                            <span class="wishlist-count badge">3</span>
+                            <i class="icon-heart-o">
+
+                                <span id="count">3</span>
+                            </i>
                         </div>
                         <p>Wishlist</p>
                     </a>
-                </div> -->
+                </div>
 
                 <div class="dropdown cart-dropdown">
                     <a href="{% url 'store:cart' %}" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
                         <div class="icon">
                             <i class="icon-shopping-cart"></i>
-                            <span class="cart-count" id="cart-count" style="background-color: rgb(166, 166, 226) ; color:aliceblue">0</span>
+                            <span class="cart-count" id="cart-count" style="background-color: rgb(166, 166, 226) ; color:aliceblue" id="">0</span>
                         </div>
                         <p>Cart</p>
                     </a>
@@ -222,6 +224,24 @@
                 <i class="la la-lightbulb-o"></i><p>Clearance<span class="highlight">&nbsp;Up to 30% Off</span></p>
             </div> -->
         </div><!-- End .container -->
+    
+        <script>
+            // Function to update wishlist count
+            function updateWishlistCount() {
+                $.ajax({
+                    url: "{% url 'store:wishlist-count' %}",
+                    method: 'GET',
+                    success: function(response) {
+                        $('#count').text(response.count);
+                    }
+                });
+            }
+        
+            // Update count on page load
+            $(document).ready(function() {
+                updateWishlistCount();
+            });
+        </script>
         
     </div><!-- End .header-bottom -->
 
