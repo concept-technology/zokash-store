@@ -25,12 +25,13 @@ urlpatterns = [
     
     
 # cart seection
-     path('cart-count/', views.cart_count, name='cart_count'),    
+     path('cart-count/', views.cart_count, name='cart-count'),    
      path('add-to-cart/',views.add_to_cart, name='add-to-cart'),
      path('delete-from-cart/',views.DeleteCartItem.as_view(), name='delete-from-cart'),
      path('update-cart/', views.UpdateCartQuantity.as_view(), name='update_cart_quantity'),
      path('cart/', views.CartView.as_view(), name='cart'),
      path('cart/<slug>', views.CartView.as_view(), name='cart_item'),
+     path('delete-cart-item/<slug>', views.delete_cart, name='delete-cart-item'),
      
     # checkout' s
      path('cart/check-out',views.CheckoutView.as_view(), name='check-out'),

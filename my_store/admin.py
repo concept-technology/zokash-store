@@ -76,6 +76,7 @@ admin.site.register(Features)
 admin.site.register(Inventory, InventAdmin)
 
 admin.site.register(Size)
+admin.site.register(Stock)
 admin.site.register(Invoice)
 admin.site.register(AbujaLocation)
 admin.site.register(Wishlist)

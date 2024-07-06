@@ -47,29 +47,27 @@
                     </a>
                 </div><!-- End .compare-dropdown -->
 
+
+
                 <div class="wishlist">
-                    <a href="{% url 'store:wishlist' %}" title="Wishlist">
-                        <div class="icon">
-                            <i class="icon-heart-o">
-
-                                <span id="count">3</span>
-                            </i>
-                        </div>
+                    <a href="{% url 'store:wishlist' %}" title="Wishlist">              
+                <a href="{%url 'store:wishlist'%}" title="Wishlist">
+                    <div class="icon">
+                        <i class="icon-heart-o" id="count"></i>
                         <p>Wishlist</p>
-                    </a>
+                        <!-- <span class="wishlist-count wishlistn" id="count">0</span> -->
+                    </div>
+                </a>
+            </a>
                 </div>
-
                 <div class="dropdown cart-dropdown">
                     <a href="{% url 'store:cart' %}" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
                         <div class="icon">
                             <i class="icon-shopping-cart"></i>
-                            <span class="cart-count" id="cart-count" style="background-color: rgb(166, 166, 226) ; color:aliceblue" id="">0</span>
+                            <span class="cart-coun" id="cart-count">0</span>
                         </div>
                         <p>Cart</p>
                     </a>
-
-    
-    
                     <div class="dropdown-menu dropdown-menu-right">
                         <div class="dropdown-cart-products">                            
                             <div class="product">
@@ -102,7 +100,7 @@
                                 <a href="{% url 'store:cart' %}" class="btn btn-primary">View Cart</a>
                                 <a href="{% url 'store:check-out'%}" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
                             </div><!-- End .dropdown-cart-total -->
-                            <p>you have no items in cart <a href="{%url 'store:categories-list'%}">start Shopping</a></p>
+                            <!-- <p>you have no items in cart <a href="{%url 'store:categories-list'%}">start Shopping</a></p> -->
 
                         </div><!-- End .dropdown-menu -->
                     </div><!-- End .cart-dropdown -->
@@ -233,14 +231,33 @@
                     method: 'GET',
                     success: function(response) {
                         $('#count').text(response.count);
+                        console.log(response.count);
+                    }
+                });
+            }
+            
+            // Update count on page load and every 5 seconds
+            $(document).ready(function() {
+                updateWishlistCount(); // Update once on page load
+                setInterval(updateWishlistCount, 5000); // Then update every 5 seconds
+            });
+            
+            function updateCartCount() {
+                $.ajax({
+                    url: "{% url 'store:cart-count' %}",
+                    method: 'GET',
+                    success: function(response) {
+                        $('#cart-count').text(response.cart_count);
                     }
                 });
             }
         
-            // Update count on page load
-            $(document).ready(function() {
-                updateWishlistCount();
-            });
+           // Update count on page load and every 5 seconds
+           $(document).ready(function() {
+            updateCartCount(); // Update once on page load
+            setInterval(updateCartCount, 5000); // Then update every 5 seconds
+        });
+        
         </script>
         
     </div><!-- End .header-bottom -->

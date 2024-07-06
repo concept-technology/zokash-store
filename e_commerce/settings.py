@@ -85,21 +85,21 @@ WSGI_APPLICATION = 'e_commerce.wsgi.application'
 
 # if not DEBUG:
 
-# DATABASE_URL = os.environ.get('DATABASE_URL')
-# DATABASES = {
-#     'default': dj_database_url.config(
-#         default='postgresql://zokash_household_db_user:uP97E5oviM7edStflqy0INmGj5PNFqgz@dpg-cq2acj3v2p9s73ep9stg-a.oregon-postgres.render.com/zokash_household_db',
-#         conn_max_age=600,
-#     )
-# }
-
-
+DATABASE_URL = os.environ.get('DATABASE_URL')
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}    
+    'default': dj_database_url.config(
+        default='postgresql://zokash_household_db_user:uP97E5oviM7edStflqy0INmGj5PNFqgz@dpg-cq2acj3v2p9s73ep9stg-a.oregon-postgres.render.com/zokash_household_db',
+        conn_max_age=600,
+    )
+}
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }    
 
 
 

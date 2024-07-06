@@ -112,8 +112,8 @@ class Product(models.Model):
     def get_add_to_cart_url(self):
         return reverse("store:add-to-cart", kwargs={"slug": self.slug})
     
-    # def delete_cart(self):
-    #     return reverse("store:delete-from-cart", kwargs={"slug": self.slug,})
+    def delete_cart(self):
+        return reverse("store:delete-cart-item", kwargs={"slug": self.slug,})
     
     def get_cart_increment(self):
         return reverse("store:reduce_cart", kwargs={"slug": self.slug,})
@@ -391,7 +391,7 @@ class Wishlist(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
   
   
-    
+   
   
     class Meta:
         unique_together = ('user', 'product', 'session_key')
@@ -400,4 +400,9 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.user or self.session_key} - {self.product.title}"
-  
+    
+class Stock(models.Model):
+    product = models.OneToOneField(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    def __str__(self) -> str:
+        return f"{self.product.title} {self.quantity}"

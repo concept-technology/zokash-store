@@ -36,6 +36,8 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 # apps.py
 from django.apps import AppConfig
+from django.contrib import messages 
+from django.contrib.messages import get_messages
 
 
 class MyStoreConfig(AppConfig):
@@ -364,10 +366,10 @@ def cart_count(request):
     return JsonResponse({'cart_count': cart_count})
 
 
-from django.contrib.messages import get_messages
 
 @csrf_exempt
 @require_POST
+
 def add_to_cart(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         slug = request.POST.get('slug')
@@ -379,11 +381,11 @@ def add_to_cart(request):
 
             if cart_qs.exists():
                 cart_item = cart_qs.first()
-                cart_item.quantity += quantity  # Increment the quantity
-                cart_item.save()
-                messages.success(request, f"Updated {product.title} quantity in cart")
+                # cart_item.quantity += quantity  # Increment the quantity
+                # cart_item.save()
+                messages.error(request, f"{product.title} is already added to cart")
             else:
-                cart_item = Cart.objects.create(
+                cart_item = Cart.objects.get_or_create(
                     user=request.user,
                     product=product,
                     quantity=quantity,
@@ -396,7 +398,7 @@ def add_to_cart(request):
             if order_qs.exists():
                 order = order_qs.first()
             else:
-                order = Order.objects.create(
+                order = Order.objects.get_or_create(
                     user=request.user,
                     reference=f'order-{secrets.token_hex(8)}',
                     date=timezone.now(),
@@ -406,6 +408,13 @@ def add_to_cart(request):
             if not order.product.filter(id=cart_item.id).exists():
                 order.product.add(cart_item)
             order.save()
+                  
+            if request.user.is_authenticated:
+                Wishlist.objects.filter(user=request.user, product=product).delete()
+            else:
+                session_key = get_session_key(request)
+                Wishlist.objects.filter(session_key=session_key, product=product).delete()
+            
 
             storage = get_messages(request)
             response_messages = [{'message': message.message, 'tags': message.tags} for message in storage]
@@ -416,8 +425,8 @@ def add_to_cart(request):
             cart = request.session.get('cart', {})
 
             if str(product.id) in cart:
-                cart[str(product.id)]['quantity'] += quantity
-                messages.success(request, f"Updated {product.title} quantity in cart")
+                # cart[str(product.id)]['quantity'] += quantity
+                messages.error(request, f"{product.title} is already in the cart cart")
             else:
                 cart[str(product.id)] = {
                     'product_id': product.id,
@@ -435,7 +444,6 @@ def add_to_cart(request):
             return JsonResponse({'success': True, 'cart': request.session.get('cart', {}), 'messages': response_messages})
 
     return JsonResponse({'message': 'error processing your request'}, status=400)
-
 
 
 
@@ -1068,17 +1076,26 @@ def remove_from_wishlist(request, product_id):
     return JsonResponse({'message': "Removed from wishlist"})
 
 
-# display the wih list
+from django.shortcuts import render
+from .models import Wishlist
+  # Assuming you have a function to get session key
+
+
 def wishlist(request):
     if request.user.is_authenticated:
-        wishlist_items = Wishlist.objects.filter(user=request.user)
+        wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
     else:
         session_key = get_session_key(request)
-        wishlist_items = Wishlist.objects.filter(session_key=session_key)
-
+        wishlist_items = Wishlist.objects.filter(session_key=session_key).select_related('product')
+    
+    # Fetch stock information
+    for item in wishlist_items:
+        item.stock_quantity = Stock.objects.get(product=item.product).quantity
+    
     context = {
-        'wishlist_items': wishlist_items
+        'wishlist': wishlist_items
     }
+    
     return render(request, 'store/wishlist.html', context)
 
 def wishlist_count(request):
@@ -1088,4 +1105,6 @@ def wishlist_count(request):
         session_key = get_session_key(request)
         count = Wishlist.objects.filter(session_key=session_key).count()
 
-    return JsonResponse({'count': count})                             
+    return JsonResponse({'count': count})
+
+
