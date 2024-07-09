@@ -412,12 +412,12 @@ class Stock(models.Model):
 
 
 
-class SessionCart(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,)
-    quantity = models.IntegerField(default =1) 
-    is_ordered = models.BooleanField(default=False)
-    size = models.CharField(max_length=10,blank=True,null=True)
-    is_in_cart = models.BooleanField(default=False)
-    cart_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    session_key = models.CharField(max_length=40, null=True, blank=True)
+# class SessionCart(models.Model):
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE,)
+#     quantity = models.IntegerField(default =1) 
+#     is_ordered = models.BooleanField(default=False)
+#     size = models.CharField(max_length=10,blank=True,null=True)
+#     is_in_cart = models.BooleanField(default=False)
+#     cart_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+#     session_key = models.CharField(max_length=40, null=True, blank=True)
  
