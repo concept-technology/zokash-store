@@ -17,7 +17,7 @@ class ProductAdmin(admin.ModelAdmin):
     
 
 class CartAdmin(admin.ModelAdmin):    
-    list_display = ['product', 'user', 'get_price_tag'] 
+    list_display = ['product', 'user', 'get_price_tag', 'cart_id'] 
     class Meta:
         Model= Cart
                     

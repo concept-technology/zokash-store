@@ -1,7 +1,6 @@
 {% load static %}
 {% load humanize %}
 {% load cart_template_tag %}
-
 <header class="header header-2 header-intro-clearance .bg-dark-subtle">
     <div class="header-middle">
         <div class="container ">
@@ -11,7 +10,7 @@
                     <i class="icon-bars"></i>
                 </button>              
                 <a href="{% url 'store:index'%}" class="logo">
-                    <img src="{% static 'atinuke/zokashlogo.jpg'%}" alt="Molla Logo" width="105" height="25">
+                    <img src="{% static 'atinuke/zokashlogo.jpg'%}" alt="site Logo" width="105" height="25">
                 </a>
             </div><!-- End .header-left -->
 
@@ -38,11 +37,9 @@
                         {% if user.is_authenticated %}
                         <p>hello! {{user}}</p>
                         {% else %}
-                             <a href="{% url 'account_signup'%}" class="btn secondary">signup/login </a>
+                             <a href="{% url 'account_signup'%}" class="btn secondary">user</a>
                             
                         {% endif %}
-                            
-                  
                         <!-- </a> -->
                     </a>
                 </div><!-- End .compare-dropdown -->
@@ -112,10 +109,7 @@
             <!-- <a href="{% url 'account_login'%}" class="btn btn-secondaty">Login</a> -->
         </div>
 
-
-
     </div><!-- End .header-middle -->
-
     <div class="header-bottom sticky-header">
         <div class="container">
             <div class="header-left">
@@ -123,7 +117,6 @@
                     <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static" title="Browse Categories">
                         Browse Categories
                     </a>
-
                     <div class="dropdown-menu">
                         <nav class="side-nav">
                             <ul class="menu-vertical sf-arrows">
@@ -131,10 +124,9 @@
                                 <li class="item-lead"><a href="#">Gift Ideas</a></li>
                                 
                             </ul><!-- End .menu-vertical -->
-                         </nav> 
+                        </nav> 
                 </div>
             </div>
-
             <div class="header-center">
                 <nav class="main-nav">
                     <ul class="menu sf-arrows">
@@ -144,24 +136,19 @@
                         </li>
                         <li>
                             <a href="{% url 'store:categories-list' %}" class="sf-with-ul">Shop</a>
-                            
                         </li>
-   
                         <li>
                             <a href="#" class="sf-with-ul">Pages</a>
 
                             <ul>
                                 <li>
                                     <a href="{% url 'store:refund-request'%}">Refunds</a>
-
                                 </li>
                                 <li>
                                     <a href="{% url 'store:contact'%}" >Contact</a>
 
                                    <a href="{% url 'admin:index' %}">admin</a>
                                 </li>
-                                
-
                             </ul>
                         </li>
                         <!-- <li>
@@ -221,8 +208,7 @@
             <!-- <div class="header-right">
                 <i class="la la-lightbulb-o"></i><p>Clearance<span class="highlight">&nbsp;Up to 30% Off</span></p>
             </div> -->
-        </div><!-- End .container -->
-    
+        </div><!-- End .container -->   
         <script>
             // Function to update wishlist count
             function updateWishlistCount() {
@@ -260,8 +246,5 @@
         
         </script>
         
-    </div><!-- End .header-bottom -->
-
-
-   
+    </div><!-- End .header-bottom -->  
 </header><!-- End .header -->

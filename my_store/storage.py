@@ -14,3 +14,4 @@ class CustomStaticFilesStorage(StaticFilesStorage):
             'www.portotheme.com/html/molla/assets/css/plugins/owl-carousel/owl.video.play.html'
         ]
         return super().get_files(ignore_patterns, location, ignore)
+    

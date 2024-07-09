@@ -100,13 +100,13 @@
                                                     <img src="{{item.product.img_1.url}}" alt="Product image" class="product-image" style="height: 300px; object-fit:cover">
                                                 </a>
 
-                                                <div class="product-action-vertical">
-                                                    <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                                <!-- <div class="product-action-vertical">
+                                                    <a href="" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
                                                     <a href="#" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
                                                     <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                                </div><!-- End .product-action-vertical -->
+                                                </div> -->
                                                 <div class="product-action">
-													<button class="btn-product btn-cart1" type="submit" data-slug="{{ item.product.slug }}" id="cart-btn-{{ item.product.slug }}"><span>add to cart</span></button>
+													<!-- <button class="btn-product btn-cart1" type="submit" data-slug="{{ item.product.slug }}" id="cart-btn-{{ item.product.slug }}"><span>add to cart</span></button> -->
                                                     <!-- <button class="btn-product btn-cart1" type="submit" id="cart-btn1"><span>add to cart</span></button>			 -->
                                                 </div><!-- End .product-action -->
                                             </figure><!-- End .product-media -->
@@ -183,9 +183,9 @@
 													
 													<div class="custom-control custom-checkbox">
 														<a href="{% url 'store:product_list_by_category' categories.slug %}">
-														<button type="submit" class="custom-control-inputx" id="category-btn">
+														<button type="submit" class="custom-control-inputx btn" id="category-btn">
 														<input type="hidden" value="{{categories.slug}}" id="category-input">
-														<label class="custom-control-label" for="cat-1" >{{categories.title}}</label>
+														<label class="custom-control-label" for="cat-1" ><b>{{categories.title}}</b></label>
 														</a>
 													</div><!-- End .custom-checkbox -->
 													<span class="item-count">{{category_count}}</span>

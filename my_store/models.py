@@ -140,13 +140,13 @@ class Product(models.Model):
    
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default='', null=True, blank=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE,)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,related_name='product')
     quantity = models.IntegerField(default =1) 
     is_ordered = models.BooleanField(default=False)
     size = models.CharField(max_length=10,blank=True,null=True)
     is_in_cart = models.BooleanField(default=False)
-    cart_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-
+    cart_id = models.UUIDField(default=uuid.uuid4,)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
     
     def get_discount_price(self):
         return self.quantity * self.product.discount_price
@@ -291,9 +291,10 @@ class Order(models.Model):
     delivery_status = models.CharField(max_length=255, default='Processing',choices=del_status)
     abuja_location = models.ForeignKey(AbujaLocation, on_delete=models.SET_NULL, blank=True, null=True)
     cart_id = models.UUIDField(null=True, blank=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
     
-    def __str__(self):
-        return f" {self.user.username}, address:  {self.Payment}"
+    # def __str__(self):
+    #     return f" {self.user.username}, address:  {self.Payment}"
     
  
     # display the quantity in table
@@ -406,3 +407,17 @@ class Stock(models.Model):
     quantity = models.PositiveIntegerField()
     def __str__(self) -> str:
         return f"{self.product.title} {self.quantity}"
+
+
+
+
+
+class SessionCart(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,)
+    quantity = models.IntegerField(default =1) 
+    is_ordered = models.BooleanField(default=False)
+    size = models.CharField(max_length=10,blank=True,null=True)
+    is_in_cart = models.BooleanField(default=False)
+    cart_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+ 

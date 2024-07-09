@@ -39,6 +39,11 @@ from django.apps import AppConfig
 from django.contrib import messages 
 from django.contrib.messages import get_messages
 
+def get_session_key(request):
+    if not request.session.session_key:
+        request.session.create()
+    return request.session.session_key
+
 
 class MyStoreConfig(AppConfig):
     name = 'my_store'
@@ -50,7 +55,6 @@ class MyStoreConfig(AppConfig):
 #     messages.success(request, 'Coupon is applied')
 #                 if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
 #                     return redirect(next_url)
-
 class DashBoardView(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         
@@ -142,7 +146,7 @@ def create_ref_code():#generate order reference code
 class StoreView(ListView):
     model = Product
     template_name = 'index.html'
-    paginate_by = 5
+    paginate_by = 10
 
     def get_queryset(self):
         return Product.objects.filter(is_best_selling=True)
@@ -281,17 +285,36 @@ class HomeView(ListView):
     template_name = 'store/index.html'
     paginate_by= 6
 
+def get_session_key(request):
+    if not request.session.session_key:
+        request.session.create()
+    return request.session.session_key
 
+logger = logging.getLogger(__name__)
 
-class CartView(LoginRequiredMixin, View):
+class CartView(View):
     def get(self, request, *args, **kwargs):
         try:
             coupon_form = CouponForm()
             location_form = AbujaLocationForm()
 
-            order = Order.objects.filter(user=request.user, is_ordered=False).first()
-            cart_items = Cart.objects.filter(user=request.user, is_ordered=False)
-            # cart_items = request.session.get('cart', {})
+            if request.user.is_authenticated:
+                cart_items = Cart.objects.filter(user=request.user, is_ordered=False)
+                order = Order.objects.filter(user=request.user, is_ordered=False).first()
+            else:
+                session_cart_id = request.session.get('cart_id')
+                if not session_cart_id:
+                    session_cart_id = str(uuid.uuid4())
+                    request.session['cart_id'] = session_cart_id
+                    print(f"New session cart_id created: {session_cart_id}")
+
+                cart_items = Cart.objects.filter(cart_id=session_cart_id, is_ordered=False)
+                order = Order.objects.filter(cart_id=session_cart_id, is_ordered=False).first()
+                
+                print(f"Session cart_id: {session_cart_id}")
+                print(f"Cart items: {cart_items}")
+                print(f"Order: {order}")
+
             coupons = Coupon.objects.filter(active=True)
             locations = AbujaLocation.objects.all()
 
@@ -306,17 +329,29 @@ class CartView(LoginRequiredMixin, View):
             }
 
             return render(request, 'store/cart.html', context)
-        
+
         except ObjectDoesNotExist:
             messages.error(request, 'You do not have an active order.')
             return redirect('store:categories')
-        
     def post(self, request, *args, **kwargs):
         try:
-            order = Order.objects.filter(user=request.user, is_ordered=False).first()
+            if request.user.is_authenticated:
+                order = Order.objects.filter(user=request.user, is_ordered=False).first()
+            else:
+                session_cart_id = request.session.get('cart_id')
+                if not session_cart_id:
+                    session_cart_id = str(uuid.uuid4())
+                    request.session['cart_id'] = session_cart_id
+                    request.session.modified = True
+
+                order = Order.objects.filter(cart_id=session_cart_id, is_ordered=False).first()
+
+            # Debugging information
+            print(f"Order before forms: {order}")
+
             coupon_form = CouponForm(request.POST)
             location_form = AbujaLocationForm(request.POST)
-            
+
             if coupon_form.is_valid():
                 coupon_code = coupon_form.cleaned_data['code']
                 try:
@@ -329,15 +364,23 @@ class CartView(LoginRequiredMixin, View):
 
             if location_form.is_valid():
                 location_id = location_form.cleaned_data['location']
+                print(f"Location ID from form: {location_id}")
                 abuja_location = AbujaLocation.objects.get(id=location_id)
                 order.abuja_location = abuja_location
                 order.save()
                 messages.success(request, 'Delivery location updated successfully.')
 
-            cart_items = Cart.objects.filter(user=request.user, is_ordered=False)
+            # Debugging information
+            print(f"Order after forms: {order}")
+
+            if request.user.is_authenticated:
+                cart_items = Cart.objects.filter(user=request.user, is_ordered=False)
+            else:
+                cart_items = Cart.objects.filter(cart_id=session_cart_id, is_ordered=False)
+
             coupons = Coupon.objects.filter(active=True)
             locations = AbujaLocation.objects.all()
-          
+
             context = {
                 'coupon_form': coupon_form,
                 'location_form': location_form,
@@ -352,24 +395,29 @@ class CartView(LoginRequiredMixin, View):
 
         except ObjectDoesNotExist:
             messages.error(request, 'You do not have an active order.')
-            return redirect('store:categories')
+            return redirect('store:cart')
 
 
-# count the number of items in a cart for the user
-def cart_count(request):
+
+
+
+
+def cart_count_view(request):
     if request.user.is_authenticated:
         cart_count = Cart.objects.filter(user=request.user, is_ordered=False).count()
     else:
-        cart = request.session.get('cart', {})
-        cart_count = sum(item['quantity'] for item in cart.values())
-    
+        session_cart_id = request.session.get('cart_id', None)
+        if session_cart_id:
+            cart_count = Cart.objects.filter(cart_id=session_cart_id, is_ordered=False).count()
+        else:
+            cart_count = 0
     return JsonResponse({'cart_count': cart_count})
 
 
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 @require_POST
-
 def add_to_cart(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         slug = request.POST.get('slug')
@@ -381,11 +429,11 @@ def add_to_cart(request):
 
             if cart_qs.exists():
                 cart_item = cart_qs.first()
-                # cart_item.quantity += quantity  # Increment the quantity
-                # cart_item.save()
-                messages.error(request, f"{product.title} is already added to cart")
+                cart_item.quantity += quantity  # Update the quantity
+                cart_item.save()
+                messages.success(request, f"{product.title} quantity updated in cart")
             else:
-                cart_item = Cart.objects.get_or_create(
+                cart_item = Cart.objects.create(
                     user=request.user,
                     product=product,
                     quantity=quantity,
@@ -394,83 +442,98 @@ def add_to_cart(request):
                 messages.success(request, f"{product.title} is added to cart")
 
             # Create or update the order
-            order_qs = Order.objects.filter(user=request.user, is_ordered=False)
-            if order_qs.exists():
-                order = order_qs.first()
-            else:
-                order = Order.objects.get_or_create(
-                    user=request.user,
-                    reference=f'order-{secrets.token_hex(8)}',
-                    date=timezone.now(),
-                    is_ordered=False
-                )
+            order, created = Order.objects.get_or_create(
+                user=request.user,
+                is_ordered=False,
+                defaults={
+                    'reference': f'order-{secrets.token_hex(8)}',
+                    'date': timezone.now()
+                }
+            )
 
             if not order.product.filter(id=cart_item.id).exists():
                 order.product.add(cart_item)
             order.save()
-                  
-            if request.user.is_authenticated:
-                Wishlist.objects.filter(user=request.user, product=product).delete()
-            else:
-                session_key = get_session_key(request)
-                Wishlist.objects.filter(session_key=session_key, product=product).delete()
-            
+
+            Wishlist.objects.filter(user=request.user, product=product).delete()
 
             storage = get_messages(request)
             response_messages = [{'message': message.message, 'tags': message.tags} for message in storage]
 
-            return JsonResponse({'success': True, 'cart_count': Cart.objects.filter(user=request.user, is_ordered=False).count(), 'messages': response_messages})
+            cart_count = Cart.objects.filter(user=request.user, is_ordered=False).count()
+
+            return JsonResponse({'success': True, 'cart_count': cart_count, 'messages': response_messages})
         else:
-            # Handle cart for anonymous users
-            cart = request.session.get('cart', {})
-
-            if str(product.id) in cart:
-                # cart[str(product.id)]['quantity'] += quantity
-                messages.error(request, f"{product.title} is already in the cart cart")
+            session_cart_id = request.session.get('cart_id')
+            if not session_cart_id:
+                session_cart_id = str(uuid.uuid4())
+                request.session['cart_id'] = session_cart_id
+                request.session.modified = True
+                logger.info(f"New session cart_id created: {session_cart_id}")
+            
+            cart_qs = Cart.objects.filter(cart_id=session_cart_id, product=product, is_ordered=False)
+            if cart_qs.exists():
+                cart_item = cart_qs.first()
+                cart_item.quantity += quantity  # Update the quantity
             else:
-                cart[str(product.id)] = {
-                    'product_id': product.id,
-                    'title': product.title,
-                    'quantity': quantity
-                }
-                messages.success(request, f"{product.title} is added to cart")
+                cart_item = Cart.objects.create(cart_id=session_cart_id, product=product, is_ordered=False, quantity=quantity)
+            cart_item.save()
+            messages.success(request, f"{product.title} is added to cart")
 
-            request.session['cart'] = cart
-            request.session.modified = True  # Ensure session is saved
+            # Create or update the order
+            order, created = Order.objects.get_or_create(
+                cart_id=session_cart_id,
+                is_ordered=False,
+                defaults={
+                    'reference': f'order-{secrets.token_hex(8)}',
+                    'date': timezone.now()
+                }
+            )
+
+            if not order.product.filter(id=cart_item.id).exists():
+                order.product.add(cart_item)
+            order.save()
 
             storage = get_messages(request)
             response_messages = [{'message': message.message, 'tags': message.tags} for message in storage]
 
-            return JsonResponse({'success': True, 'cart': request.session.get('cart', {}), 'messages': response_messages})
+            cart_count = Cart.objects.filter(cart_id=session_cart_id, is_ordered=False).count()
 
+            return JsonResponse({'success': True, 'cart_count': cart_count, 'messages': response_messages})
     return JsonResponse({'message': 'error processing your request'}, status=400)
 
 
 
-
-def delete_cart(request, slug,):
-    product = get_object_or_404(Product, slug=slug,)
-    cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)
-    order_qs = Order.objects.filter(user=request.user, is_ordered=False)
+def delete_cart(request, slug):
+    product = get_object_or_404(Product, slug=slug)
     next_url = request.GET.get('next')
-    
-    if  order_qs.exists():
-        orders =    order_qs[0]
-        if orders.product.filter(product__slug=product.slug).exists():          
+
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(product=product, user=request.user, is_ordered=False)
+        order = Order.objects.filter(user=request.user, is_ordered=False).first()
+        
+        if order and order.product.filter(product=product).exists():
             cart.delete()
-            messages.success(request, 'deleted from cart') 
-            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-                return redirect(next_url)
-            return redirect("store:index")        
+            messages.success(request, 'Deleted from cart')
         else:
-            messages.info(request, 'you have already removed this item from cart')
-            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-                return redirect(next_url)
-            return redirect("store:index")
+            messages.error(request, 'You have already removed this item from the cart or no active order exists')
+        
     else:
-        messages.error(request, 'not deleted')    
-        return redirect('store:index',)
-    # return redirect('store:store_item', slug=slug)
+        session_cart_id = request.session.get('cart_id')
+        if session_cart_id:
+            cart = Cart.objects.filter(product=product, cart_id=session_cart_id, is_ordered=False)
+            if cart.exists():
+                cart.delete()
+                messages.success(request, 'Deleted from cart')
+            else:
+                messages.error(request, 'Item not found in cart')
+        else:
+            messages.error(request, 'No active cart found in session')
+
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        return redirect(next_url)
+    return redirect("store:index")
+
 
 
 
@@ -511,6 +574,7 @@ def verify_address(request):
     return render(request, 'store/check-user-address.html', context)
 
 # checkout view
+@login_required
 class CheckoutView(View):
     def get(self, *args, **kwargs):
         form = AddressForm(self.request.POST or None)
@@ -841,31 +905,24 @@ def search_view(request):
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
     
-    # Check if the user is authenticated
     if request.user.is_authenticated:
-        try:
-            in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
-            is_in_cart = Cart.objects.filter(product=product, is_ordered=False, user=request.user).exists()
-        except Cart.DoesNotExist:
-            is_in_cart = False
+        in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
+        is_in_cart = Cart.objects.filter(product=product, is_ordered=False, user=request.user).exists()
         user_rating = CustomerRating.objects.filter(user=request.user, product=product).first()
     else:
-        is_in_cart = False
-        user_rating = None
         session_key = get_session_key(request)
+        is_in_cart = Cart.objects.filter(product=product, is_ordered=False, session_key=session_key).exists()
         in_wishlist = Wishlist.objects.filter(session_key=session_key, product=product).exists()
-
+        user_rating = None
     
     ratings = product.ratings.all()
     average_rating = product.average_rating()
     all_user_rating = product.ratings.filter(user=request.user) if request.user.is_authenticated else None
     next_product = product.get_next_product()
     related_products = product.get_related_products()
+    
     if request.method == 'POST' and request.user.is_authenticated:
-        if user_rating:
-            rating_form = CustomerRatingForm(request.POST, instance=user_rating)
-        else:
-            rating_form = CustomerRatingForm(request.POST, instance=user_rating)
+        rating_form = CustomerRatingForm(request.POST, instance=user_rating)
         if rating_form.is_valid():
             rating = rating_form.save(commit=False)
             rating.user = request.user
@@ -873,7 +930,7 @@ def product_detail(request, slug):
             rating.save()
             return redirect('store:product-detail', slug=product.slug)
     else:
-        rating_form = CustomerRatingForm() if request.user.is_authenticated else None
+        rating_form = CustomerRatingForm(instance=user_rating) if request.user.is_authenticated else None
 
     context = {
         'product': product,
@@ -887,8 +944,9 @@ def product_detail(request, slug):
         'next_product': next_product,
         'csrf_token': request.META.get('CSRF_COOKIE'),
         'related_products': related_products,
-        'in_wishlist': in_wishlist
+        'in_wishlist': in_wishlist,
     }
+    
     return render(request, 'store/product_detail.html', context)
 
 
@@ -1018,30 +1076,6 @@ def next_product(request, slug):
     return JsonResponse(data) 
 
 
-#  wish list sess
-def get_session_key(request):
-    if not request.session.session_key:
-        request.session.create()
-    return request.session.session_key
-
-
-
-# def add_to_wishlist(request, product_id):
-#     product = get_object_or_404(Product, id=product_id)
-
-#     if request.user.is_authenticated:
-#         wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
-#     else:
-#         session_key = get_session_key(request)
-#         wishlist_item, created = Wishlist.objects.get_or_create(session_key=session_key, product=product)
-
-#     if created:
-#         message = "Added to wishlist"
-#     else:
-#         message = "Already in wishlist"
-
-#     return JsonResponse({'message': message})
-
 
 def toggle_wishlist(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -1076,10 +1110,6 @@ def remove_from_wishlist(request, product_id):
     return JsonResponse({'message': "Removed from wishlist"})
 
 
-from django.shortcuts import render
-from .models import Wishlist
-  # Assuming you have a function to get session key
-
 
 def wishlist(request):
     if request.user.is_authenticated:
@@ -1098,6 +1128,8 @@ def wishlist(request):
     
     return render(request, 'store/wishlist.html', context)
 
+
+
 def wishlist_count(request):
     if request.user.is_authenticated:
         count = Wishlist.objects.filter(user=request.user).count()
@@ -1106,5 +1138,8 @@ def wishlist_count(request):
         count = Wishlist.objects.filter(session_key=session_key).count()
 
     return JsonResponse({'count': count})
+
+
+
 
 
