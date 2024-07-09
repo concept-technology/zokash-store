@@ -38,7 +38,7 @@ from django.views.decorators.http import require_POST
 from django.apps import AppConfig
 from django.contrib import messages 
 from django.contrib.messages import get_messages
-
+from django.utils.decorators import method_decorator
 def get_session_key(request):
     if not request.session.session_key:
         request.session.create()
@@ -573,39 +573,46 @@ def verify_address(request):
     
     return render(request, 'store/check-user-address.html', context)
 
-# checkout view
-@login_required
+
+@method_decorator(login_required, name='dispatch')
 class CheckoutView(View):
     def get(self, *args, **kwargs):
         form = AddressForm(self.request.POST or None)
-        coupon = Coupon.objects.filter(active=True)
+        coupon = Coupon.objects.filter(active=True)      
+        try:
+            order = Order.objects.get(user=self.request.user, is_ordered=False)
+            cart = Cart.objects.filter(user=self.request.user, is_ordered=False)
+            address = CustomersAddress.objects.filter(user=self.request.user)
+            
+            if not cart.exists():
+                messages.warning(self.request, 'Your cart is empty.')
+                return redirect('store:cart')
 
-        order = Order.objects.filter(user=self.request.user, is_ordered=False).first()
-        cart = Cart.objects.filter(user=self.request.user, is_ordered=False)
-        address = CustomersAddress.objects.filter(user=self.request.user)
-        
-        context = {
-            'coupon': coupon,
-            'order': {
-                'form': form,
-                'order': order,
-                'cart': cart,
-                'coupon': CouponForm()
+            context = {
+                'coupon': coupon,
+                'order': {
+                    'form': form,
+                    'order': order,
+                    'cart': cart,
+                    'coupon': CouponForm()
+                }
             }
-        }
 
-        if address.exists():
-            return redirect('store:verify-address')
-        return render(self.request, 'store/checkout.html', context)
- 
-    
+            if address.exists():
+                return redirect('store:verify-address')
+            
+            return render(self.request, 'store/checkout.html', context)
+        
+        except Order.DoesNotExist:
+            messages.error(self.request, 'You do not have an active order')
+            return redirect('store:categories')
+
     def post(self, *args, **kwargs):
         form = AddressForm(self.request.POST or None)
         
         try:
             order = Order.objects.get(user=self.request.user, is_ordered=False)
             
-
             if form.is_valid():
                 street_address = form.cleaned_data.get('street_address')
                 apartment = form.cleaned_data.get('apartment')
@@ -613,7 +620,7 @@ class CheckoutView(View):
                 state = form.cleaned_data.get('state')
                 country = form.cleaned_data.get('country')
                 zip_code = form.cleaned_data.get('zip_code')
-                # payment_option = form.cleaned_data.get('payment_option')
+                
                 billing_address = CustomersAddress.objects.create(
                     user=self.request.user,
                     order=order,
@@ -628,7 +635,7 @@ class CheckoutView(View):
                 order.shipping_address = billing_address
                 order.save()
                 return redirect('store:initiate_payment')
-            print(order)
+            
             messages.warning(self.request, 'Order failed')
             return redirect('store:cart')
                   

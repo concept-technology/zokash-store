@@ -215,3 +215,7 @@ ACCOUNT_FORMS = {
     'signup': 'allauth.account.forms.SignupForm',
     'user_token': 'allauth.account.forms.UserTokenForm',
 }
+
+
+PAYSTACK_PUBLIC_KEY ='pk_test_ea75ece062f2a82f8f18506dbeff5f085a1ca58a'
+PAYSTACK_SECRET_KEY = 'sk_test_eef07558184af9678a899195eb8c0e705f986ff9'
