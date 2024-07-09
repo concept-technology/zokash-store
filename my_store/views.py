@@ -23,12 +23,6 @@ import string
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 import logging
-from django.template.loader import render_to_string
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-import random
-# views.py
-from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
@@ -39,12 +33,16 @@ from django.apps import AppConfig
 from django.contrib import messages 
 from django.contrib.messages import get_messages
 from django.utils.decorators import method_decorator
+
+
+
+# get or create session key
 def get_session_key(request):
     if not request.session.session_key:
         request.session.create()
     return request.session.session_key
 
-
+# receives signal from the session
 class MyStoreConfig(AppConfig):
     name = 'my_store'
 
@@ -56,13 +54,13 @@ class MyStoreConfig(AppConfig):
 #                 if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
 #                     return redirect(next_url)
 class DashBoardView(LoginRequiredMixin,View):
-    def get(self, request, *args, **kwargs):
-        
+    def get(self, request, *args, **kwargs):       
         profile_form = UserProfileForm(instance=self.request.user)
         password_form = PasswordChangeForm(self.request.user)
         cart = Cart.objects.filter(user=self.request.user, is_ordered=True)
         order = Order.objects.filter(user=self.request.user, is_ordered=True).order_by('id')
-        
+       
+        rating_form = CustomerRatingForm(self.request.POST or None) if order else None
         # Handle case where address might not exist
         address = CustomersAddress.objects.filter(user=self.request.user).first()
         address_form = AddressForm(instance=address) if address else AddressForm()
@@ -74,6 +72,7 @@ class DashBoardView(LoginRequiredMixin,View):
             'cart': cart,
             'address': address,
             'address_form': address_form,
+            'rating_form':rating_form,
         }
         return render(self.request, 'store/dashboard.html', context)
     
@@ -130,7 +129,7 @@ class DashBoardView(LoginRequiredMixin,View):
 
 def generate_random_number(digits=10):
     if digits > 10:
-        raise ValueError("The number of digits should not exceed 10")
+        raise ValueError("The number of digit sshould not exceed 10")
     if digits < 1:
         raise ValueError("The number of digits should be at least 1")
         

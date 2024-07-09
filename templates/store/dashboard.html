@@ -1,6 +1,7 @@
 {% extends 'store/base.html' %}
 
 {% block content %}
+{% load humanize %}
 
 <div class="page-wrapper">
     <main class="main">
@@ -78,18 +79,18 @@
                                                     <ul>
                                                         {% for item in order.product.all %}
                                                         <li>
-                                                            <a href="{{ item.get_absolute_url }}">
+                                                            <a href="{{ item.product.get_absolute_url}}">
                                                                 <img src="{{ item.product.img_1.url }}" width="50" class="m-1">
+                                                            </a>
                                                                 <span>{{ item.product.title }}</span>
                                                                 <span>(Quantity: {{ item.quantity }})</span>
-                                                            </a>
                                                         </li>
                                                         {% endfor %}
                                                     </ul>
                                                 </td>
                                                 <td>{{ order.date }}</td>
                                                 <td>{{ order.reference }}</td>
-                                                <td>&#8358; {{ order.get_total }}</td>
+                                                <td>&#8358; {{ order.get_total|floatformat:2|intcomma }}</td>
                                                 <td>
                                                     {% if not order.is_received %}
                                                     <form method="post" action="{% url 'store:mark-order-received' order.id %}?next={{ request.path }}">
